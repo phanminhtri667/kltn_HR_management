@@ -20,7 +20,6 @@
     "seed": "npx sequelize db:seed:all  --config=./config/config.json"
   },
   "keywords": [],
-  "author": "",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",

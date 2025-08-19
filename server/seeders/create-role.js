@@ -12,14 +12,14 @@ module.exports = {
       },
       {
         code: 'role_2',
-        value: 'editer',
+        value: 'leader',
         deleted: '0',
         createdAt: new Date('2023-10-10'),
         updatedAt: new Date('2023-10-10')
       },
       {
         code: 'role_3',
-        value: 'viewer',
+        value: 'member',
         deleted: '0',
         createdAt: new Date('2023-10-10'),
         updatedAt: new Date('2023-10-10')
