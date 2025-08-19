@@ -1,0 +1,52 @@
+@import '../../assets/css/variables.scss';
+.login{
+    width: 100vw;
+    height: 100vh;
+    display: grid;
+    justify-content: center;
+    align-items: center;
+}
+.login-card{
+    width: 360px;
+    height: 440px;
+    padding: 5px;
+}
+.login-content{
+    height: 100%;
+    width: 100%;
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    grid-template-rows: 70px 1fr 30px;
+    grid-template-columns: 1fr;
+}
+.card-logo{
+    display: grid;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+.card-form{
+    display: grid;
+    align-items: center;
+    justify-content: center;
+    grid-template-columns: 1fr;
+    color: $color-purple
+}
+.form-title{
+    padding-bottom: 30px;
+}
+.form-footer{
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
+.signup{
+    color: $color-purple
+}
+.btn-login{
+    width: 100%;
+    height: 38px;
+}
+.fomr-input{
+    height: 38px;
+}

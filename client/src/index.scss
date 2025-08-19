@@ -1,0 +1,74 @@
+@import './assets/css/variables.scss';
+
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('./assets/fonts/Montserrat-Italic.ttf') format('truetype');
+  font-weight: italic;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('./assets/fonts/Montserrat-Medium.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('./assets/fonts/Montserrat-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Montserrat', sans-serif !important;
+  letter-spacing: 0.7px;
+  font-size: $font-size-m ;
+  color: $color-grey-300 !important;
+  background-color: $color-grey-100;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+}
+
+// primereat
+
+.p-component {
+  font-family: 'Montserrat', sans-serif;
+  letter-spacing: 0.7px;
+  color: $color-grey-300 ;
+  font-weight: normal;
+  font-size: $font-size-m
+}
+
+.p-card-content {
+  padding: 10px;
+  font-size: $font-size-m;
+}
+
+
+.p-tabview,
+.p-tabview-panels,
+.p-tabview-nav-container,
+.p-tabview-nav,
+.p-tabview-nav-link {
+  background-color: $color-grey-100;
+  font-weight: normal;
+}
+
+
+// .p-button {
+//   background: $color-purple-500;
+//   color: #fff
+// }
+
+//global class

@@ -1,0 +1,60 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "thongtri",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phanminhtri667/kltn_HR_management.git"
+  },
+  "bugs": {
+    "url": "https://github.com/phanminhtri667/kltn_HR_management/issues"
+  },
+  "homepage": "https://github.com/phanminhtri667/kltn_HR_management#readme",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.ts",
+    "migrate-cli": "npx sequelize-cli db:migrate",
+    "migrate": " npx sequelize db:migrate",
+    "seed": "npx sequelize db:seed:all  --config=./config/config.json"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-validator": "^7.0.1",
+    "http-errors": "^2.0.0",
+    "joi": "^18.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.6.5",
+    "nodemon": "^3.0.1",
+    "pg": "^8.11.3",
+    "pg-hstore": "^2.3.4",
+    "pg-pool": "^3.6.1",
+    "pg-promise": "^11.5.4",
+    "reflect-metadata": "^0.1.13",
+    "remove-diacritics": "^0.1.1",
+    "sequelize": "^6.33.0",
+    "socket.io": "^4.7.5"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.19",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/node": "^20.8.6",
+    "@types/pg": "^8.10.5",
+    "@types/sequelize": "^4.28.16",
+    "sequelize-cli": "^6.6.2",
+    "sequelize-cli-typescript": "^3.2.0-c",
+    "sequelize-typescript": "^2.1.6",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.9.2"
+  }
+}

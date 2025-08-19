@@ -1,0 +1,29 @@
+@import '../../assets/css/variables.scss';
+
+
+.card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    &-content {
+        color: $color-purple;
+        margin-top: 8px;
+    }
+
+}
+
+.department-table {
+    margin-top: 30px;
+}
+
+.form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: 35px;
+    grid-gap: 30px;
+
+    &-footer {
+        padding-top: 40px;
+    }
+}
