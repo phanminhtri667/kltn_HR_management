@@ -42,8 +42,8 @@ module.exports = {
         department_id: 'PBNS',
         position_id: 'CVLD',
         deleted: '0',
-        createdAt: new Date('10-10-2023'),
-        updatedAt: new Date('10-10-2023')
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         employee_id: 'AD0002',
@@ -52,12 +52,12 @@ module.exports = {
         phone: '0925578467',
         email: 'thongtha@gmail.com',
         gender: 'male',
-        dayOfBirth: new Date('05-05-1990'),
+        dayOfBirth: new Date(),
         department_id: 'PBNS',
         position_id: 'CVMB',
         deleted: '0',
-        createdAt: new Date('10-10-2023'),
-        updatedAt: new Date('10-10-2023')
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         employee_id: 'AD0003',
@@ -66,12 +66,12 @@ module.exports = {
         phone: '0897784876',
         email: 'vudh@gmail.com',
         gender: 'male',
-        dayOfBirth: new Date('05-05-1990'),
+        dayOfBirth: new Date(),
         department_id: 'PBNS',
         position_id: 'CVMB',
         deleted: '0',
-        createdAt: new Date('10-10-2023'),
-        updatedAt: new Date('10-10-2023')
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         employee_id: 'AD0004',
@@ -80,12 +80,12 @@ module.exports = {
         phone: '0425598648',
         email: 'trungpd@gmail.com',
         gender: 'male',
-        dayOfBirth: new Date('05-05-1990'),
+        dayOfBirth: new Date(),
         department_id: 'PBNS',
         position_id: 'CVMB',
         deleted: '0',
-        createdAt: new Date('10-10-2023'),
-        updatedAt: new Date('10-10-2023')
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
 
     ].concat(dataMock), {});

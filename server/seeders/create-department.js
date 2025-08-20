@@ -7,22 +7,22 @@ module.exports = {
         code: 'PBNS',
         value: 'Nhân sự',
         deleted: '0',
-        createdAt: new Date('2023-10-10'),
-        updatedAt: new Date('2023-10-10')
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         code: 'PBKT',
         value: 'Kế toán',
         deleted: '0',
-        createdAt: new Date('2023-10-10'),
-        updatedAt: new Date('2023-10-10')
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         code: 'PBKD',
         value: 'Kinh doanh',
         deleted: '0',
-        createdAt: new Date('2023-10-10'),
-        updatedAt: new Date('2023-10-10')
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
     ], {});
   },

@@ -11,8 +11,8 @@ module.exports = {
         password: hashPassword,
         role_code: 'role_1',
         deleted: '0',
-        createdAt: new Date('2023-10-10'),
-        updatedAt: new Date('2023-10-10')
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         name: 'Phạm Văn Leader',

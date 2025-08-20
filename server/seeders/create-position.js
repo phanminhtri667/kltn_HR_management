@@ -7,22 +7,22 @@ module.exports = {
         code: 'CVGD',
         value: 'Manager',
         deleted: '0',
-        createdAt: new Date('2023-10-10'),
-        updatedAt: new Date('2023-10-10')
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         code: 'CVLD',
         value: 'Leader',
         deleted: '0',
-        createdAt: new Date('2023-10-10'),
-        updatedAt: new Date('2023-10-10')
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         code: 'CVMB',
         value: 'Member',
         deleted: '0',
-        createdAt: new Date('2023-10-10'),
-        updatedAt: new Date('2023-10-10')
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
     ], {});
   },
