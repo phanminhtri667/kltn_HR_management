@@ -5,6 +5,10 @@ import Employee from "./pages/employee/employee";
 import Department from "./pages/department/department";
 import EmployeeDetail from "./pages/employee/detail/EmployeeDetail";
 import Login from "./pages/login/login";
+// thêm 
+import TimekeepingPage from "./pages/timekeeping/index";
+import LeavePage from "./pages/leave/index";
+
 import {useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {checkToken} from "./redux/features/authSlice";
@@ -30,6 +34,8 @@ const AppRoutes = () => {
       { path: "/employee", element: <Employee/> },
       { path: "/employee/:employeeId", element: <EmployeeDetail/> },
       { path: "/department", element: <Department/> },
+      { path: "/timekeeping", element: <TimekeepingPage />},
+      { path: "/leave", element: <LeavePage />},
       { path: "/test", element: <Emty/> },
       { path: "/test1", element: <Emty/> },
       { path: "/test2", element: <Emty/> },

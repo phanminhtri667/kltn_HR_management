@@ -1,6 +1,7 @@
 import express from 'express';
-import * as timekeepingController from '../controllers/timekeepingController';
-import { verifyToken } from '../middlewares/verify_token';
+import * as timekeepingController from "../controllers/timekeepingController";
+import verifyToken from '../middlewares/verify_token';
+
 
 const router = express.Router();
 

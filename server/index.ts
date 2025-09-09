@@ -13,7 +13,8 @@ import http from "http";
 import { Server as SocketIOServer } from "socket.io";
 // thêm 
 import { notFound, errorHandler } from "./src/middlewares/handle_error";
-
+import timekeepingRouter from "./src/routers/timekeepingRouter";
+import leaveRequestRouter from "./src/routers/leaveRequestRouter";
 
 const app = express();
 const server = http.createServer(app);
@@ -30,6 +31,8 @@ app.use(cors({ origin: process.env.CORS_ORIGIN || true, credentials: true }));
 //thêm
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use("/api/timekeeping", timekeepingRouter);
+app.use("/api/leave-request", leaveRequestRouter);
 
 // Health check cho dễ test
 app.get("/", (_req, res) => res.send("API OK")); // ★
