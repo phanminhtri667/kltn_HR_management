@@ -1,0 +1,71 @@
+.
+├── config
+│   └── config.json
+├── index.ts
+├── migrations
+│   ├── create-department.js
+│   ├── create-employee.js
+│   ├── create-leave-requests.js
+│   ├── create-notification.js
+│   ├── create-position.js
+│   ├── create-role.js
+│   ├── create-timekeeping.js
+│   └── create-user.js
+├── migrations.zip
+├── package.json
+├── package-lock.json
+├── README.md
+├── seeders
+│   ├── create-department.js
+│   ├── create-employee.js
+│   ├── create-leave-requests.js
+│   ├── create-position.js
+│   ├── create-role.js
+│   ├── create-timekeeping.js
+│   └── create-user.js
+├── seeders.zip
+├── src
+│   ├── config
+│   │   └── databaseConfig.ts
+│   ├── controllers
+│   │   ├── authController.ts
+│   │   ├── departmentController.ts
+│   │   ├── employeeController.ts
+│   │   ├── notificationController.ts
+│   │   ├── positionController.ts
+│   │   ├── roleController.ts
+│   │   └── userController.ts
+│   ├── middlewares
+│   │   ├── handle_error.ts
+│   │   └── verify_token.ts
+│   ├── models
+│   │   ├── department.ts
+│   │   ├── employee.ts
+│   │   ├── index.ts
+│   │   ├── notification.ts
+│   │   ├── position.ts
+│   │   ├── role.ts
+│   │   └── user.ts
+│   ├── routers
+│   │   ├── authRouter.ts
+│   │   ├── departmentRouter.ts
+│   │   ├── employeeRouter.ts
+│   │   ├── notificationRouter.ts
+│   │   ├── positionRouter.ts
+│   │   ├── roleRouter.ts
+│   │   └── userRouter.ts
+│   ├── services
+│   │   ├── authService.ts
+│   │   ├── departmentService.ts
+│   │   ├── employeeService.ts
+│   │   ├── notificationService.ts
+│   │   ├── positionService.ts
+│   │   ├── roleService.ts
+│   │   └── userService.ts
+│   └── utils
+│       ├── commonUtils.ts
+│       └── joi_schema.ts
+├── tree-server.txt
+└── tsconfig.json
+
+11 directories, 57 files

@@ -7,22 +7,22 @@ module.exports = {
         code: 'role_1',
         value: 'admin',
         deleted: '0',
-        createdAt: new Date(''),
-        updatedAt: new Date('')
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         code: 'role_2',
         value: 'leader',
         deleted: '0',
-        createdAt: new Date(''),
-        updatedAt: new Date('')
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         code: 'role_3',
         value: 'member',
         deleted: '0',
-        createdAt: new Date(''),
-        updatedAt: new Date('')
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
     ], {});
   },

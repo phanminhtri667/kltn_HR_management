@@ -1,0 +1,54 @@
+.
+├── package.json
+├── package-lock.json
+├── public
+│   ├── favicon.ico
+│   ├── index.html
+│   ├── logo192.png
+│   ├── logo-48.png
+│   ├── logo512.png
+│   ├── manifest.json
+│   └── robots.txt
+├── README.md
+├── src
+│   ├── App.scss
+│   ├── App.tsx
+│   ├── assets
+│   │   ├── css
+│   │   ├── fonts
+│   │   └── images
+│   ├── components
+│   │   ├── breadcrumb
+│   │   ├── Charts
+│   │   ├── footer
+│   │   ├── forms
+│   │   ├── header
+│   │   └── sidebar
+│   ├── constant
+│   │   └── apiUrl.ts
+│   ├── index.scss
+│   ├── index.tsx
+│   ├── layouts
+│   │   ├── DefaultLayout.scss
+│   │   └── DefaultLayout.tsx
+│   ├── pages
+│   │   ├── dashBoard
+│   │   ├── department
+│   │   ├── employee
+│   │   ├── emty
+│   │   ├── login
+│   │   ├── profile
+│   │   ├── salary
+│   │   ├── test
+│   │   └── unauthorized
+│   ├── react-app-env.d.ts
+│   ├── redux
+│   │   ├── features
+│   │   └── store.ts
+│   ├── reportWebVitals.ts
+│   └── services
+│       └── axios.ts
+├── tree-client.txt
+└── tsconfig.json
+
+28 directories, 23 files

@@ -1,36 +1,19 @@
 'use strict';
 const removeDiacritics = require('remove-diacritics');
-let dataMock = [];
-let firstNames = ['Hồng', 'Hà', 'Khánh', 'Linh', 'Thảo', 'Phương', 'Tâm', 'Quỳnh', 'Dương', 'Tú', 'Khuê'];
-let lastNames = ['Nguyễn Thanh', 'Trần Thanh', 'Lê Đức', 'Phạm Thị', 'Hoàng Văn', 'Đặng Thị', 'Vũ Văn', 'Bùi Thị', 'Ngô Văn', 'Mai Thị', 'Nguyễn Thị', 'Lê Ngọc', 'Đào Ngọc'];
-
-for (let i = 5; i < 20; i++) {
-
-  let firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-  let lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
-  let email = removeDiacritics(firstName + lastName.split(' ')[0]) + '@gmail.com';
-  let item = {
-    employee_id: 'AD' + i.toString().padStart(4, '0'),
-    full_name: lastName + ' ' + firstName,
-    first_name: firstName,
-    phone: '0123445556',
-    email: email,
-    gender: lastName.includes('Thị') || firstName.includes('Ngọc') ? 'female' : 'male',
-    dayOfBirth: new Date('05-05-1990'),
-    department_id: 'PBKD',
-    position_id: 'CVMB',
-    deleted: '0',
-    createdAt: new Date('10-10-2023'),
-    updatedAt: new Date('10-10-2023')
-  };
-
-  dataMock.push(item);
-}
-
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkInsert('Employees', [
+    // Lấy danh sách các employee_id và email đã tồn tại
+    const existingEmployees = await queryInterface.sequelize.query(
+      `SELECT employee_id, email FROM Employees`,
+      { type: Sequelize.QueryTypes.SELECT }
+    );
+
+    const existingIds = new Set(existingEmployees.map(e => e.employee_id));
+    const existingEmails = new Set(existingEmployees.map(e => e.email));
+
+    // Dữ liệu mẫu cố định (4 nhân viên đầu tiên)
+    const fixedEmployees = [
       {
         employee_id: 'AD0001',
         full_name: 'Trương Minh Tâm',
@@ -38,7 +21,7 @@ module.exports = {
         phone: '0123445556',
         email: 'tamtm@gmail.com',
         gender: 'male',
-        dayOfBirth: new Date('05-05-1990'),
+        dayOfBirth: new Date('1990-05-05'),
         department_id: 'PBNS',
         position_id: 'CVLD',
         deleted: '0',
@@ -86,9 +69,50 @@ module.exports = {
         deleted: '0',
         createdAt: new Date(),
         updatedAt: new Date()
-      },
+      }
+    ];
 
-    ].concat(dataMock), {});
+    // Dữ liệu ngẫu nhiên
+    const firstNames = ['Hồng', 'Hà', 'Khánh', 'Linh', 'Thảo', 'Phương', 'Tâm', 'Quỳnh', 'Dương', 'Tú', 'Khuê'];
+    const lastNames = ['Nguyễn Thanh', 'Trần Thanh', 'Lê Đức', 'Phạm Thị', 'Hoàng Văn', 'Đặng Thị', 'Vũ Văn', 'Bùi Thị', 'Ngô Văn', 'Mai Thị', 'Nguyễn Thị', 'Lê Ngọc', 'Đào Ngọc'];
+
+    const randomEmployees = [];
+
+    for (let i = 5; i < 20; i++) {
+      const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+      const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+      const email = removeDiacritics(firstName + lastName.split(' ')[0]) + '@gmail.com';
+      const employeeId = 'AD' + i.toString().padStart(4, '0');
+
+      if (existingIds.has(employeeId) || existingEmails.has(email)) continue; // bỏ qua nếu đã tồn tại
+
+      randomEmployees.push({
+        employee_id: employeeId,
+        full_name: `${lastName} ${firstName}`,
+        first_name: firstName,
+        phone: '0123445556',
+        email: email,
+        gender: lastName.includes('Thị') || firstName.includes('Ngọc') ? 'female' : 'male',
+        dayOfBirth: new Date('1990-05-05'),
+        department_id: 'PBKD',
+        position_id: 'CVMB',
+        deleted: '0',
+        createdAt: new Date('2023-10-10'),
+        updatedAt: new Date('2023-10-10')
+      });
+    }
+
+    // Kết hợp tất cả và chèn vào DB
+    const allEmployees = [...fixedEmployees, ...randomEmployees];
+
+    // Lọc lại để tránh nhân đôi (cẩn thận hơn)
+    const filteredEmployees = allEmployees.filter(emp =>
+      !existingIds.has(emp.employee_id) && !existingEmails.has(emp.email)
+    );
+
+    if (filteredEmployees.length > 0) {
+      await queryInterface.bulkInsert('Employees', filteredEmployees, {});
+    }
   },
 
   down: async (queryInterface, Sequelize) => {
