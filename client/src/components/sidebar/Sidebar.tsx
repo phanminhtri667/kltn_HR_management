@@ -25,6 +25,10 @@ import {
 } from "@fortawesome/free-regular-svg-icons";
 import { faAlgolia } from "@fortawesome/free-brands-svg-icons";
 import { Link, useLocation } from "react-router-dom";
+
+//them
+import { useSelector } from "react-redux";
+
 const menus = [
     { id: 1, name: "Dashboard", path: "/" },
     { id: 2, name: "Department", path: "/department" },
@@ -37,6 +41,9 @@ const menus = [
 ];
 const Sidebar = () => {
     // const
+    const userRole = useSelector((state: any) => state.auth.user?.role_code);
+    console.log("ROLE CODE:", userRole);  // 👈 kiểm tra đã lấy được chưa
+
     const location = useLocation();
 
     return (
@@ -88,26 +95,107 @@ const Sidebar = () => {
                         <p>DIRECTORIES</p>
                         <span>HRMS</span>
                         {menus.map((item, index) => {
-                            // console.log(item.path,location.pathname,item.path === location.pathname);
+                            let isVisible = false;
+
+                            if (userRole === "role_1") {
+                              isVisible = true; // admin thấy tất cả
+                            } else if (userRole === "role_2") {
+                              isVisible = item.name !== "Department"; // leader không thấy Department
+                            } else if (userRole === "role_3") {
+                              isVisible = !["Department", "Employee"].includes(item.name); // member không thấy cả hai
+                            }
+                          
+                            if (!isVisible) return null;
+                          
                             return (
-                                <Link
-                                    key={index}
-                                    to={item.path}
-                                    className={`menu-item pointer ${item.path === location.pathname ? "menu-active" : ""
-                                        }`}>
-                                    <p>
-                                        <FontAwesomeIcon
-                                            icon={
-                                                item.path === location.pathname
-                                                    ? faArrowRight
-                                                    : faEllipsis
-                                            }
-                                            className="menu-item-icon"
-                                        />
-                                        {item.name}
-                                    </p>
-                                </Link>
+                              <Link
+                                key={index}
+                                to={item.path}
+                                className={`menu-item pointer ${item.path === location.pathname ? "menu-active" : ""}`}
+                              >
+                                <p>
+                                  <FontAwesomeIcon
+                                    icon={item.path === location.pathname ? faArrowRight : faEllipsis}
+                                    className="menu-item-icon"
+                                  />
+                                  {item.name}
+                                </p>
+                              </Link>
                             );
+                            // console.log(item.path,location.pathname,item.path === location.pathname);
+                            //logic cũ
+                            // if (
+                            //     (item.name === "Department" && userRole === "role_1") ||
+                            //     (item.name === "Employee" && ["role_1", "role_2"].includes(userRole)) ||
+                            //     (item.name !== "Department" && item.name !== "Employee") ||
+                            //     userRole === "role_1" || userRole === "role_2"
+                            // ) {
+                            //     return (
+                            //         <Link
+                            //           key={index}
+                            //           to={item.path}
+                            //           className={`menu-item pointer ${item.path === location.pathname ? "menu-active" : ""}`}
+                            //         >
+                            //           <p>
+                            //             <FontAwesomeIcon
+                            //               icon={item.path === location.pathname ? faArrowRight : faEllipsis}
+                            //               className="menu-item-icon"
+                            //             />
+                            //             {item.name}
+                            //           </p>
+                            //         </Link>
+                            //       );
+                            //     }return null;
+                            //logic cũ
+
+                            //logic mới
+                            // const isVisible =
+                            //     userRole === "role_1" || // admin
+                            //     (userRole === "role_2" && item.name !== "Department") || // leader
+                            //     (userRole === "role_3" && !["Department", "Employee"].includes(item.name)); // member
+
+
+                            //     if (isVisible) {
+                            //         return (
+                            //           <Link
+                            //             key={index}
+                            //             to={item.path}
+                            //             className={`menu-item pointer ${item.path === location.pathname ? "menu-active" : ""}`}
+                            //           >
+                            //             <p>
+                            //               <FontAwesomeIcon
+                            //                 icon={item.path === location.pathname ? faArrowRight : faEllipsis}
+                            //                 className="menu-item-icon"
+                            //               />
+                            //               {item.name}
+                            //             </p>
+                            //           </Link>
+                            //         );
+                            //       }
+                            //       return null;
+                            //logic mới
+
+                        //logic ban đầu 
+                            // return (
+                            //     <Link
+                            //         key={index}
+                            //         to={item.path}
+                            //         className={`menu-item pointer ${item.path === location.pathname ? "menu-active" : ""
+                            //             }`}>
+                            //         <p>
+                            //             <FontAwesomeIcon
+                            //                 icon={
+                            //                     item.path === location.pathname
+                            //                         ? faArrowRight
+                            //                         : faEllipsis
+                            //                 }
+                            //                 className="menu-item-icon"
+                            //             />
+                            //             {item.name}
+                            //         </p>
+                            //     </Link>
+                            // );
+                        //logic ban đầu 
                         })}
                     </div>
                     <div className="menu-plus">

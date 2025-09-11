@@ -25,22 +25,58 @@ const Login = () => {
         password: ''
     };
     const validationSchema = yup.object().shape({
-        email: yup.string().email(' Invalid email').required(' is a required field'),
-        password: yup.string().required(' is a required field'),
+        email: yup.string().email('Invalid email').required('is a required field'),
+        password: yup.string().required('is a required field'),
     });
+    // code cũ
+    // const handleSignin = async(values: LoginModel) => {
+    //     const result = await AxiosInstance.post('api/auth/login',values)
+    //     const token = result.data.access_token
+    //     if(token){
+    //         dispatch(login(token));  // code cũ
+    //         //dispatch(loginSuccess(token));
+    //         localStorage.setItem('token', token);
+    //         navigate('/')
+    //     }else{
+    //         setErrorMessage(result.data.mes)
+    //     }
+    //     console.log(result.data)
+    // };
+    // code cũ
+    const handleSignin = async (values: LoginModel) => {
+        try {
+          const result = await AxiosInstance.post('api/auth/login', values);
+          console.log("🔥 Response từ server:", result.data);
+          const { access_token, user, err, mes } = result.data;
+          
+        //   if (err === 0 && access_token && data) {
+        //     console.log("✅ Token:", access_token);
+        //     console.log("👤 User:", );
+        //     console.log("📛 Role code:", data?.role?.role_code);
 
-    const handleSignin = async(values: LoginModel) => {
-        const result = await AxiosInstance.post('api/auth/login',values)
-        const token = result.data.access_token
-        if(token){
-            dispatch(login(token));
-            localStorage.setItem('token', token);
-            navigate('/')
-        }else{
-            setErrorMessage(result.data.mes)
+        //     dispatch(login({ token: access_token, user }));
+        //     localStorage.setItem('token', access_token);
+        //     localStorage.setItem('user', JSON.stringify(data));
+        //     navigate('/');
+        //   } else {
+        //     console.warn("❌ Đăng nhập thất bại:", mes);
+        //     setErrorMessage(mes || 'Login failed');
+        //   }
+          if (err === 0 && access_token && user) {
+            dispatch(login({ token: access_token, user }));
+            localStorage.setItem('token', access_token);
+            localStorage.setItem('user', JSON.stringify(user));
+            navigate('/');
+          } else {
+            console.warn("❌ Đăng nhập thất bại:", mes);
+            setErrorMessage(mes || 'Login failed');
+          }
+        } catch (error) {
+          console.error("🚨 Lỗi gọi API login:", error);
+          setErrorMessage("An error occurred during login.");
         }
-        console.log(result.data)
-    };
+      };
+      
 
     return (
         <div className="login">

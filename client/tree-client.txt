@@ -15,15 +15,39 @@
 │   ├── App.tsx
 │   ├── assets
 │   │   ├── css
+│   │   │   └── variables.scss
 │   │   ├── fonts
+│   │   │   ├── Montserrat-Bold.ttf
+│   │   │   ├── Montserrat-Italic.ttf
+│   │   │   ├── Montserrat-Medium.ttf
+│   │   │   └── static
 │   │   └── images
+│   │       └── icons8-logo.svg
 │   ├── components
 │   │   ├── breadcrumb
+│   │   │   ├── Breadcrumb.scss
+│   │   │   └── Breadcrumb.tsx
 │   │   ├── Charts
+│   │   │   ├── BarChartBasic.tsx
+│   │   │   ├── BarChart.tsx
+│   │   │   ├── DoughnutChart.tsx
+│   │   │   ├── LineChart.tsx
+│   │   │   ├── PieChart.tsx
+│   │   │   └── RadarChart.tsx
 │   │   ├── footer
+│   │   │   ├── Footer.scss
+│   │   │   └── Footer.tsx
 │   │   ├── forms
+│   │   │   ├── button
+│   │   │   ├── input
+│   │   │   └── select
 │   │   ├── header
+│   │   │   ├── Header.scss
+│   │   │   └── Header.tsx
+│   │   ├── PrivateRoute.tsx
 │   │   └── sidebar
+│   │       ├── Sidebar.scss
+│   │       └── Sidebar.tsx
 │   ├── constant
 │   │   └── apiUrl.ts
 │   ├── index.scss
@@ -32,18 +56,47 @@
 │   │   ├── DefaultLayout.scss
 │   │   └── DefaultLayout.tsx
 │   ├── pages
+│   │   ├── approve-leave
+│   │   │   └── ApproveLeave.tsx
 │   │   ├── dashBoard
+│   │   │   ├── DashBoard.scss
+│   │   │   ├── DashBoard.tsx
+│   │   │   └── table
 │   │   ├── department
+│   │   │   ├── department.scss
+│   │   │   ├── department.tsx
+│   │   │   ├── form
+│   │   │   └── table
 │   │   ├── employee
+│   │   │   ├── detail
+│   │   │   ├── employee.scss
+│   │   │   ├── employee.tsx
+│   │   │   ├── form
+│   │   │   └── table
 │   │   ├── emty
+│   │   │   └── emty.tsx
+│   │   ├── leave
+│   │   │   └── index.tsx
 │   │   ├── login
+│   │   │   ├── login.scss
+│   │   │   └── login.tsx
 │   │   ├── profile
+│   │   │   └── Profile.tsx
 │   │   ├── salary
+│   │   │   └── Salary.tsx
 │   │   ├── test
+│   │   │   └── Test.tsx
+│   │   ├── timekeeping
+│   │   │   └── index.tsx
 │   │   └── unauthorized
+│   │       └── Unauthorized.tsx
 │   ├── react-app-env.d.ts
 │   ├── redux
 │   │   ├── features
+│   │   │   ├── authSlice.ts
+│   │   │   ├── departmentSlice.ts
+│   │   │   ├── positionSlice.ts
+│   │   │   └── toastSlice.ts
 │   │   └── store.ts
 │   ├── reportWebVitals.ts
 │   └── services
@@ -51,4 +104,4 @@
 ├── tree-client.txt
 └── tsconfig.json
 
-28 directories, 23 files
+41 directories, 63 files

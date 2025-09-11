@@ -29,11 +29,18 @@ export const getAllLeaveRequests = async (req: Request, res: Response) => {
 };
 
 export const approveLeaveRequest = async (req: Request, res: Response) => {
-  const id = req.params.id;
-  const request = await db.LeaveRequest.findByPk(id);
-  request.status = "APPROVED";
-  await request.save();
-  res.status(200).json({ message: "Đã duyệt đơn nghỉ" });
+  const userRole = req.user?.role;  // lấy role từ user trong JWT
+
+  // Kiểm tra quyền người dùng trước khi duyệt đơn
+  if (userRole !== 'admin' && userRole !== 'leader') {
+    return res.status(403).json({ message: 'Không đủ quyền truy cập' });
+  }
+
+  const leaveRequest = await db.LeaveRequest.findByPk(req.params.id);
+  leaveRequest.status = 'APPROVED';
+  await leaveRequest.save();
+
+  res.status(200).json({ message: 'Đã duyệt đơn nghỉ phép' });
 };
 
 export const rejectLeaveRequest = async (req: Request, res: Response) => {

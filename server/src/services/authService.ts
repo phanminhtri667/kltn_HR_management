@@ -54,12 +54,29 @@ class AuthService {
 
             const isChecked = response && bcrypt.compareSync(password, response.password);
             const token = isChecked ? jwt.sign({id: response.id, email: response.email, role_code: response.role_code}, process.env.JWT_SECRET!, {expiresIn: '365d'}) : null;
+            //code cũ
+            // resolve({
+            //     err: token ? 0 : 1,
+            //     mes: token ? 'Login successfully' : response ? 'wrong password' : 'Email is not registered',
+            //     access_token: token ? `Bearer ${token}` : null,
+            //     data: response
+            // });
+            // code cũ
+            // code mới
             resolve({
                 err: token ? 0 : 1,
-                mes: token ? 'Login successfully' : response ? 'wrong password' : 'Email is not registered',
+                mes: token ? 'Login successfully' : response ? 'Wrong password' : 'Email is not registered',
                 access_token: token ? `Bearer ${token}` : null,
-                data: response
-            });
+                user: token
+                  ? {
+                      id: response.id,
+                      name: response.name,
+                      email: response.email,
+                      role_code: response.role_code,
+                    }
+                  : null,
+              });
+              // code mới
 
         } catch (error) {
             reject(error);

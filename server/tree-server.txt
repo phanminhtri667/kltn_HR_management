@@ -11,7 +11,6 @@
 │   ├── create-role.js
 │   ├── create-timekeeping.js
 │   └── create-user.js
-├── migrations.zip
 ├── package.json
 ├── package-lock.json
 ├── README.md
@@ -23,7 +22,6 @@
 │   ├── create-role.js
 │   ├── create-timekeeping.js
 │   └── create-user.js
-├── seeders.zip
 ├── src
 │   ├── config
 │   │   └── databaseConfig.ts
@@ -31,9 +29,11 @@
 │   │   ├── authController.ts
 │   │   ├── departmentController.ts
 │   │   ├── employeeController.ts
+│   │   ├── leaveRequestController.ts
 │   │   ├── notificationController.ts
 │   │   ├── positionController.ts
 │   │   ├── roleController.ts
+│   │   ├── timekeepingController.ts
 │   │   └── userController.ts
 │   ├── middlewares
 │   │   ├── handle_error.ts
@@ -50,9 +50,11 @@
 │   │   ├── authRouter.ts
 │   │   ├── departmentRouter.ts
 │   │   ├── employeeRouter.ts
+│   │   ├── leaveRequestRouter.ts
 │   │   ├── notificationRouter.ts
 │   │   ├── positionRouter.ts
 │   │   ├── roleRouter.ts
+│   │   ├── timekeepingRouter.ts
 │   │   └── userRouter.ts
 │   ├── services
 │   │   ├── authService.ts
@@ -62,10 +64,13 @@
 │   │   ├── positionService.ts
 │   │   ├── roleService.ts
 │   │   └── userService.ts
+│   ├── types
+│   │   └── express
+│   │       └── index.d.ts
 │   └── utils
 │       ├── commonUtils.ts
 │       └── joi_schema.ts
 ├── tree-server.txt
 └── tsconfig.json
 
-11 directories, 57 files
+13 directories, 60 files
