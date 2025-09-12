@@ -15,7 +15,7 @@ module.exports = {
     // Dữ liệu mẫu cố định (4 nhân viên đầu tiên)
     const fixedEmployees = [
       {
-        employee_id: 'AD0001',
+        employee_id: 137,
         full_name: 'Trương Minh Tâm',
         first_name: 'Tâm',
         phone: '0123445556',
@@ -29,7 +29,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
-        employee_id: 'AD0002',
+        employee_id: 136,
         full_name: 'Trương Huỳnh Anh Thông',
         first_name: 'Thông',
         phone: '0925578467',
@@ -43,7 +43,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
-        employee_id: 'AD0003',
+        employee_id: 135,
         full_name: 'Đinh Hoàng Vũ',
         first_name: 'Vũ',
         phone: '0897784876',
@@ -57,7 +57,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
-        employee_id: 'AD0004',
+        employee_id: 2,
         full_name: 'Phan Đình Trung',
         first_name: 'Trung',
         phone: '0425598648',
@@ -77,15 +77,21 @@ module.exports = {
     const lastNames = ['Nguyễn Thanh', 'Trần Thanh', 'Lê Đức', 'Phạm Thị', 'Hoàng Văn', 'Đặng Thị', 'Vũ Văn', 'Bùi Thị', 'Ngô Văn', 'Mai Thị', 'Nguyễn Thị', 'Lê Ngọc', 'Đào Ngọc'];
 
     const randomEmployees = [];
+    // Dải ID bắt đầu từ 100 trở lên để tránh trùng với fixed IDs
+    let employeeIdCounter = 100;
 
     for (let i = 5; i < 20; i++) {
       const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
       const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
       const email = removeDiacritics(firstName + lastName.split(' ')[0]) + '@gmail.com';
-      const employeeId = 'AD' + i.toString().padStart(4, '0');
-
-      if (existingIds.has(employeeId) || existingEmails.has(email)) continue; // bỏ qua nếu đã tồn tại
-
+      //const employeeId = 'AD' + i.toString().padStart(4, '0');
+      const employeeId = employeeIdCounter;
+      //if (existingIds.has(employeeId) || existingEmails.has(email)) continue; // bỏ qua nếu đã tồn tại
+      if (
+        existingIds.has(employeeId) ||
+        existingEmails.has(email) ||
+        randomEmployees.some(emp => emp.email === email || emp.employee_id === employeeId)
+      ) continue;
       randomEmployees.push({
         employee_id: employeeId,
         full_name: `${lastName} ${firstName}`,
@@ -100,6 +106,7 @@ module.exports = {
         createdAt: new Date('2023-10-10'),
         updatedAt: new Date('2023-10-10')
       });
+      employeeIdCounter++;
     }
 
     // Kết hợp tất cả và chèn vào DB

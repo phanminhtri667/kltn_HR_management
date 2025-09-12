@@ -12,7 +12,7 @@ module.exports = {
       employee_id: {
         allowNull: false,
         primaryKey: true,
-        type: Sequelize.STRING,
+        type: Sequelize.INTEGER,
         unique: true,
       },
       full_name: {
