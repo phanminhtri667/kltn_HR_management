@@ -1,54 +1,52 @@
 import { Formik, Form } from "formik";
 import InputField from "../../../components/forms/input/InputField";
-import { ChangeEvent, useRef } from "react";
-import SelectField from "../../../components/forms/select/selectField";
-import { useSelector } from "react-redux";
+import { ChangeEvent, useRef, useState, useEffect } from "react";
 import Button from "../../../components/forms/button/Button";
-import { Card } from "primereact/card";
+import { Toast } from "primereact/toast";
 import axios from "../../../services/axios";
 import apiUrl from "../../../constant/apiUrl";
 import * as yup from "yup";
-import { Toast } from "primereact/toast";
-import { RootState } from "../../../redux/store";
 
-const DepartmentFormUpdate = ({ ...props }) => {
-  const { data, closeModal } = props;
+const DepartmentFormUpdate = ({ data, employeeData: initialEmployees, closeModal }: any) => {
   const toast = useRef<Toast | null>(null);
+  const [employeeData, setEmployeeData] = useState<any[]>(initialEmployees || []);
 
-  const initialValues = {
-    value: data.value,
-    code: data.code,
-  };
+  useEffect(() => {
+    setEmployeeData(initialEmployees || []);
+  }, [initialEmployees]);
 
   const validationSchema = yup.object().shape({
-    value: yup.string().required(" is a required field"),
+    value: yup.string().required("Department name is required"),
   });
 
   const handleUpdateDepartment = async (values: any) => {
-    console.log(values);
+    try {
+      // 1. Cập nhật phòng ban (dùng id thay cho code)
+      await axios.put(`${apiUrl.department.index}/${data.id}`, values);
 
-    // try {
-    //   const response = await axios.post(apiUrl.employee.index, values);
-    //   if (response) {
-    //     if (toast.current) {
-    //       toast.current.show({
-    //         severity: "success",
-    //         summary: "Confirmed",
-    //         detail: "Create successfully",
-    //         life: 1500,
-    //       });
-    //     }
-    //   }
-    // } catch (error) {
-    //   if (toast.current) {
-    //     toast.current.show({
-    //       severity: "error",
-    //       summary: "Confirmed",
-    //       detail: "Create error",
-    //       life: 1500,
-    //     });
-    //   }
-    // }
+      // 2. Cập nhật position_id cho từng nhân viên trong phòng ban
+      for (const emp of employeeData) {
+        await axios.patch(`${apiUrl.employee.index}/${emp.employee_id}`, {
+          position_id: emp.position_id,
+        });
+      }
+
+      toast.current?.show({
+        severity: "success",
+        summary: "Updated",
+        detail: "Department & Employees updated successfully",
+        life: 2000,
+      });
+
+      closeModal();
+    } catch (error) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Failed to update department or employees",
+        life: 2000,
+      });
+    }
   };
 
   if (!data) return null;
@@ -57,60 +55,101 @@ const DepartmentFormUpdate = ({ ...props }) => {
     <div>
       <Toast ref={toast} />
       <Formik
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        onSubmit={(values) => {
-          handleUpdateDepartment(values);
-        }}>
-        {(formik) => {
-          const { errors, touched, setFieldValue } = formik;
-          return (
-            <Form>
-              <div className="form">
-                <div className="form-item">
-                  <InputField
-                    type="text"
-                    name="Department"
-                    placeholder="Enter department"
-                    value={formik.values.value}
-                    errorMessage={
-                      errors?.value && touched.value ? errors?.value : ""
-                    }
-                    onChange={(event: ChangeEvent<HTMLInputElement>) => {
-                      setFieldValue("value", event.target.value);
-                    }}
-                  />
-                </div>
-                <div className="form-item">
-                  <InputField
-                    type="text"
-                    name="Code"
-                    placeholder="Enter code"
-                    readOnly={true}
-                    value={formik.values.code}
-                    errorMessage={
-                      errors?.code && touched.code ? errors?.code : ""
-                    }
-                    onChange={(event: ChangeEvent<HTMLInputElement>) => {
-                      setFieldValue("email", event.target.value);
-                    }}
-                  />
-                </div>
-              </div>
-              <div className="form-footer float-right">
-                <Button type="submit" label="Submit" />
-                <Button
-                  action="cancel"
-                  label="Cancel"
-                  className="ml-2"
-                  onClick={() => {
-                    closeModal();
-                  }}
-                />
-              </div>
-            </Form>
-          );
+        initialValues={{
+          value: data?.value || "",
+          id: data?.id || "",  // ✅ thay code bằng id
         }}
+        validationSchema={validationSchema}
+        onSubmit={(values) => handleUpdateDepartment(values)}
+        enableReinitialize
+      >
+        {({ values, errors, touched, setFieldValue }) => (
+          <Form>
+            {/* Department Name */}
+            <div className="form-item">
+              <InputField
+                type="text"
+                name="value"
+                placeholder="Enter department"
+                value={values.value}
+                errorMessage={errors?.value && touched.value ? errors.value : ""}
+                onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                  setFieldValue("value", event.target.value)
+                }
+              />
+            </div>
+
+            {/* Department ID (readonly) */}
+            <div className="form-item">
+              <InputField
+                type="text"
+                name="id"
+                placeholder="Department ID"
+                readOnly
+                value={values.id}
+              />
+            </div>
+
+            {/* Employee list */}
+            <div className="form-item">
+              <h4>Employees in this department:</h4>
+              {Array.isArray(employeeData) && employeeData.length > 0 ? (
+                <table className="employee-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Full Name</th>
+                      <th>Email</th>
+                      <th>Position</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {employeeData.map((employee, index) => (
+                      <tr key={employee.employee_id}>
+                        <td>{index + 1}</td>
+                        <td>{employee.full_name}</td>
+                        <td>{employee.email}</td>
+                        <td>
+                          <select
+                            value={employee.position_id}
+                            onChange={(e) => {
+                              const updated = [...employeeData];
+                              updated[index].position_id = e.target.value;
+                              setEmployeeData(updated);
+                            }}
+                          >
+                            <option value="CVLD">Leader</option>
+                            <option value="CVMB">Member</option>
+                          </select>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p>No employees in this department.</p>
+              )}
+            </div>
+
+            {/* Footer buttons */}
+            <div
+              className="form-footer"
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                marginTop: "20px",
+              }}
+            >
+              <Button type="submit" label="Submit" />
+              <Button
+                action="cancel"
+                label="Cancel"
+                className="ml-2"
+                onClick={closeModal}
+              />
+            </div>
+          </Form>
+        )}
       </Formik>
     </div>
   );

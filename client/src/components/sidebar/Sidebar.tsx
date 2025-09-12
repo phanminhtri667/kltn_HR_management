@@ -29,11 +29,8 @@ const menus = [
     { id: 1, name: "Dashboard", path: "/" },
     { id: 2, name: "Department", path: "/department" },
     { id: 3, name: "Employee", path: "/employee" },
-    { id: 4, name: "Activities", path: "/test2" },
-    { id: 5, name: "Holidays", path: "/test3" },
-    { id: 6, name: "Payroll", path: "/test4" },
-    { id: 7, name: "Accounts", path: "/test5" },
-    { id: 8, name: "Report", path: "/test6" },
+    { id: 4, name: "Timekeeping", path: "/timekeeping" }, // ✅ thêm dòng này
+    
 ];
 const Sidebar = () => {
     // const

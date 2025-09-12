@@ -1,4 +1,4 @@
-const api = 'api';
+const api = "api";
 
 const apiUrl = {
   notification: {
@@ -13,6 +13,12 @@ const apiUrl = {
   },
   position: {
     index: `${api}/position`,
+  },
+  working_hours: {                         // ✅ thêm block này
+    index: `${api}/working-hours`,
+  },
+  timekeeping: {                           // ✅ nếu sau này cần chấm công
+    index: `${api}/timekeeping`,
   },
 };
 
