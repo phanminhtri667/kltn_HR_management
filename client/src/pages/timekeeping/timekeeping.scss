@@ -1,0 +1,96 @@
+@import '../../assets/css/variables.scss';
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: $color-grey-900;
+}
+
+.form-card {
+  padding: 20px;
+  margin-bottom: 30px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.form-inline {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto; // 3 input + 1 nút
+  gap: 20px;
+  align-items: end;
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+
+    label {
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: $color-grey-700;
+      font-size: 14px;
+    }
+
+    input {
+      padding: 8px 12px;
+      border: 1px solid $color-grey-300;
+      border-radius: 6px;
+      font-size: 14px;
+
+      &:focus {
+        border-color: $color-purple;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba($color-purple, 0.2);
+      }
+    }
+  }
+
+  .btn-container {
+    display: flex;
+    align-items: flex-end;
+
+    .btn-update {
+      background-color: $color-purple;
+      border: none;
+      padding: 10px 24px;
+      font-weight: bold;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      height: 42px;
+      width: 100%;
+
+      &:hover {
+        background-color: darken($color-purple, 10%);
+      }
+    }
+  }
+}
+
+.employee-table {
+  margin-top: 30px;
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th,
+    td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid $color-grey-200;
+      font-size: 14px;
+    }
+
+    th {
+      background-color: $color-grey-100;
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background-color: $color-grey-50;
+    }
+  }
+}

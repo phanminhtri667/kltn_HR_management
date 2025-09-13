@@ -3,49 +3,64 @@ import { Link } from "react-router-dom";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { Toast } from "primereact/toast";
 import { useRef } from "react";
-import axios from "../../../services/axios";
+import axios from "../../../services/axios"; // AxiosInstance của bạn
 import apiUrl from "../../../constant/apiUrl";
-// import _ from "lodash";
-const DepartmentTable = ({ ...props }) => {
-  const { onDelete, onSelect, data } = props;
 
+type Department = {
+  id: number;
+  code: string;
+  value: string;
+  deleted?: string;
+  createdAt?: string;
+};
+
+type Props = {
+  data: Department[];
+  onDelete: () => void;
+  onSelect: (dept: Department) => void;
+};
+
+const DepartmentTable = ({ data = [], onDelete, onSelect }: Props) => {
   const toast = useRef<Toast | null>(null);
-  const deleteDepartment = async (id: string) => {
+
+  const deleteDepartment = async (id: number) => {
     try {
-      const url = apiUrl.department.index + "/" + id;
-      const response = await axios.put(url);
+      const url = `${apiUrl.department.index}/${id}`;
+      // “Xóa” = cập nhật cờ deleted = "1"
+      const response = await axios.put(url, { deleted: "1" });
       if (response) {
         onDelete();
-        if (toast.current) {
-          toast.current.show({
-            severity: "success",
-            summary: "Confirmed",
-            detail: "Deleted successfully",
-            life: 1500,
-          });
-        }
-      }
-    } catch (error) {
-      if (toast.current) {
-        toast.current.show({
-          severity: "error",
+        toast.current?.show({
+          severity: "success",
           summary: "Confirmed",
-          detail: "Deleted error",
+          detail: "Deleted successfully",
           life: 1500,
         });
       }
+    } catch (error) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Deleted error",
+        life: 1500,
+      });
     }
   };
 
-  const confirmDelete = (department: Record<string, any>) => {
+  const confirmDelete = (department: Department) => {
     confirmDialog({
-      message: `Do you want to delete this department ${department.department_id} ?`,
+      message: `Do you want to delete department ${department.code}?`,
       header: "Delete Confirmation",
       icon: "pi pi-info-circle",
       acceptClassName: "p-button-danger",
-      accept: () => deleteDepartment(department.department_id),
-      reject: () => {},
+      accept: () => deleteDepartment(department.id),
     });
+  };
+
+  const formatDateTime = (iso?: string) => {
+    if (!iso) return "";
+    // Hiển thị theo local time để dễ đọc
+    return new Date(iso).toLocaleString();
   };
 
   return (
@@ -64,41 +79,34 @@ const DepartmentTable = ({ ...props }) => {
         </thead>
         <tbody>
           {data.length > 0 ? (
-            data.map((item: Record<string, any>, index: number) => {
-              return (
-                <tr key={index}>
-                  <td>{index + 1}</td>
-                  <td>#{item.code}</td>
-                  <td>{item.value}</td>
-                  <td>
-                    {new Date(item.createdAt)
-                      .toISOString()
-                      .replace("T", " ")
-                      .substr(0, 19)}
-                  </td>
+            data.map((item, index) => (
+              <tr key={item.id ?? index}>
+                <td>{index + 1}</td>
+                <td>#{item.code}</td>
+                <td>{item.value}</td>
+                <td>{formatDateTime(item.createdAt)}</td>
+                <td>
+                  <div className="table-acction">
+                    <Link to={`/department/${item.id}`}>
+                      <i className="pi pi-eye pointer icon-hover" />
+                    </Link>
 
-                  <td>
-                    <div className="table-acction">
-                      <Link to={"/department/1"}>
-                        <i className="pi pi-eye pointer icon-hover"></i>
-                      </Link>
-                      <i
-                        className="pi pi-pencil pointer icon-hover ml-3"
-                        onClick={() => {
-                          onSelect(item);
-                        }}></i>
+                    <i
+                      className="pi pi-pencil pointer icon-hover ml-3"
+                      onClick={() => onSelect(item)}
+                    />
 
-                      <i
-                        className="pi pi-trash pointer icon-hover ml-3"
-                        onClick={() => confirmDelete(item)}></i>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })
+                    <i
+                      className="pi pi-trash pointer icon-hover ml-3"
+                      onClick={() => confirmDelete(item)}
+                    />
+                  </div>
+                </td>
+              </tr>
+            ))
           ) : (
             <tr>
-              <td colSpan={8}>
+              <td colSpan={5}>
                 <p style={{ textAlign: "center" }}>No data</p>
               </td>
             </tr>
