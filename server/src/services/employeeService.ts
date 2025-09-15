@@ -1,6 +1,7 @@
 import db from "../models";
 import Utils from "../utils/commonUtils";
 import NotificationService from "./notificationService";
+import { Op } from "sequelize";
 
 class EmployeeService {
   public generateEmployeeId = async () => {
@@ -17,6 +18,24 @@ class EmployeeService {
     return "AD0001";
   };
 
+  public getEmployeeIdSuggestions = async (keyword: string) => {
+  try {
+    const rows = await db.Employee.findAll({
+      where: {
+        deleted: "0",
+        employee_id: { [Op.like]: `%${keyword}%` }, // chứa chuỗi gõ vào
+      },
+      attributes: ["employee_id"],
+      group: ["employee_id"],   // distinct
+      order: [["employee_id", "ASC"]],
+      limit: 10,
+    });
+    return rows.map((r: any) => r.employee_id);
+  } catch (error) {
+    console.error("Error in getEmployeeIdSuggestions:", error);
+    throw error;
+  }
+};
   public getAllEmployee = async () => {
     try {
       const response = await db.Employee.findAll({
@@ -67,20 +86,18 @@ class EmployeeService {
   };
 
   public updateEmployee = async (employeeId: string, updatedData: any) => {
-    try {
-      const [updated] = await db.Employee.update(updatedData, {
-        where: { employee_id: employeeId },
-      });
+  try {
+    const { employee_id, ...safeData } = updatedData; // tránh đổi khóa chính
+    const [updated] = await db.Employee.update(safeData, { where: { employee_id: employeeId } });
+    return { err: updated ? 0 : 1, mes: updated ? "Update successfully" : "Employee not found" };
+  } catch (error: any) {
+    console.error("Update employee failed:",
+      error?.parent?.sqlMessage || error?.errors?.[0]?.message || error?.message
+    );
+    throw error;
+  }
+};
 
-      return {
-        err: updated ? 0 : 1,
-        mes: updated ? "Update successfully" : "Employee not found",
-      };
-    } catch (error) {
-      console.error("Error in updateEmployee:", error);
-      throw error;
-    }
-  };
 
   public removeEmployee = async (employeeId: string) => {
     try {

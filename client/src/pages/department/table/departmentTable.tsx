@@ -87,19 +87,14 @@ const DepartmentTable = ({ data = [], onDelete, onSelect }: Props) => {
                 <td>{formatDateTime(item.createdAt)}</td>
                 <td>
                   <div className="table-acction">
-                    <Link to={`/department/${item.id}`}>
-                      <i className="pi pi-eye pointer icon-hover" />
-                    </Link>
+                    
 
                     <i
                       className="pi pi-pencil pointer icon-hover ml-3"
                       onClick={() => onSelect(item)}
                     />
 
-                    <i
-                      className="pi pi-trash pointer icon-hover ml-3"
-                      onClick={() => confirmDelete(item)}
-                    />
+                    
                   </div>
                 </td>
               </tr>
