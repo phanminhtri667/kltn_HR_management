@@ -10,15 +10,12 @@ import { Toast } from 'primereact/toast';
 import { Dialog } from 'primereact/dialog';
 import DepartmentFormUpdate from './form/departmentUpdate';
 import DepartmentFormCreate from './form/departmentCreate';
+import employeeApi from '../../api/employeeApi';
 
 const Department = () => {
   const [departmentData, setDepartmentData] = useState([]);
-  const [infoDataDepartment, setInfoDataDepartment] = useState<
-    Record<string, any>
-  >({});
-  const [departmentSelected, setDepartmentSelected] = useState<
-    Record<string, any>
-  >({});
+  const [departmentSelected, setDepartmentSelected] = useState<Record<string, any>>({});
+  const [employeeData, setEmployeeData] = useState<any[]>([]);
   const [visible, setVisible] = useState(false);
   const toast = useRef<Toast | null>(null);
 
@@ -26,52 +23,65 @@ const Department = () => {
     getDepartment();
   }, []);
 
+  // ✅ Lấy danh sách nhân viên theo departmentId
+const getEmployees = async (departmentId: number) => {
+  try {
+    const result = await employeeApi.getEmployeesByDepartment(departmentId);
+    setEmployeeData(result?.data || []);
+  } catch { setEmployeeData([]); }
+};
+
+
+
+
+  // Lấy danh sách phòng ban
   const getDepartment = async () => {
     const result = await AxiosInstance.get(apiUrl.department.index);
     if (result.data) {
       setDepartmentData(result.data.data);
-      console.log(result.data.data);
     }
   };
 
+  // Khi chọn 1 department để edit
   const handleSelectedDepartment = (department: any) => {
-    setDepartmentSelected(department);
-    setVisible(true);
-  };
+  setDepartmentSelected(department);
+  getEmployees(department.id);   // 🔥 dùng id thay vì code
+  setVisible(true);
+};
 
   return (
-    <>
-      <DefaultLayout>
-        <TabView>
-          <TabPanel header="List Department">
-            <div className="department-container"></div>
-            <div className="department-table">
-              <Card>
-                <DepartmentTable
-                  data={departmentData}
-                  onDelete={getDepartment}
-                  onSelect={handleSelectedDepartment}
-                />
-              </Card>
-            </div>
-          </TabPanel>
-          <TabPanel header="Add Department">
-            <DepartmentFormCreate />
-          </TabPanel>
-        </TabView>
-        <Dialog
-          header="Edit Department"
-          visible={visible}
-          style={{ width: '50vw' }}
-          onHide={() => setVisible(false)}
-        >
-          <DepartmentFormUpdate
-            data={departmentSelected}
-            closeModal={() => setVisible(false)}
-          />
-        </Dialog>
-      </DefaultLayout>
-    </>
+    <DefaultLayout>
+      <TabView>
+        <TabPanel header="List Department">
+          <div className="department-table">
+            <Card>
+              <DepartmentTable
+                data={departmentData}
+                onDelete={getDepartment}
+                onSelect={handleSelectedDepartment}
+              />
+            </Card>
+          </div>
+        </TabPanel>
+        <TabPanel header="Add Department">
+          <DepartmentFormCreate />
+        </TabPanel>
+      </TabView>
+
+      {/* Dialog update */}
+      <Dialog
+        header="Edit Department"
+        visible={visible}
+        style={{ width: '50vw' }}
+        onHide={() => setVisible(false)}
+      >
+        <DepartmentFormUpdate
+          data={departmentSelected}
+          employeeData={employeeData}
+          closeModal={() => setVisible(false)}
+        />
+      </Dialog>
+    </DefaultLayout>
   );
 };
 

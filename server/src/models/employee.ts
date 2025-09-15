@@ -1,4 +1,6 @@
-import { Model, DataTypes } from "sequelize";
+"use strict";
+
+import { Model } from "sequelize";
 
 interface EmployeeAttributes {
   employee_id: string;
@@ -8,95 +10,65 @@ interface EmployeeAttributes {
   email: string;
   gender: string;
   dayOfBirth: Date;
-  department_id: string;
-  position_id: string;
+  department_id: number;
+  position_id: number;
   deleted: string;
 }
 
 module.exports = (sequelize: any, DataTypes: any) => {
   class Employee extends Model<EmployeeAttributes> implements EmployeeAttributes {
-    employee_id!: string;
-    full_name!: string;
-    first_name!: string;
-    phone!: string;
-    email!: string;
-    gender!: string;
-    dayOfBirth!: Date;
-    department_id!: string;
-    position_id!: string;
-    deleted!: string;
+    public employee_id!: string;
+    public full_name!: string;
+    public first_name!: string;
+    public phone!: string;
+    public email!: string;
+    public gender!: string;
+    public dayOfBirth!: Date;
+    public department_id!: number;
+    public position_id!: number;
+    public deleted!: string;
 
     static associate(models: any) {
-      Employee.belongsTo(models.Department,{
-        foreignKey: 'department_id',
-        targetKey: 'code',
-        as: 'department'
-      })
-      Employee.belongsTo(models.Position,{
-        foreignKey: 'position_id',
-        targetKey: 'code',
-        as: 'position'
-      })
+      // Liên kết với Department
+      Employee.belongsTo(models.Department, {
+        foreignKey: "department_id",
+        targetKey: "id",
+        as: "department",
+      });
+
+      // Liên kết với Position
+      Employee.belongsTo(models.Position, {
+        foreignKey: "position_id",
+        targetKey: "id",
+        as: "position",
+      });
     }
   }
 
   Employee.init(
     {
       employee_id: {
-        allowNull: true,
+        allowNull: false,
         primaryKey: true,
         type: DataTypes.STRING,
       },
-      full_name: {
-        type: DataTypes.STRING,
-      },
-      first_name: {
-        type: DataTypes.STRING,
-      },
-      phone: {
-        type: DataTypes.STRING,
-      },
-      email: {
-        type: DataTypes.STRING,
-      },
-      gender:{
-        type: DataTypes.STRING
-      },
-      dayOfBirth:{
-        type: DataTypes.DATE
-      },
-      department_id: {
-        type: DataTypes.STRING,
-      },
-      position_id: {
-        type: DataTypes.STRING,
-      },
-      deleted: {
-        type: DataTypes.STRING,
-      },
+      full_name: DataTypes.STRING,
+      first_name: DataTypes.STRING,
+      phone: DataTypes.STRING,
+      email: DataTypes.STRING,
+      gender: DataTypes.STRING,
+      dayOfBirth: DataTypes.DATE,
+      department_id: DataTypes.INTEGER,
+      position_id: DataTypes.INTEGER,
+      deleted: DataTypes.STRING,
     },
     {
       sequelize,
       modelName: "Employee",
+      tableName: "Employees", // ✅ rõ ràng
+      timestamps: true,
     }
   );
-
-//   Employee.beforeCreate(async (employee, options) => {
-//     employee.employee_id = await generateEmployeeId();
-//   });
-  
-//  const generateEmployeeId = async() => {
-//   const lastEmployee = await Employee.findOne({
-//     order: [["employee_id", "DESC"]],
-//     attributes: ["employee_id"],
-//   });
-
-//   if(lastEmployee) {
-//     let newEmployeeId = lastEmployee.toString().slice(2)
-//     return newEmployeeId = (Number(newEmployeeId)+1).toString().padStart(3, "0")
-//   }
-//     return 'nv001'
-//   }
 
   return Employee;
 };

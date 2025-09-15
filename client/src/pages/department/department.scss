@@ -27,3 +27,29 @@
         padding-top: 40px;
     }
 }
+.employee-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+
+  th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+
+  th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+  }
+
+  tr:nth-child(even) {
+    background-color: #fafafa;
+  }
+  select {
+    padding: 4px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+}
+

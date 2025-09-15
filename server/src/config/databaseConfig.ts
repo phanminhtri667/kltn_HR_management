@@ -6,9 +6,10 @@ module.exports = {
     "password": "Hr@2025_demo",
     "database": "hr_management",
     "host": "127.0.0.1",
+    "port": 3306,          // ✅ thêm dòng này
     "dialect": "mysql",
     "logging": false,
-    "timezone":"+07:00"
+    "timezone": "+07:00"
   },
   "test": {
     "username": "root",
@@ -24,4 +25,4 @@ module.exports = {
     "host": "127.0.0.1",
     "dialect": "mysql"
   }
-}
+};

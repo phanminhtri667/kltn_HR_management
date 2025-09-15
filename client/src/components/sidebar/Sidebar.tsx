@@ -33,11 +33,8 @@ const menus = [
     { id: 1, name: "Dashboard", path: "/" },
     { id: 2, name: "Department", path: "/department" },
     { id: 3, name: "Employee", path: "/employee" },
-    { id: 4, name: "Activities", path: "/test2" },
-    { id: 5, name: "Holidays", path: "/test3" },
-    { id: 6, name: "Payroll", path: "/test4" },
-    { id: 7, name: "Accounts", path: "/test5" },
-    { id: 8, name: "Report", path: "/test6" },
+    { id: 4, name: "Timekeeping", path: "/timekeeping" }, // ✅ thêm dòng này
+    
 ];
 const Sidebar = () => {
     // const
@@ -122,80 +119,6 @@ const Sidebar = () => {
                                 </p>
                               </Link>
                             );
-                            // console.log(item.path,location.pathname,item.path === location.pathname);
-                            //logic cũ
-                            // if (
-                            //     (item.name === "Department" && userRole === "role_1") ||
-                            //     (item.name === "Employee" && ["role_1", "role_2"].includes(userRole)) ||
-                            //     (item.name !== "Department" && item.name !== "Employee") ||
-                            //     userRole === "role_1" || userRole === "role_2"
-                            // ) {
-                            //     return (
-                            //         <Link
-                            //           key={index}
-                            //           to={item.path}
-                            //           className={`menu-item pointer ${item.path === location.pathname ? "menu-active" : ""}`}
-                            //         >
-                            //           <p>
-                            //             <FontAwesomeIcon
-                            //               icon={item.path === location.pathname ? faArrowRight : faEllipsis}
-                            //               className="menu-item-icon"
-                            //             />
-                            //             {item.name}
-                            //           </p>
-                            //         </Link>
-                            //       );
-                            //     }return null;
-                            //logic cũ
-
-                            //logic mới
-                            // const isVisible =
-                            //     userRole === "role_1" || // admin
-                            //     (userRole === "role_2" && item.name !== "Department") || // leader
-                            //     (userRole === "role_3" && !["Department", "Employee"].includes(item.name)); // member
-
-
-                            //     if (isVisible) {
-                            //         return (
-                            //           <Link
-                            //             key={index}
-                            //             to={item.path}
-                            //             className={`menu-item pointer ${item.path === location.pathname ? "menu-active" : ""}`}
-                            //           >
-                            //             <p>
-                            //               <FontAwesomeIcon
-                            //                 icon={item.path === location.pathname ? faArrowRight : faEllipsis}
-                            //                 className="menu-item-icon"
-                            //               />
-                            //               {item.name}
-                            //             </p>
-                            //           </Link>
-                            //         );
-                            //       }
-                            //       return null;
-                            //logic mới
-
-                        //logic ban đầu 
-                            // return (
-                            //     <Link
-                            //         key={index}
-                            //         to={item.path}
-                            //         className={`menu-item pointer ${item.path === location.pathname ? "menu-active" : ""
-                            //             }`}>
-                            //         <p>
-                            //             <FontAwesomeIcon
-                            //                 icon={
-                            //                     item.path === location.pathname
-                            //                         ? faArrowRight
-                            //                         : faEllipsis
-                            //                 }
-                            //                 className="menu-item-icon"
-                            //             />
-                            //             {item.name}
-                            //         </p>
-                            //     </Link>
-                            // );
-                        //logic ban đầu 
                         })}
                     </div>
                     <div className="menu-plus">

@@ -1,18 +1,23 @@
-import './employee.scss';
-import DefaultLayout from '../../layouts/DefaultLayout';
-import { Card } from 'primereact/card';
-import { TabView, TabPanel } from 'primereact/tabview';
-import EmployeeTable from './table/EmployeeTable';
-import { useEffect, useRef, useState } from 'react';
-import AxiosInstance from '../../services/axios';
-import apiUrl from '../../constant/apiUrl';
-import { Toast } from 'primereact/toast';
-import { Dialog } from 'primereact/dialog';
-import EmployeeFormCreate from './form/employeeCreate';
-import EmployeeFormUpdate from './form/employeeUpdate';
+import "./employee.scss";
+import DefaultLayout from "../../layouts/DefaultLayout";
+import { Card } from "primereact/card";
+import { TabView, TabPanel } from "primereact/tabview";
+import EmployeeTable from "./table/EmployeeTable";
+import { useEffect, useRef, useState } from "react";
+import AxiosInstance from "../../services/axios";
+import apiUrl from "../../constant/apiUrl";
+import { Toast } from "primereact/toast";
+import { Dialog } from "primereact/dialog";
+import EmployeeFormCreate from "./form/employeeCreate";
+import EmployeeFormUpdate from "./form/employeeUpdate";
+import { InputText } from "primereact/inputtext";
+import { Button } from "primereact/button";
 
 const Employee = () => {
-  const [employeeData, setEmployeeData] = useState([]);
+  const [employeeData, setEmployeeData] = useState<any[]>([]);
+  const [filtered, setFiltered] = useState<any[]>([]);
+  const [q, setQ] = useState<string>("");
+
   const [infoDataEmployee, setInfoDataEmployee] = useState<Record<string, any>>({});
   const [employeeSelected, setEmployeeSelected] = useState<Record<string, any>>({});
   const [visible, setVisible] = useState(false);
@@ -25,9 +30,10 @@ const Employee = () => {
   const getEmployee = async () => {
     const result = await AxiosInstance.get(apiUrl.employee.index);
     if (result.data) {
-      setEmployeeData(result.data.data);
-      console.log(result.data.data);
-      statisticalEmployee(result.data.data);
+      const rows = result.data.data || [];
+      setEmployeeData(rows);
+      setFiltered(rows); // đồng bộ dữ liệu ban đầu cho bảng
+      statisticalEmployee(rows);
     }
   };
 
@@ -37,13 +43,35 @@ const Employee = () => {
       const timeCreate = new Date(emp.createdAt).getTime();
       return now - timeCreate < 1000 * 60 * 60 * 24;
     });
-    const male = data.filter((emp: Record<string, any>) => emp.gender === 'male');
+    const male = data.filter((emp: Record<string, any>) => emp.gender === "male");
     const statistical = {
       newEmployee: newEmployee.length,
       male: male.length,
       female: data.length - male.length,
     };
     setInfoDataEmployee(statistical);
+  };
+
+  // Lọc theo employee_id với debounce
+  useEffect(() => {
+    const h = setTimeout(() => {
+      const keyword = q.trim().toLowerCase();
+      if (!keyword) {
+        setFiltered(employeeData);
+        return;
+      }
+      setFiltered(
+        employeeData.filter((e: any) =>
+          String(e.employee_id || "").toLowerCase().includes(keyword)
+        )
+      );
+    }, 250);
+    return () => clearTimeout(h);
+  }, [q, employeeData]);
+
+  const clearSearch = () => {
+    setQ("");
+    setFiltered(employeeData);
   };
 
   const handleSelectedEmployee = (employee: any) => {
@@ -67,7 +95,9 @@ const Employee = () => {
                 <Card>
                   <div className="card-body pointer">
                     <span className="card-body-name fs-l">New Employee</span>
-                    <span className="card-body-content fs-2xl">{infoDataEmployee.newEmployee}</span>
+                    <span className="card-body-content fs-2xl">
+                      {infoDataEmployee.newEmployee}
+                    </span>
                   </div>
                 </Card>
                 <Card>
@@ -84,20 +114,60 @@ const Employee = () => {
                 </Card>
               </div>
             </div>
+
+            {/* Thanh tìm kiếm kiểu Timekeeping (ô nhập + nút Clear) */}
+            {/* Thanh tìm kiếm mini */}
+<Card className="search-card">
+  <div className="search-bar">
+    <span className="p-input-icon-left">
+      <i className="pi pi-search" />
+      <InputText
+        value={q}
+        onChange={(e) => setQ(e.target.value)}
+        placeholder="Search by Employee ID (e.g., AD0001)"
+        className="p-inputtext-sm search-input"
+      />
+    </span>
+    <Button
+      label="Clear"
+      className="p-button-secondary p-button-sm clear-button"
+      onClick={clearSearch}
+      type="button"
+    />
+  </div>
+</Card>
+
+
             <div className="employee-table">
               <Card>
-                <EmployeeTable data={employeeData} onDelete={getEmployee} onSelect={handleSelectedEmployee} />
+                <EmployeeTable
+                  data={filtered}
+                  onDelete={getEmployee}
+                  onSelect={handleSelectedEmployee}
+                />
               </Card>
             </div>
           </TabPanel>
+
           <TabPanel header="Add Employee">
             <EmployeeFormCreate />
           </TabPanel>
         </TabView>
-        <Dialog header="Edit employee" visible={visible} style={{ width: '50vw' }} onHide={() => setVisible(false)}>
-          <EmployeeFormUpdate data={employeeSelected} closeModal={() => setVisible(false)} getEmployee={getEmployee} />
+
+        <Dialog
+          header="Edit employee"
+          visible={visible}
+          style={{ width: "50vw" }}
+          onHide={() => setVisible(false)}
+        >
+          <EmployeeFormUpdate
+            data={employeeSelected}
+            closeModal={() => setVisible(false)}
+            getEmployee={getEmployee}
+          />
         </Dialog>
       </DefaultLayout>
+      <Toast ref={toast} />
     </>
   );
 };

@@ -1,39 +1,103 @@
 import { Request, Response } from "express";
-import db from "../models";
+import TimekeepingService from "../services/timekeepingService";
 
-export const clockIn = async (req: Request, res: Response) => {
-  const userId = req.user?.id;  // Lấy user id từ JWT
+class TimekeepingController {
+  // Lọc theo employee_id / department_id / date range
+  public async list(req: Request, res: Response) {
+    try {
+      const employee_id =
+        typeof req.query.employee_id === "string" && req.query.employee_id.trim()
+          ? req.query.employee_id.trim()
+          : undefined;
 
-  const today = new Date().toISOString().split('T')[0];
-  const existed = await db.Timekeeping.findOne({ where: { userId, date: today } });
+      const department_id =
+        typeof req.query.department_id === "string" || typeof req.query.department_id === "number"
+          ? Number(req.query.department_id)
+          : undefined;
 
-  if (existed?.clockInAt) return res.status(400).json({ message: "Đã chấm công vào hôm nay" });
+      const date_from =
+        typeof req.query.date_from === "string" && req.query.date_from.trim()
+          ? req.query.date_from.trim()
+          : undefined;
 
-  const newEntry = await db.Timekeeping.upsert({
-    userId,
-    date: today,
-    clockInAt: new Date(),
-  });
+      const date_to =
+        typeof req.query.date_to === "string" && req.query.date_to.trim()
+          ? req.query.date_to.trim()
+          : undefined;
 
-  res.status(200).json({ message: "Chấm công vào thành công", data: newEntry });
-};
+      const result = await TimekeepingService.list({
+        employee_id,
+        department_id,
+        date_from,
+        date_to,
+      });
 
+      return res.status(200).json(result);
+    } catch (e) {
+      console.error("Error in list:", e);
+      return res.status(500).json({ err: -1, mes: "Internal server error" });
+    }
+  }
 
-export const clockOut = async (req: Request, res: Response) => {
-  const userId = req.user.id;
-  const today = new Date().toISOString().split('T')[0];
+  public getAll = async (_req: Request, res: Response) => {
+    try {
+      const response = await TimekeepingService.getAllTimekeeping();
+      return res.status(200).json(response);
+    } catch (error) {
+      console.error("Error in getAll:", error);
+      return res.status(500).json({ err: -1, mes: "Internal server error" });
+    }
+  };
 
-  const entry = await db.Timekeeping.findOne({ where: { userId, date: today } });
-  if (!entry || !entry.clockInAt) return res.status(400).json({ message: "Chưa chấm công vào" });
+  public getByDepartment = async (req: Request, res: Response) => {
+    try {
+      const id = Number(req.params.departmentId);
+      if (Number.isNaN(id)) {
+        return res.status(400).json({ err: 1, mes: "Invalid departmentId" });
+      }
+      const response = await TimekeepingService.getByDepartment(id);
+      return res.status(200).json(response);
+    } catch (error) {
+      console.error("Error in getByDepartment:", error);
+      return res.status(500).json({ err: -1, mes: "Internal server error" });
+    }
+  };
 
-  entry.clockOutAt = new Date();
-  await entry.save();
+  public create = async (req: Request, res: Response) => {
+    try {
+      const { employee_id, work_date } = req.body || {};
+      if (!employee_id || !work_date) {
+        return res.status(400).json({ err: 1, mes: "employee_id and work_date are required" });
+      }
+      const response = await TimekeepingService.createTimekeeping(req.body);
+      return res.status(201).json(response);
+    } catch (error) {
+      console.error("Error in create:", error);
+      return res.status(500).json({ err: -1, mes: "Internal server error" });
+    }
+  };
 
-  res.status(200).json({ message: "Chấm công ra thành công", data: entry });
-};
+  public checkout = async (req: Request, res: Response) => {
+    try {
+      const { employee_id, work_date, check_out } = req.body || {};
+      if (!employee_id || !work_date || !check_out) {
+        return res
+          .status(400)
+          .json({ err: 1, mes: "employee_id, work_date and check_out are required" });
+      }
 
-export const getMyTimekeeping = async (req: Request, res: Response) => {
-  const userId = req.user.id;
-  const records = await db.Timekeeping.findAll({ where: { userId }, order: [['date', 'DESC']] });
-  res.status(200).json({ data: records });
-};
+      const response = await TimekeepingService.updateCheckout(
+        String(employee_id),
+        String(work_date),
+        new Date(check_out) // đảm bảo kiểu Date
+      );
+
+      return res.status(200).json(response);
+    } catch (error) {
+      console.error("Error in checkout:", error);
+      return res.status(500).json({ err: -1, mes: "Internal server error" });
+    }
+  };
+}
+
+export default new TimekeepingController();

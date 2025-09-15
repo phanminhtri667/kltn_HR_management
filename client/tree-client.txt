@@ -11,6 +11,10 @@
 │   └── robots.txt
 ├── README.md
 ├── src
+│   ├── api
+│   │   ├── employeeApi.ts
+│   │   ├── timekeepingApi.ts
+│   │   └── workingHoursApi.ts
 │   ├── App.scss
 │   ├── App.tsx
 │   ├── assets
@@ -87,7 +91,9 @@
 │   │   ├── test
 │   │   │   └── Test.tsx
 │   │   ├── timekeeping
-│   │   │   └── index.tsx
+│   │   │   ├── index.tsx
+│   │   │   ├── timekeeping.scss
+│   │   │   └── Timekeeping.tsx
 │   │   └── unauthorized
 │   │       └── Unauthorized.tsx
 │   ├── react-app-env.d.ts
@@ -99,9 +105,11 @@
 │   │   │   └── toastSlice.ts
 │   │   └── store.ts
 │   ├── reportWebVitals.ts
-│   └── services
-│       └── axios.ts
+│   ├── services
+│   │   └── axios.ts
+│   └── validation
+│       └── employee.ts
 ├── tree-client.txt
 └── tsconfig.json
 
-41 directories, 63 files
+43 directories, 69 files

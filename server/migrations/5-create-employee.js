@@ -35,10 +35,22 @@ module.exports = {
         type: Sequelize.DATE, 
       },
       department_id: {
-        type: Sequelize.STRING, 
+        type: Sequelize.INTEGER, 
+        references: {
+          model: "Departments",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL",
       },
       position_id: {
-        type: Sequelize.STRING, 
+        type: Sequelize.INTEGER, 
+        references: {
+          model: "Positions",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL",
       },
       deleted: {
         type: Sequelize.STRING,defaultValue : '0' 

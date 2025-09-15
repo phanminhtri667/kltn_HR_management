@@ -24,7 +24,7 @@
     "@types/node": "^16.18.58",
     "@types/react": "^18.2.28",
     "@types/react-dom": "^18.2.13",
-    "axios": "^1.6.2",
+    "axios": "^1.11.0",
     "chart": "^0.1.2",
     "chart.js": "^4.4.0",
     "font-awesome": "^4.7.0",
@@ -47,6 +47,7 @@
     "start": "set PORT=4001 && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "dev": "react-scripts start",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

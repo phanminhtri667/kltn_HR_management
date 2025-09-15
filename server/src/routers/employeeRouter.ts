@@ -26,5 +26,7 @@ router.post('/', validateInsertEmployee,employeeController.insertEmployee);
 router.put('/:employeeId', employeeController.removeEmployee);
 
 router.patch('/:employeeId', employeeController.updateEmployee);
-
+// Route lấy nhân viên theo phòng ban
+router.get("/department/:departmentId", employeeController.getEmployeesByDepartment);
 export default router;
+router.get('/suggest', employeeController.suggestEmployeeIds);

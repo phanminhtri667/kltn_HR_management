@@ -1,16 +1,21 @@
-import express from 'express';
-import * as timekeepingController from "../controllers/timekeepingController";
-import { clockIn } from "../controllers/timekeepingController";
-import verifyToken from '../middlewares/verify_token';
+import { Router } from "express";
+import timekeepingController from "../controllers/timekeepingController";
 
+const router = Router();
 
-const router = express.Router();
+// Lọc qua query: ?employee_id=AD0001&department_id=1&date_from=YYYY-MM-DD&date_to=YYYY-MM-DD
+router.get("/", timekeepingController.list);
 
-router.use(verifyToken);
-router.post("/clock-in", clockIn);  // Chấm công vào
+// (Tuỳ chọn) xem toàn bộ – không filter, dành cho admin
+router.get("/all", timekeepingController.getAll);
 
-//router.post('/clock-in', timekeepingController.clockIn);
-router.post('/clock-out', timekeepingController.clockOut);
-router.get('/my', timekeepingController.getMyTimekeeping);
+// Xem chấm công theo phòng ban
+router.get("/department/:departmentId", timekeepingController.getByDepartment);
+
+// Nhân viên check-in (tạo bản ghi mới)
+router.post("/", timekeepingController.create);
+
+// Nhân viên check-out (cập nhật checkout + status)
+router.patch("/checkout", timekeepingController.checkout);
 
 export default router;
