@@ -27,13 +27,10 @@ const Department = () => {
 const getEmployees = async (departmentId: number) => {
   try {
     const result = await employeeApi.getEmployeesByDepartment(departmentId);
-    if (result?.err === 0) setEmployeeData(result.data || []);
-    else setEmployeeData([]);
-  } catch (e) {
-    console.error("Error fetching employees", e);
-    setEmployeeData([]);
-  }
+    setEmployeeData(result?.data || []);
+  } catch { setEmployeeData([]); }
 };
+
 
 
 

@@ -35,3 +35,37 @@
         padding-top: 40px;
     }
 }
+/* Card tìm kiếm mini */
+.search-card.p-card {
+  margin: 8px 0 10px;            /* Sát với các Card trên */
+  padding: 6px 10px;             /* Padding nhẹ */
+}
+.search-card .p-card-body {
+  padding: 6px 10px !important;  /* Điều chỉnh padding Card */
+}
+.search-card .p-card-content {
+  padding: 0 !important;         /* Xóa padding thừa trong content */
+}
+
+/* Hàng chứa input + nút Clear */
+.search-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Đặt khoảng cách giữa ô nhập và nút Clear */
+  gap: 8px;
+}
+
+/* Ô tìm kiếm dài hơn */
+.search-input {
+  width: 300px;                  /* Ô nhập dài hơn */
+  height: 32px;                  /* Đảm bảo chiều cao khớp với nút */
+  padding: 4px 10px;
+}
+
+/* Nút Clear sát bên phải, nhỏ gọn */
+.clear-button {
+  height: 32px;                  /* Đảm bảo nút có chiều cao giống ô nhập */
+  padding: 0 10px;
+  line-height: 32px;             /* Canh giữa text */
+  margin-left: 10px;             /* Tạo khoảng cách giữa ô nhập và nút */
+}

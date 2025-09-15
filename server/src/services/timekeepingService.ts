@@ -1,4 +1,5 @@
 import db from "../models";
+import { Op } from "sequelize";
 
 class TimekeepingService {
   /**
@@ -31,16 +32,93 @@ class TimekeepingService {
   }
 
   /**
-   * Lấy tất cả bản ghi chấm công
+   * API lọc theo employee_id / department_id / date range
+   * GET /api/timekeeping?employee_id=AD00&department_id=1&date_from=YYYY-MM-DD&date_to=YYYY-MM-DD
+   */
+  public async list(filters: {
+    employee_id?: string | undefined;
+    department_id?: string | number | undefined;
+    date_from?: string | undefined;
+    date_to?: string | undefined;
+  }) {
+    // where cho bảng timekeepings
+    const whereTK: any = {};
+    // include cho bảng employees (+ department)
+    const includeEmp: any = {
+      model: db.Employee,
+      as: "employee",
+      attributes: ["employee_id", "full_name", "email", "department_id"],
+      where: { deleted: "0" },
+      include: [
+        {
+          model: db.Department,
+          as: "department",
+          attributes: ["id", "code", "value"],
+        },
+      ],
+    };
+
+    // lọc theo employee_id (chứa chuỗi nhập vào)
+    if (filters.employee_id) {
+      includeEmp.where.employee_id = { [Op.like]: `%${filters.employee_id}%` };
+      // nếu muốn "bắt đầu bằng": `${filters.employee_id}%`
+    }
+
+    // lọc theo department
+    if (filters.department_id) {
+      includeEmp.where.department_id = Number(filters.department_id);
+    }
+
+    // lọc theo khoảng ngày (work_date)
+    if (filters.date_from && filters.date_to) {
+      whereTK.work_date = { [Op.between]: [filters.date_from, filters.date_to] };
+    } else if (filters.date_from) {
+      whereTK.work_date = { [Op.gte]: filters.date_from };
+    } else if (filters.date_to) {
+      whereTK.work_date = { [Op.lte]: filters.date_to };
+    }
+
+    const rows = await db.Timekeeping.findAll({
+      where: whereTK,
+      attributes: [
+        "id",
+        ["work_date", "date"], // alias FE dễ đọc r.date
+        "check_in",
+        "check_out",
+        "total_hours",
+        "status",
+        "employee_id",
+      ],
+      include: [includeEmp],
+      order: [["work_date", "DESC"]],
+    });
+
+    return { err: 0, data: rows };
+  }
+
+  /**
+   * Lấy tất cả bản ghi chấm công (không filter)
    */
   public getAllTimekeeping = async () => {
     try {
       const response = await db.Timekeeping.findAll({
+        attributes: [
+          "id",
+          ["work_date", "date"],
+          "check_in",
+          "check_out",
+          "total_hours",
+          "status",
+          "employee_id",
+        ],
         include: [
           {
             model: db.Employee,
             attributes: ["employee_id", "full_name", "email", "department_id"],
             as: "employee",
+            include: [
+              { model: db.Department, as: "department", attributes: ["id", "code", "value"] },
+            ],
           },
         ],
         order: [["work_date", "DESC"]],
@@ -53,17 +131,29 @@ class TimekeepingService {
   };
 
   /**
-   * Lấy chấm công theo phòng ban
+   * Lấy chấm công theo phòng ban (route cũ)
    */
   public getByDepartment = async (departmentId: number) => {
     try {
       const response = await db.Timekeeping.findAll({
+        attributes: [
+          "id",
+          ["work_date", "date"],
+          "check_in",
+          "check_out",
+          "total_hours",
+          "status",
+          "employee_id",
+        ],
         include: [
           {
             model: db.Employee,
             attributes: ["employee_id", "full_name", "email", "department_id"],
             as: "employee",
             where: { department_id: departmentId, deleted: "0" },
+            include: [
+              { model: db.Department, as: "department", attributes: ["id", "code", "value"] },
+            ],
           },
         ],
         order: [["work_date", "DESC"]],

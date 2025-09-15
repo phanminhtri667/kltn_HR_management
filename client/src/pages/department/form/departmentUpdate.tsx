@@ -7,13 +7,36 @@ import axios from "../../../services/axios";
 import apiUrl from "../../../constant/apiUrl";
 import * as yup from "yup";
 
-const DepartmentFormUpdate = ({ data, employeeData: initialEmployees, closeModal }: any) => {
+type Position = { id: number; code: string; value: string };
+
+const DepartmentFormUpdate = ({
+  data,
+  employeeData: initialEmployees,
+  closeModal,
+}: any) => {
   const toast = useRef<Toast | null>(null);
+
+  // Nhân viên trong phòng ban
   const [employeeData, setEmployeeData] = useState<any[]>(initialEmployees || []);
+  // Danh sách chức vụ
+  const [positions, setPositions] = useState<Position[]>([]);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     setEmployeeData(initialEmployees || []);
   }, [initialEmployees]);
+
+  useEffect(() => {
+    const fetchPositions = async () => {
+      try {
+        const res = await axios.get(apiUrl.position.index);
+        setPositions(res?.data?.data || []);
+      } catch (e) {
+        console.error("Failed to fetch positions", e);
+      }
+    };
+    fetchPositions();
+  }, []);
 
   const validationSchema = yup.object().shape({
     value: yup.string().required("Department name is required"),
@@ -21,31 +44,47 @@ const DepartmentFormUpdate = ({ data, employeeData: initialEmployees, closeModal
 
   const handleUpdateDepartment = async (values: any) => {
     try {
-      // 1. Cập nhật phòng ban (dùng id thay cho code)
-      await axios.put(`${apiUrl.department.index}/${data.id}`, values);
+      setSaving(true);
 
-      // 2. Cập nhật position_id cho từng nhân viên trong phòng ban
-      for (const emp of employeeData) {
-        await axios.patch(`${apiUrl.employee.index}/${emp.employee_id}`, {
-          position_id: emp.position_id,
-        });
-      }
+      // 1) Cập nhật tên phòng ban
+      await axios.put(`${apiUrl.department.index}/${data.id}`, { value: values.value });
+
+      // 2) Cập nhật position cho nhân viên nếu thay đổi
+      const patches = employeeData
+        .filter((emp) => {
+          const currentPosId = Number(emp?.position?.id ?? emp?.position_id);
+          const nextPosId = Number(emp.position_id);
+          return !Number.isNaN(nextPosId) && nextPosId !== currentPosId;
+        })
+        .map((emp) =>
+          axios.patch(`${apiUrl.employee.index}/${emp.employee_id}`, {
+            position_id: Number(emp.position_id),
+          })
+        );
+
+      if (patches.length) await Promise.all(patches);
 
       toast.current?.show({
         severity: "success",
         summary: "Updated",
-        detail: "Department & Employees updated successfully",
-        life: 2000,
+        detail:
+          patches.length > 0
+            ? "Department & employees updated successfully"
+            : "Department updated successfully",
+        life: 2200,
       });
 
       closeModal();
     } catch (error) {
+      console.error(error);
       toast.current?.show({
         severity: "error",
         summary: "Error",
         detail: "Failed to update department or employees",
-        life: 2000,
+        life: 2200,
       });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -57,73 +96,96 @@ const DepartmentFormUpdate = ({ data, employeeData: initialEmployees, closeModal
       <Formik
         initialValues={{
           value: data?.value || "",
-          id: data?.id || "",  // ✅ thay code bằng id
+          id: data?.id || "",
         }}
         validationSchema={validationSchema}
-        onSubmit={(values) => handleUpdateDepartment(values)}
+        onSubmit={handleUpdateDepartment}
         enableReinitialize
       >
         {({ values, errors, touched, setFieldValue }) => (
           <Form>
+            {/* Department ID (readonly) */}
+            <div className="form-item">
+              <InputField
+                type="text"
+                name="ID_Department"
+                placeholder="ID_Department"
+                readOnly
+                value={values.id}
+              />
+            </div>
+
             {/* Department Name */}
             <div className="form-item">
               <InputField
                 type="text"
-                name="value"
-                placeholder="Enter department"
+                name="Department"
+                placeholder="Department"
                 value={values.value}
-                errorMessage={errors?.value && touched.value ? errors.value : ""}
+                errorMessage={errors?.value && touched.value ? (errors.value as string) : ""}
                 onChange={(event: ChangeEvent<HTMLInputElement>) =>
                   setFieldValue("value", event.target.value)
                 }
               />
             </div>
 
-            {/* Department ID (readonly) */}
-            <div className="form-item">
-              <InputField
-                type="text"
-                name="id"
-                placeholder="Department ID"
-                readOnly
-                value={values.id}
-              />
-            </div>
-
-            {/* Employee list */}
+            {/* Employees table */}
             <div className="form-item">
               <h4>Employees in this department:</h4>
+
               {Array.isArray(employeeData) && employeeData.length > 0 ? (
-                <table className="employee-table">
+                <table className="employee-table" style={{ width: "100%", marginTop: 8 }}>
                   <thead>
                     <tr>
-                      <th>#</th>
-                      <th>Full Name</th>
-                      <th>Email</th>
-                      <th>Position</th>
+                      {["#", "Employee ID", "Full Name", "Email", "Position"].map((h) => (
+                        <th key={h} style={{ textAlign: "left" }}>
+                          {h}
+                        </th>
+                      ))}
                     </tr>
                   </thead>
+
                   <tbody>
-                    {employeeData.map((employee, index) => (
-                      <tr key={employee.employee_id}>
-                        <td>{index + 1}</td>
-                        <td>{employee.full_name}</td>
-                        <td>{employee.email}</td>
-                        <td>
-                          <select
-                            value={employee.position_id}
-                            onChange={(e) => {
-                              const updated = [...employeeData];
-                              updated[index].position_id = e.target.value;
-                              setEmployeeData(updated);
-                            }}
-                          >
-                            <option value="CVLD">Leader</option>
-                            <option value="CVMB">Member</option>
-                          </select>
-                        </td>
-                      </tr>
-                    ))}
+                    {employeeData.map((employee, index) => {
+                      const selectedPosId =
+                        Number(employee.position_id ?? employee?.position?.id) || "";
+
+                      return (
+                        <tr key={employee.employee_id}>
+                          <td>{index + 1}</td>
+
+                          {/* 👇 THÊM CỘT HIỂN THỊ EMPLOYEE ID */}
+                          <td style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>
+                            {employee.employee_id}
+                          </td>
+
+                          <td>{employee.full_name}</td>
+                          <td>{employee.email}</td>
+                          <td>
+                            <select
+                              value={selectedPosId}
+                              onChange={(e) => {
+                                const nextId = Number(e.target.value);
+                                setEmployeeData((prev) =>
+                                  prev.map((it, i) =>
+                                    i === index ? { ...it, position_id: nextId } : it
+                                  )
+                                );
+                              }}
+                            >
+                              <option value="" disabled>
+                                Choose position
+                              </option>
+                              {positions.map((p) => (
+                                <option key={p.id} value={p.id}>
+                                  {p.value}
+                                </option>
+                              ))}
+                            </select>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               ) : (
@@ -134,19 +196,10 @@ const DepartmentFormUpdate = ({ data, employeeData: initialEmployees, closeModal
             {/* Footer buttons */}
             <div
               className="form-footer"
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                marginTop: "20px",
-              }}
+              style={{ display: "flex", justifyContent: "flex-end", marginTop: 20 }}
             >
-              <Button type="submit" label="Submit" />
-              <Button
-                action="cancel"
-                label="Cancel"
-                className="ml-2"
-                onClick={closeModal}
-              />
+              <Button type="submit" label={saving ? "Saving..." : "Submit"} disabled={saving} />
+              <Button action="cancel" label="Cancel" className="ml-2" onClick={closeModal} />
             </div>
           </Form>
         )}
