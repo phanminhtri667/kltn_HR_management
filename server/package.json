@@ -15,6 +15,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon index.ts",
+    "dev": "nodemon index.ts",
     "migrate-cli": "npx sequelize-cli db:migrate",
     "migrate": " npx sequelize db:migrate",
     "seed": "npx sequelize db:seed:all  --config=./config/config.json"
@@ -31,7 +32,6 @@
     "joi": "^18.0.0",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.6.5",
-    "nodemon": "^3.0.1",
     "pg": "^8.11.3",
     "pg-hstore": "^2.3.4",
     "pg-pool": "^3.6.1",
@@ -49,6 +49,7 @@
     "@types/node": "^20.8.6",
     "@types/pg": "^8.10.5",
     "@types/sequelize": "^4.28.16",
+    "nodemon": "^3.1.10",
     "sequelize-cli": "^6.6.2",
     "sequelize-cli-typescript": "^3.2.0-c",
     "sequelize-typescript": "^2.1.6",

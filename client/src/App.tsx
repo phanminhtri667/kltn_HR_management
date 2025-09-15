@@ -25,22 +25,37 @@ import Timekeeping from "./pages/timekeeping/Timekeeping";
 const AppRoutes = () => {
   const navigate= useNavigate()
   const isAuthenticated = useSelector((state:any) => state.auth.isAuthenticated);
-  // useEffect(() => {
-  //   if (!isAuthenticated) {
-  //     navigate('/login');
-  //   }
-  // }, [isAuthenticated, navigate]);
 
   const routes = useRoutes(
     [
-      //{ path: "/", element: <DashBoard/> },
       { path: "/", element: <PrivateRoute allowedRoles={['role_1', 'role_2', 'role_3']}><DashBoard /></PrivateRoute> },
 
       { path: "/login", element: <Login/>  },
-      { path: "/employee", element: <Employee/> },
-      { path: "/employee/:employeeId", element: <EmployeeDetail/> },
-      { path: "/department", element: <Department/> },
-      { path: "/timekeeping", element: <Timekeeping/> },
+      { path: "/employee", element: (<PrivateRoute allowedRoles={['role_1', 'role_2', 'role_3']}><Employee /></PrivateRoute>) },
+      { 
+        path: "/employee/:employeeId", 
+        element: (
+          <PrivateRoute allowedRoles={['role_1', 'role_2', 'role_3']}>
+            <EmployeeDetail />
+          </PrivateRoute>
+        ) 
+      },
+      { 
+        path: "/department", 
+        element: (
+          <PrivateRoute allowedRoles={['role_1', 'role_2', 'role_3']}>
+            <Department />
+          </PrivateRoute>
+        ) 
+      },
+      { 
+        path: "/timekeeping", 
+        element: (
+          <PrivateRoute allowedRoles={['role_1', 'role_2', 'role_3']}>
+            <Timekeeping />
+          </PrivateRoute>
+        ) 
+      },
       { path: "/test", element: <Emty/> },
       { path: "/test1", element: <Emty/> },
       { path: "/test2", element: <Emty/> },

@@ -2,27 +2,27 @@ import { Model, DataTypes } from "sequelize";
 
 interface TimekeepingAttributes {
   id: number;
-  employee_id: string;
+  employee_id: number;
   work_date: Date;
   check_in: Date | null;
   check_out: Date | null;
   total_hours: number;
   status: string;
-  created_at?: Date;
-  updated_at?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 module.exports = (sequelize: any, DataTypes: any) => {
   class Timekeeping extends Model<TimekeepingAttributes> implements TimekeepingAttributes {
     id!: number;
-    employee_id!: string;
+    employee_id!: number;
     work_date!: Date;
     check_in!: Date | null;
     check_out!: Date | null;
     total_hours!: number;
     status!: string;
-    created_at?: Date;
-    updated_at?: Date;
+    createdAt?: Date;
+    updatedAt?: Date;
 
     static associate(models: any) {
       Timekeeping.belongsTo(models.Employee, {
@@ -41,7 +41,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
         primaryKey: true,
       },
       employee_id: {
-        type: DataTypes.STRING(20),
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
       work_date: {
@@ -49,11 +49,11 @@ module.exports = (sequelize: any, DataTypes: any) => {
         allowNull: false,
       },
       check_in: {
-        type: DataTypes.DATE,
+        type: DataTypes.TIME,
         allowNull: true,
       },
       check_out: {
-        type: DataTypes.DATE,
+        type: DataTypes.TIME,
         allowNull: true,
       },
       total_hours: {
@@ -61,25 +61,23 @@ module.exports = (sequelize: any, DataTypes: any) => {
         defaultValue: 0,
       },
       status: {
-        type: DataTypes.ENUM("normal", "late", "early", "absent"),
-        defaultValue: "normal",
+        type: DataTypes.STRING,
+        defaultValue: "On time",
       },
-      created_at: {
+      createdAt: {     
         type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
+        allowNull: false,
       },
-      updated_at: {
+      updatedAt: {     
         type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
+        allowNull: false,
       },
     },
     {
       sequelize,
       modelName: "Timekeeping",
-      tableName: "timekeeping",
+      tableName: "Timekeeping",
       timestamps: true,
-      createdAt: "created_at",
-      updatedAt: "updated_at",
     }
   );
 

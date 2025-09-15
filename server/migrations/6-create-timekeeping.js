@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Timekeepings", {
+    await queryInterface.createTable("Timekeeping", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -19,7 +19,7 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE"
       },
-      working_day: {
+      work_date: {
         type: Sequelize.DATEONLY,
         allowNull: false,
       },
@@ -30,6 +30,10 @@ module.exports = {
       check_out: {
         type: Sequelize.TIME,
         allowNull: true,
+      },
+      total_hours: {
+        type: Sequelize.DECIMAL(5, 2),
+        defaultValue: 0,
       },
       status: {
         type: Sequelize.STRING,
@@ -46,6 +50,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Timekeepings");
+    await queryInterface.dropTable("Timekeeping");
   }
 };
