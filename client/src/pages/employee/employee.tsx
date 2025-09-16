@@ -12,6 +12,8 @@ import EmployeeFormCreate from "./form/employeeCreate";
 import EmployeeFormUpdate from "./form/employeeUpdate";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
 
 const Employee = () => {
   const [employeeData, setEmployeeData] = useState<any[]>([]);
@@ -23,17 +25,28 @@ const Employee = () => {
   const [visible, setVisible] = useState(false);
   const toast = useRef<Toast | null>(null);
 
+  // Lấy token từ Redux
+  const token = useSelector((state: RootState) => state.auth.token);
+
   useEffect(() => {
     getEmployee();
   }, []);
 
   const getEmployee = async () => {
-    const result = await AxiosInstance.get(apiUrl.employee.index);
-    if (result.data) {
-      const rows = result.data.data || [];
-      setEmployeeData(rows);
-      setFiltered(rows); // đồng bộ dữ liệu ban đầu cho bảng
-      statisticalEmployee(rows);
+    try {
+      const result = await AxiosInstance.get(apiUrl.employee.index, {
+        headers: {
+          'Authorization': `Bearer ${token}`,  // Gửi token trong header
+        }
+      });
+      if (result.data) {
+        const rows = result.data.data || [];
+        setEmployeeData(rows);
+        setFiltered(rows); // Đồng bộ dữ liệu ban đầu cho bảng
+        statisticalEmployee(rows);
+      }
+    } catch (error) {
+      console.error("Error fetching employees:", error);
     }
   };
 
