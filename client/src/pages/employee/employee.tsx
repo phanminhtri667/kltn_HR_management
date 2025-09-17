@@ -28,14 +28,35 @@ const Employee = () => {
   }, []);
 
   const getEmployee = async () => {
-    const result = await AxiosInstance.get(apiUrl.employee.index);
-    if (result.data) {
-      const rows = result.data.data || [];
-      setEmployeeData(rows);
-      setFiltered(rows); // đồng bộ dữ liệu ban đầu cho bảng
-      statisticalEmployee(rows);
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user'); // Lấy thông tin người dùng từ localStorage
+  
+    // Kiểm tra role và department_id
+    const role = user ? JSON.parse(user).role_code : null;
+    const department_id = user ? JSON.parse(user).department_id : null;
+  
+    let url = apiUrl.employee.index; // Default URL cho admin
+  
+    // Nếu là Leader (role_2), chỉ lấy nhân viên thuộc phòng ban của Leader
+    if (role === 'role_2' && department_id) {
+      url = `${apiUrl.employee.department}/${department_id}`; // Lấy nhân viên trong cùng phòng ban của Leader
+    }
+  
+    // Gọi API để lấy dữ liệu nhân viên
+    try {
+      const result = await AxiosInstance.get(url);
+  
+      if (result.data) {
+        const rows = result.data.data || [];
+        setEmployeeData(rows);
+        setFiltered(rows); // Đồng bộ dữ liệu ban đầu cho bảng
+        statisticalEmployee(rows);
+      }
+    } catch (error) {
+      console.error("Error fetching employee data: ", error);
     }
   };
+  
 
   const statisticalEmployee = (data: Record<string, any>[]) => {
     const now = new Date().getTime();

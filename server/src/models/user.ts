@@ -10,6 +10,7 @@ interface UserAttributes {
   email: string;
   password: string;
   role_code: string;
+  department_id: number;
   deleted:string
 }
 
@@ -26,11 +27,15 @@ module.exports = (sequelize: any, DataTypes: any) => {
     email!: string;
     password!: string;
     role_code!: string;
+    department_id!: number;
     deleted!: string;
     static associate(models: any) {
       User.belongsTo(models.Role, {
         foreignKey: 'role_code', targetKey: 'code'
-      })
+      });
+      User.belongsTo(models.Department, {
+        foreignKey: 'department_id', targetKey: 'id'
+      });
     }
   };
   User.init({
@@ -56,6 +61,14 @@ module.exports = (sequelize: any, DataTypes: any) => {
     role_code: {
       type: DataTypes.STRING,
       allowNull: false
+    },
+    department_id: {  // Thêm department_id
+      type: DataTypes.INTEGER,
+      allowNull: true, // Nếu có thể không có phòng ban cho một số người dùng
+      references: {
+        model: 'Departments',  // Liên kết với bảng Departments
+        key: 'id',
+      },
     },
     deleted: {
       type: DataTypes.STRING,

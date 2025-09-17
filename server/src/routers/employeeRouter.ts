@@ -5,7 +5,7 @@ import {body, validationResult} from 'express-validator';
 
 const router = Router();
 
-// router.use(verifyToken)
+router.use(verifyToken);
 
 router.get('/',employeeController.getAllEmployee);
 
