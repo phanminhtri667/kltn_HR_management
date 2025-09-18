@@ -15,7 +15,7 @@ module.exports = {
     // Dữ liệu mẫu cố định (4 nhân viên đầu tiên)
     const fixedEmployees = [
       {
-        employee_id: 137,
+        employee_id: 'AD0001',
         full_name: 'Trương Minh Tâm',
         first_name: 'Tâm',
         phone: '0123445556',
@@ -25,50 +25,50 @@ module.exports = {
         department_id: 1,
         position_id: 2,
         deleted: '0',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        createdAt: new Date('2023-10-10'),
+        updatedAt: new Date('2023-10-10')
       },
       {
-        employee_id: 136,
+        employee_id: 'AD0002',
         full_name: 'Trương Huỳnh Anh Thông',
         first_name: 'Thông',
         phone: '0925578467',
         email: 'thongtha@gmail.com',
         gender: 'male',
-        dayOfBirth: new Date(),
+        dayOfBirth: new Date('1992-03-15'),
         department_id: 1,
         position_id: 3,
         deleted: '0',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        createdAt: new Date('2023-10-10'),
+        updatedAt: new Date('2023-10-10')
       },
       {
-        employee_id: 135,
+        employee_id: 'AD0003',
         full_name: 'Đinh Hoàng Vũ',
         first_name: 'Vũ',
         phone: '0897784876',
         email: 'vudh@gmail.com',
         gender: 'male',
-        dayOfBirth: new Date(),
+        dayOfBirth: new Date('1991-08-20'),
         department_id: 1,
         position_id: 3,
         deleted: '0',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        createdAt: new Date('2023-10-10'),
+        updatedAt: new Date('2023-10-10')
       },
       {
-        employee_id: 115,
+        employee_id: 'AD0004',
         full_name: 'Phan Đình Trung',
         first_name: 'Trung',
         phone: '0425598648',
         email: 'trungpd@gmail.com',
         gender: 'male',
-        dayOfBirth: new Date(),
+        dayOfBirth: new Date('1993-07-01'),
         department_id: 1,
         position_id: 3,
         deleted: '0',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        createdAt: new Date('2023-10-10'),
+        updatedAt: new Date('2023-10-10')
       }
     ];
 
@@ -78,14 +78,13 @@ module.exports = {
 
     const randomEmployees = [];
     // Dải ID bắt đầu từ 100 trở lên để tránh trùng với fixed IDs
-    let employeeIdCounter = 100;
+    let employeeIdCounter = 5;
 
     for (let i = 5; i < 20; i++) {
-      const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+      const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];  
       const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
       const email = removeDiacritics(firstName + lastName.split(' ')[0]) + '@gmail.com';
-      //const employeeId = 'AD' + i.toString().padStart(4, '0');
-      const employeeId = employeeIdCounter;
+      const employeeId = 'AD' + i.toString().padStart(4, '0');
       //if (existingIds.has(employeeId) || existingEmails.has(email)) continue; // bỏ qua nếu đã tồn tại
       if (
         existingIds.has(employeeId) ||

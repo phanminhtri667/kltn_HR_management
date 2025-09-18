@@ -22,7 +22,6 @@ class AuthController {
   public login = async (req: Request, res: Response) => {
     try {
       const { error } = Joi.object({email,password}).validate(req.body)
-      // if (error) return badRequest(error.details[0].message, res)
       const response = await authService.login(req.body);
      if (response.err === 0) {
        io.emit("login_success", "Đăng nhập thành công");

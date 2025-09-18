@@ -12,6 +12,8 @@ import EmployeeFormCreate from "./form/employeeCreate";
 import EmployeeFormUpdate from "./form/employeeUpdate";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
 
 const Employee = () => {
   const [employeeData, setEmployeeData] = useState<any[]>([]);
@@ -22,6 +24,9 @@ const Employee = () => {
   const [employeeSelected, setEmployeeSelected] = useState<Record<string, any>>({});
   const [visible, setVisible] = useState(false);
   const toast = useRef<Toast | null>(null);
+
+  // Lấy token từ Redux
+  const token = useSelector((state: RootState) => state.auth.token);
 
   useEffect(() => {
     getEmployee();
@@ -45,7 +50,6 @@ const Employee = () => {
     // Gọi API để lấy dữ liệu nhân viên
     try {
       const result = await AxiosInstance.get(url);
-  
       if (result.data) {
         const rows = result.data.data || [];
         setEmployeeData(rows);
