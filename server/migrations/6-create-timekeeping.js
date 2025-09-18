@@ -39,6 +39,16 @@ module.exports = {
         type: Sequelize.STRING,
         defaultValue: "On time"
       },
+      department_id: {  // Thêm cột department_id
+        type: Sequelize.INTEGER,
+        allowNull: true, // Để cho phép null vì có thể một số bản ghi không có department_id
+        references: {
+          model: "Departments",  // Liên kết với bảng Departments
+          key: "id"
+        },
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL",  // Nếu phòng ban bị xóa, set null cho nhân viên
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
