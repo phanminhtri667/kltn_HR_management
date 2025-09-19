@@ -125,7 +125,6 @@ const Employee = () => {
         value={q}
         onChange={(e) => setQ(e.target.value)}
         placeholder="Search by Employee ID (e.g., AD0001)"
-        className="p-inputtext-sm search-input"
       />
     </span>
     <Button

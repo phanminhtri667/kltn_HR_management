@@ -8,6 +8,9 @@ interface TimekeepingAttributes {
   check_out: Date | null;
   total_hours: number;
   status: string;
+  ot_weekday_hours: number;  // Thêm cột giờ OT trong tuần
+  ot_weekend_hours: number;  // Thêm cột giờ OT cuối tuần
+  ot_holiday_hours: number;  // Thêm cột giờ OT ngày lễ
   created_at?: Date;
   updated_at?: Date;
 }
@@ -21,6 +24,9 @@ module.exports = (sequelize: any, DataTypes: any) => {
     check_out!: Date | null;
     total_hours!: number;
     status!: string;
+    ot_weekday_hours!: number;  // Giờ OT trong tuần
+    ot_weekend_hours!: number;  // Giờ OT cuối tuần
+    ot_holiday_hours!: number;  // Giờ OT ngày lễ
     created_at?: Date;
     updated_at?: Date;
 
@@ -63,6 +69,18 @@ module.exports = (sequelize: any, DataTypes: any) => {
       status: {
         type: DataTypes.ENUM("normal", "late", "early", "absent"),
         defaultValue: "normal",
+      },
+      ot_weekday_hours: {
+        type: DataTypes.DECIMAL(5, 2),
+        defaultValue: 0,  // Giờ làm thêm trong tuần
+      },
+      ot_weekend_hours: {
+        type: DataTypes.DECIMAL(5, 2),
+        defaultValue: 0,  // Giờ làm thêm cuối tuần
+      },
+      ot_holiday_hours: {
+        type: DataTypes.DECIMAL(5, 2),
+        defaultValue: 0,  // Giờ làm thêm ngày lễ
       },
       created_at: {
         type: DataTypes.DATE,

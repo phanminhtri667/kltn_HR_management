@@ -20,6 +20,9 @@ const apiUrl = {
   timekeeping: {                           // ✅ nếu sau này cần chấm công
     index: `${api}/timekeeping`,
   },
+  payroll: {  // ✅ Thêm block payroll vào đây
+    index: `${api}/payroll`,       // Endpoint lấy tất cả bảng lương
+  },
 };
 
 export default apiUrl;

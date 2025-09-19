@@ -14,6 +14,7 @@ import positionRouter from "./src/routers/positionRouter";
 import notificationRouter from "./src/routers/notificationRouter";
 import timekeepingRouter from "./src/routers/timekeepingRouter";
 import workingHoursRouter from "./src/routers/workingHoursRouter";
+import payrollRouter from "./src/routers/payrollRouter"; // Thêm Payroll Router
 
 // Middlewares
 import { notFound, errorHandler } from "./src/middlewares/handle_error";
@@ -49,6 +50,7 @@ app.use("/api/position", positionRouter);
 app.use("/api/notification", notificationRouter);
 app.use("/api/timekeeping", timekeepingRouter);
 app.use("/api/working-hours", workingHoursRouter);
+app.use("/api/payroll", payrollRouter); // Thêm route cho Payroll
 
 // Error handling (⚡ phải đặt cuối cùng)
 app.use(notFound);

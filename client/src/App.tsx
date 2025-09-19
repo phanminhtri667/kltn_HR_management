@@ -14,7 +14,7 @@ import axios from './services/axios';
 import apiUrl from './constant/apiUrl';
 import {setPosition} from './redux/features/positionSlice';
 import Timekeeping from "./pages/timekeeping/Timekeeping";
-
+import Payroll from "./pages/payroll/payroll";  // ✅ Thêm route cho Payroll
 
 const AppRoutes = () => {
   const navigate= useNavigate()
@@ -33,8 +33,7 @@ const AppRoutes = () => {
       { path: "/employee/:employeeId", element: <EmployeeDetail/> },
       { path: "/department", element: <Department/> },
       { path: "/timekeeping", element: <Timekeeping/> },
-      { path: "/test", element: <Emty/> },
-      { path: "/test1", element: <Emty/> },
+      { path: "/payroll", element: <Payroll /> },  // ✅ Thêm route Payroll
       { path: "/test2", element: <Emty/> },
       { path: "/test3", element: <Emty/> },
       { path: "/test4", element: <Emty/> },
