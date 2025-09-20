@@ -14,6 +14,7 @@ interface PayrollPayslipLineAttributes {
   deduction: number;
   received_salary: number;
   month: string;
+  absent_days: number;  // Thêm cột absent_days
   created_at: Date;
   updated_at: Date;
 }
@@ -33,38 +34,29 @@ module.exports = (sequelize: any) => {
     public deduction!: number;
     public received_salary!: number;
     public month!: string;
+    public absent_days!: number;  // Thêm cột absent_days
     public created_at!: Date;
     public updated_at!: Date;
 
     static associate(models: any) {
-      // Liên kết với Employee
       PayrollPayslipLine.belongsTo(models.Employee, {
         foreignKey: "employee_id",
         targetKey: "employee_id",
         as: "employee",  // Alias cho liên kết
       });
-      // Liên kết với Timekeeping (nếu cần thiết để lấy giờ công làm việc)
-      PayrollPayslipLine.belongsTo(models.Timekeeping, {
-        foreignKey: "employee_id",  // Liên kết với bảng Timekeeping qua `employee_id`
-        targetKey: "employee_id",   // Khóa chính trong bảng Timekeeping
-        as: "timekeeping",          // Alias cho liên kết
-      });
-      
-
     }
   }
 
   PayrollPayslipLine.init(
     {
       id: {
-   
-        primaryKey: true,
         type: DataTypes.BIGINT,
         autoIncrement: true,
+        primaryKey: true,
       },
       employee_id: {
-        allowNull: false,
         type: DataTypes.STRING,
+        allowNull: false,
       },
       total_work_hours: {
         type: DataTypes.DECIMAL(5, 2),
@@ -109,6 +101,10 @@ module.exports = (sequelize: any) => {
       month: {
         type: DataTypes.STRING(7),
         allowNull: false,
+      },
+      absent_days: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,  // Default là 0 nếu không có giá trị
       },
       created_at: {
         type: DataTypes.DATE,
