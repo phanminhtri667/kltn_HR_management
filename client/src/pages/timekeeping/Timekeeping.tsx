@@ -9,8 +9,14 @@ import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import AxiosInstance from "../../services/axios";
 import apiUrl from "../../constant/apiUrl";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
+import { logout } from "../../redux/features/authSlice";
 
 const Timekeeping = () => {
+  const dispatch = useDispatch();
+  const { user } = useSelector((state: RootState) => state.auth); // Lấy thông tin người dùng từ Redux
+
   const [workingHours, setWorkingHours] = useState<any>(null);
 
   // dữ liệu bảng chấm công
@@ -33,6 +39,14 @@ const Timekeeping = () => {
     getDepartments();
     load(); // lần đầu load tất cả
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      setEmployeeId("");  // Hoặc các giá trị mặc định nếu cần
+      setDepartmentId(user.department_id || "");  // Lấy phòng ban của người dùng từ Redux
+      load();  // Tải lại dữ liệu từ API
+    }
+  }, [user]);  // Khi user thay đổi
 
   // tự động load khi filter thay đổi (debounce 300ms)
   useEffect(() => {
@@ -63,12 +77,11 @@ const Timekeeping = () => {
       setLoading(true);
       const params: TimekeepingFilters = {
         employee_id: employeeId.trim() || undefined,
-        department_id: departmentId || undefined,
+        department_id: user?.role_code === "role_2" ? departmentId : departmentId || undefined, // Nếu là quản lý chỉ lấy phòng ban của họ
         date_from: dateFrom || undefined,
         date_to: dateTo || undefined,
       };
       const res = await timekeepingApi.list(params);
-      // service list trả { err, data }
       setTimekeepingData(res?.data?.data || []);
     } catch (err) {
       console.error(err);
@@ -104,7 +117,7 @@ const Timekeeping = () => {
 
   const clearFilters = () => {
     setEmployeeId("");
-    setDepartmentId("");
+    setDepartmentId(user?.department_id || ""); // Đặt lại phòng ban mặc định
     setDateFrom("");
     setDateTo("");
   };
@@ -181,13 +194,21 @@ const Timekeeping = () => {
             value={departmentId}
             onChange={(e) => setDepartmentId(e.target.value)}
             style={{ padding: 8, borderRadius: 6, border: "1px solid #ddd" }}
+            disabled={user?.role_code === "role_2"}  // Disable dropdown cho role_2
           >
-            <option value="">All departments</option>
-            {departments.map((d: any) => (
-              <option key={d.id} value={d.id}>
-                {d.value}
-              </option>
-            ))}
+            <option value="">
+              {departmentId
+                ? departments.find(d => d.id === departmentId)?.value  // Hiển thị tên phòng ban đã chọn
+                : "All departments"  // Nếu không có phòng ban được chọn, hiển thị "All departments"
+              }
+            </option>
+            {user?.role_code === "role_1" &&  // Hiển thị dropdown cho role_1
+              departments.map((d: any) => (
+                <option key={d.id} value={d.id}>
+                  {d.value}
+                </option>
+              ))
+            }
           </select>
 
           {/* Date from */}

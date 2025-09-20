@@ -1,3 +1,4 @@
+// server/src/middlewares/verify_token.ts
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { badRequest, notAuth } from "./handle_error";
