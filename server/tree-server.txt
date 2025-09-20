@@ -1,0 +1,84 @@
+.
+├── config
+│   └── config.json
+├── index.ts
+├── migrations
+│   ├── 1-create-department.js
+│   ├── 2-create-position.js
+│   ├── 3-create-role.js
+│   ├── 4-create-user.js
+│   ├── 5-create-employee.js
+│   ├── 6-create-timekeeping.js
+│   ├── 7-create-working-hours.js
+│   ├── 8-create-leave-requests.js
+│   └── 9-create-notification.js
+├── package.json
+├── package-lock.json
+├── README.md
+├── seeders
+│   ├── 1-create-department.js
+│   ├── 2-create-position.js
+│   ├── 3-create-role.js
+│   ├── 4-create-user.js
+│   ├── 5-create-employee.js
+│   ├── 6-create-timekeeping.js
+│   ├── 7-create-working-hours.js
+│   └── 8-create-leave-requests.js
+├── src
+│   ├── config
+│   │   └── databaseConfig.ts
+│   ├── controllers
+│   │   ├── authController.ts
+│   │   ├── departmentController.ts
+│   │   ├── employeeController.ts
+│   │   ├── leaveRequestController.ts
+│   │   ├── notificationController.ts
+│   │   ├── positionController.ts
+│   │   ├── roleController.ts
+│   │   ├── timekeepingController.ts
+│   │   ├── userController.ts
+│   │   └── workingHoursController.ts
+│   ├── middlewares
+│   │   ├── handle_error.ts
+│   │   └── verify_token.ts
+│   ├── models
+│   │   ├── department.ts
+│   │   ├── employee.ts
+│   │   ├── index.ts
+│   │   ├── notification.ts
+│   │   ├── position.ts
+│   │   ├── role.ts
+│   │   ├── timekeeping.ts
+│   │   ├── user.ts
+│   │   └── working_hours.ts
+│   ├── routers
+│   │   ├── authRouter.ts
+│   │   ├── departmentRouter.ts
+│   │   ├── employeeRouter.ts
+│   │   ├── leaveRequestRouter.ts
+│   │   ├── notificationRouter.ts
+│   │   ├── positionRouter.ts
+│   │   ├── roleRouter.ts
+│   │   ├── timekeepingRouter.ts
+│   │   ├── userRouter.ts
+│   │   └── workingHoursRouter.ts
+│   ├── services
+│   │   ├── authService.ts
+│   │   ├── departmentService.ts
+│   │   ├── employeeService.ts
+│   │   ├── notificationService.ts
+│   │   ├── positionService.ts
+│   │   ├── roleService.ts
+│   │   ├── timekeepingService.ts
+│   │   ├── userService.ts
+│   │   └── workingHoursService.ts
+│   ├── types
+│   │   └── express
+│   │       └── index.d.ts
+│   └── utils
+│       ├── commonUtils.ts
+│       └── joi_schema.ts
+├── tree-server.txt
+└── tsconfig.json
+
+13 directories, 68 files

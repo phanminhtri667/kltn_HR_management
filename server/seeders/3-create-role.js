@@ -2,32 +2,32 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkInsert('Departments', [
+    await queryInterface.bulkInsert('Roles', [
       {
-        code: 'PBNS',
-        value: 'Nhân sự',
+        code: 'role_1',
+        value: 'admin',
         deleted: '0',
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
-        code: 'PBKT',
-        value: 'Kế toán',
+        code: 'role_2',
+        value: 'leader',
         deleted: '0',
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
-        code: 'PBKD',
-        value: 'Kinh doanh',
+        code: 'role_3',
+        value: 'member',
         deleted: '0',
         createdAt: new Date(),
         updatedAt: new Date()
-      }
+      },
     ], {});
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkDelete('Departments', null, {});
+    await queryInterface.bulkDelete('Roles', null, {});
   }
 };

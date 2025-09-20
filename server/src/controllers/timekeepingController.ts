@@ -5,6 +5,11 @@ class TimekeepingController {
   // Lọc theo employee_id / department_id / date range
   public async list(req: Request, res: Response) {
     try {
+      // Lấy thông tin vai trò và phòng ban của người dùng từ token
+      const userRole = req.user.role_code;  // Vai trò người dùng (role_1 hoặc role_2)
+      const departmentId = req.user.department_id;  // ID phòng ban của người dùng
+
+      // Các tham số lọc khác
       const employee_id =
         typeof req.query.employee_id === "string" && req.query.employee_id.trim()
           ? req.query.employee_id.trim()
@@ -25,14 +30,31 @@ class TimekeepingController {
           ? req.query.date_to.trim()
           : undefined;
 
-      const result = await TimekeepingService.list({
-        employee_id,
-        department_id,
-        date_from,
-        date_to,
-      });
+      // Nếu người dùng là admin, hiển thị tất cả nhân viên
+      if (userRole === "role_1") {
+        const result = await TimekeepingService.list({
+          employee_id,
+          department_id,
+          date_from,
+          date_to,
+        });
+        return res.status(200).json(result);
+      }
 
-      return res.status(200).json(result);
+      // Nếu người dùng là quản lý (role_2), chỉ hiển thị nhân viên của phòng ban người quản lý
+      if (userRole === "role_2") {
+        const result = await TimekeepingService.list({
+          employee_id,
+          department_id: departmentId,  // Lọc theo phòng ban của người quản lý
+          date_from,
+          date_to,
+        });
+        return res.status(200).json(result);
+      }
+
+      // Nếu vai trò không hợp lệ, trả về lỗi
+      return res.status(403).json({ err: 1, mes: "Forbidden: Invalid role" });
+      
     } catch (e) {
       console.error("Error in list:", e);
       return res.status(500).json({ err: -1, mes: "Internal server error" });

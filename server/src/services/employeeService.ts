@@ -36,27 +36,27 @@ class EmployeeService {
     throw error;
   }
 };
-  public getAllEmployee = async () => {
-    try {
+public getAllEmployee = async () => {
+  try {
       const response = await db.Employee.findAll({
-        where: { deleted: "0" },
-        order: [["employee_id"]],
-        include: [
-          { model: db.Department, attributes: ["id", "code", "value"], as: "department" },
-          { model: db.Position, attributes: ["id", "code", "value"], as: "position" },
-        ],
+          where: { deleted: "0" },
+          order: [["employee_id"]],
+          include: [
+              { model: db.Department, attributes: ["id", "code", "value"], as: "department" },
+              { model: db.Position, attributes: ["id", "code", "value"], as: "position" },
+          ],
       });
 
       return {
-        err: response.length > 0 ? 0 : 1,
-        mes: response.length > 0 ? "Get employees successfully" : "No employees found",
-        data: response,
+          err: response.length > 0 ? 0 : 1,
+          mes: response.length > 0 ? "Get employees successfully" : "No employees found",
+          data: response,
       };
-    } catch (error) {
+  } catch (error) {
       console.error("Error in getAllEmployee:", error);
       throw error;
-    }
-  };
+  }
+};
 
   public insertEmployee = async (data: any) => {
     try {
@@ -118,20 +118,21 @@ class EmployeeService {
 
   // Lấy nhân viên theo phòng ban
   public getEmployeesByDepartment = async (departmentId: number) => {
-  try {
-    const employees = await db.Employee.findAll({
-      where: { department_id: departmentId, deleted: "0" },
-      include: [
-        { model: db.Department, attributes: ["id", "code", "value"], as: "department" },
-        { model: db.Position, attributes: ["id", "code", "value"], as: "position" },
-      ],
-    });
-    return { err: 0, data: employees };
-  } catch (error) {
-    console.error(error);
-    return { err: -1, mes: "Internal server error" };
-  }
+    try {
+        const employees = await db.Employee.findAll({
+            where: { department_id: departmentId, deleted: "0" },
+            include: [
+                { model: db.Department, attributes: ["id", "code", "value"], as: "department" },
+                { model: db.Position, attributes: ["id", "code", "value"], as: "position" },
+            ],
+        });
+        return { err: 0, data: employees };
+    } catch (error) {
+        console.error(error);
+        return { err: -1, mes: "Internal server error" };
+    }
 };
+
 }
 
 export default new EmployeeService();

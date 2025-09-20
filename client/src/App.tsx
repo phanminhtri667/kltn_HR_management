@@ -5,6 +5,12 @@ import Employee from "./pages/employee/employee";
 import Department from "./pages/department/department";
 import EmployeeDetail from "./pages/employee/detail/EmployeeDetail";
 import Login from "./pages/login/login";
+// thêm 
+import TimekeepingPage from "./pages/timekeeping/index";
+import LeavePage from "./pages/leave/index";
+import PrivateRoute from "./components/PrivateRoute"; 
+import ApproveLeave from "./pages/approve-leave/ApproveLeave";
+
 import {useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {checkToken} from "./redux/features/authSlice";
@@ -19,21 +25,40 @@ import Payroll from "./pages/payroll/payroll";  // ✅ Thêm route cho Payroll
 const AppRoutes = () => {
   const navigate= useNavigate()
   const isAuthenticated = useSelector((state:any) => state.auth.isAuthenticated);
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-    }
-  }, [isAuthenticated, navigate]);
 
   const routes = useRoutes(
     [
-      { path: "/", element: <DashBoard/> },
+      { path: "/", element: <PrivateRoute allowedRoles={['role_1', 'role_2', 'role_3']}><DashBoard /></PrivateRoute> },
+
       { path: "/login", element: <Login/>  },
-      { path: "/employee", element: <Employee/> },
-      { path: "/employee/:employeeId", element: <EmployeeDetail/> },
-      { path: "/department", element: <Department/> },
-      { path: "/timekeeping", element: <Timekeeping/> },
-      { path: "/payroll", element: <Payroll /> },  // ✅ Thêm route Payroll
+      { path: "/employee", element: (<PrivateRoute allowedRoles={['role_1', 'role_2', 'role_3']}><Employee /></PrivateRoute>) },
+      { 
+        path: "/employee/:employeeId", 
+        element: (
+          <PrivateRoute allowedRoles={['role_1', 'role_2', 'role_3']}>
+            <EmployeeDetail />
+          </PrivateRoute>
+        ) 
+      },
+      { 
+        path: "/department", 
+        element: (
+          <PrivateRoute allowedRoles={['role_1', 'role_2', 'role_3']}>
+            <Department />
+          </PrivateRoute>
+        ) 
+      },
+      { 
+        path: "/timekeeping", 
+        element: (
+          <PrivateRoute allowedRoles={['role_1', 'role_2', 'role_3']}>
+            <Timekeeping />
+          </PrivateRoute>
+        ) 
+      },
+      { path: "/payroll", element: <Payroll /> },
+      { path: "/test", element: <Emty/> },
+      { path: "/test1", element: <Emty/> },
       { path: "/test2", element: <Emty/> },
       { path: "/test3", element: <Emty/> },
       { path: "/test4", element: <Emty/> },

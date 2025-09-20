@@ -6,6 +6,7 @@ const apiUrl = {
   },
   employee: {
     index: `${api}/employee`,
+    department: `${api}/employee/department`,
     update: `${api}/employee/`,
   },
   department: {

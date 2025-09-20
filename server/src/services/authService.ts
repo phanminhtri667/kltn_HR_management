@@ -16,10 +16,11 @@ class AuthService {
                     name: 'Default Name',
                     avatar: 'link',
                     role_code: 'role_3',
+                    department_id: null,
                 }
             });
             const token = response[1] ? jwt.sign(
-                {id: response[0].id, email: response[0].email, role_code: response[0].role_code}, process.env.JWT_SECRET!, {expiresIn: '555d'}
+                {id: response[0].id, email: response[0].email, role_code: response[0].role_code, department_id: response[0].department_id}, process.env.JWT_SECRET!, {expiresIn: '555d'}
             ) : null;
 
 
@@ -39,7 +40,7 @@ class AuthService {
             const response = await db.User.findOne({
                 where: {email},
                 attributes:{
-                    include: ['password', 'role_code']
+                    include: ['password', 'role_code' , 'department_id']
                 },
                 include: [
                     {
@@ -53,13 +54,23 @@ class AuthService {
             });
 
             const isChecked = response && bcrypt.compareSync(password, response.password);
-            const token = isChecked ? jwt.sign({id: response.id, email: response.email, role_code: response.role_code}, process.env.JWT_SECRET!, {expiresIn: '365d'}) : null;
+            const token = isChecked ? jwt.sign({id: response.id, email: response.email, role_code: response.role_code, department_id: response.department_id}, process.env.JWT_SECRET!, {expiresIn: '365d'}) : null;
+            
             resolve({
                 err: token ? 0 : 1,
-                mes: token ? 'Login successfully' : response ? 'wrong password' : 'Email is not registered',
+                mes: token ? 'Login successfully' : response ? 'Wrong password' : 'Email is not registered',
                 access_token: token ? `Bearer ${token}` : null,
-                data: response
-            });
+                user: token
+                  ? {
+                      id: response.id,
+                      name: response.name,
+                      email: response.email,
+                      role_code: response.role_code,
+                      department_id: response.department_id,
+                    }
+                  : null,
+              });
+              // code mới
 
         } catch (error) {
             reject(error);

@@ -12,6 +12,7 @@ import employeeRouter from "./src/routers/employeeRouter";
 import departmentRouter from "./src/routers/departmentRouter";
 import positionRouter from "./src/routers/positionRouter";
 import notificationRouter from "./src/routers/notificationRouter";
+import leaveRequestRouter from "./src/routers/leaveRequestRouter";
 import timekeepingRouter from "./src/routers/timekeepingRouter";
 import workingHoursRouter from "./src/routers/workingHoursRouter";
 import payrollRouter from "./src/routers/payrollRouter"; // Thêm Payroll Router
@@ -35,6 +36,8 @@ const io = new SocketIOServer(server, {
 app.use(cors({ origin: process.env.CORS_ORIGIN || "*", credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use("/api/timekeeping", timekeepingRouter);
+app.use("/api/leave-request", leaveRequestRouter);
 
 // Health check
 app.get("/", (_req, res) => res.send("API OK"));

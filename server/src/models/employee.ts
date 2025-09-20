@@ -65,7 +65,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
     {
       sequelize,
       modelName: "Employee",
-      tableName: "employees", // ✅ rõ ràng
+      tableName: "Employees", // ✅ rõ ràng
       timestamps: true,
     }
   );

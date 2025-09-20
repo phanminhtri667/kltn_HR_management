@@ -21,6 +21,16 @@ module.exports = {
       role_code: {
         type: Sequelize.STRING, defaultValue: 'role_3'
       },
+      department_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: "Departments", // trỏ tới bảng Departments
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL",
+      },
       deleted: {
         type: Sequelize.STRING,defaultValue : '0' 
       },

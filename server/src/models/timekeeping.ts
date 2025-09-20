@@ -2,7 +2,7 @@ import { Model, DataTypes } from "sequelize";
 
 interface TimekeepingAttributes {
   id: number;
-  employee_id: string;
+  employee_id: number;
   work_date: Date;
   check_in: Date | null;
   check_out: Date | null;
@@ -18,7 +18,7 @@ interface TimekeepingAttributes {
 module.exports = (sequelize: any, DataTypes: any) => {
   class Timekeeping extends Model<TimekeepingAttributes> implements TimekeepingAttributes {
     id!: number;
-    employee_id!: string;
+    employee_id!: number;
     work_date!: Date;
     check_in!: Date | null;
     check_out!: Date | null;
@@ -47,7 +47,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
         primaryKey: true,
       },
       employee_id: {
-        type: DataTypes.STRING(20),
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
       work_date: {
@@ -55,11 +55,11 @@ module.exports = (sequelize: any, DataTypes: any) => {
         allowNull: false,
       },
       check_in: {
-        type: DataTypes.DATE,
+        type: DataTypes.TIME,
         allowNull: true,
       },
       check_out: {
-        type: DataTypes.DATE,
+        type: DataTypes.TIME,
         allowNull: true,
       },
       total_hours: {
@@ -67,8 +67,8 @@ module.exports = (sequelize: any, DataTypes: any) => {
         defaultValue: 0,
       },
       status: {
-        type: DataTypes.ENUM("normal", "late", "early", "absent"),
-        defaultValue: "normal",
+        type: DataTypes.STRING,
+        defaultValue: "On time",
       },
       ot_weekday_hours: {
         type: DataTypes.DECIMAL(5, 2),
@@ -84,11 +84,11 @@ module.exports = (sequelize: any, DataTypes: any) => {
       },
       created_at: {
         type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
+        allowNull: false,
       },
-      updated_at: {
+      updated_at: {     
         type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
+        allowNull: false,
       },
     },
     {

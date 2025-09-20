@@ -12,6 +12,8 @@ import EmployeeFormCreate from "./form/employeeCreate";
 import EmployeeFormUpdate from "./form/employeeUpdate";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
 
 const Employee = () => {
   const [employeeData, setEmployeeData] = useState<any[]>([]);
@@ -23,19 +25,42 @@ const Employee = () => {
   const [visible, setVisible] = useState(false);
   const toast = useRef<Toast | null>(null);
 
+  // Lấy token từ Redux
+  const token = useSelector((state: RootState) => state.auth.token);
+
   useEffect(() => {
     getEmployee();
   }, []);
 
   const getEmployee = async () => {
-    const result = await AxiosInstance.get(apiUrl.employee.index);
-    if (result.data) {
-      const rows = result.data.data || [];
-      setEmployeeData(rows);
-      setFiltered(rows); // đồng bộ dữ liệu ban đầu cho bảng
-      statisticalEmployee(rows);
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user'); // Lấy thông tin người dùng từ localStorage
+  
+    // Kiểm tra role và department_id
+    const role = user ? JSON.parse(user).role_code : null;
+    const department_id = user ? JSON.parse(user).department_id : null;
+  
+    let url = apiUrl.employee.index; // Default URL cho admin
+  
+    // Nếu là Leader (role_2), chỉ lấy nhân viên thuộc phòng ban của Leader
+    if (role === 'role_2' && department_id) {
+      url = `${apiUrl.employee.department}/${department_id}`; // Lấy nhân viên trong cùng phòng ban của Leader
+    }
+  
+    // Gọi API để lấy dữ liệu nhân viên
+    try {
+      const result = await AxiosInstance.get(url);
+      if (result.data) {
+        const rows = result.data.data || [];
+        setEmployeeData(rows);
+        setFiltered(rows); // Đồng bộ dữ liệu ban đầu cho bảng
+        statisticalEmployee(rows);
+      }
+    } catch (error) {
+      console.error("Error fetching employee data: ", error);
     }
   };
+  
 
   const statisticalEmployee = (data: Record<string, any>[]) => {
     const now = new Date().getTime();

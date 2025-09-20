@@ -25,6 +25,10 @@ import {
 } from "@fortawesome/free-regular-svg-icons";
 import { faAlgolia } from "@fortawesome/free-brands-svg-icons";
 import { Link, useLocation } from "react-router-dom";
+
+//them
+import { useSelector } from "react-redux";
+
 const menus = [
     { id: 1, name: "Dashboard", path: "/" },
     { id: 2, name: "Department", path: "/department" },
@@ -35,6 +39,9 @@ const menus = [
 ];
 const Sidebar = () => {
     // const
+    const userRole = useSelector((state: any) => state.auth.user?.role_code);
+    console.log("ROLE CODE:", userRole);  // 👈 kiểm tra đã lấy được chưa
+
     const location = useLocation();
 
     return (
@@ -86,25 +93,32 @@ const Sidebar = () => {
                         <p>DIRECTORIES</p>
                         <span>HRMS</span>
                         {menus.map((item, index) => {
-                            // console.log(item.path,location.pathname,item.path === location.pathname);
+                            let isVisible = false;
+
+                            if (userRole === "role_1") {
+                              isVisible = true; // admin thấy tất cả
+                            } else if (userRole === "role_2") {
+                              isVisible = item.name !== "Department"; // leader không thấy Department
+                            } else if (userRole === "role_3") {
+                              isVisible = !["Department", "Employee"].includes(item.name); // member không thấy cả hai
+                            }
+                          
+                            if (!isVisible) return null;
+                          
                             return (
-                                <Link
-                                    key={index}
-                                    to={item.path}
-                                    className={`menu-item pointer ${item.path === location.pathname ? "menu-active" : ""
-                                        }`}>
-                                    <p>
-                                        <FontAwesomeIcon
-                                            icon={
-                                                item.path === location.pathname
-                                                    ? faArrowRight
-                                                    : faEllipsis
-                                            }
-                                            className="menu-item-icon"
-                                        />
-                                        {item.name}
-                                    </p>
-                                </Link>
+                              <Link
+                                key={index}
+                                to={item.path}
+                                className={`menu-item pointer ${item.path === location.pathname ? "menu-active" : ""}`}
+                              >
+                                <p>
+                                  <FontAwesomeIcon
+                                    icon={item.path === location.pathname ? faArrowRight : faEllipsis}
+                                    className="menu-item-icon"
+                                  />
+                                  {item.name}
+                                </p>
+                              </Link>
                             );
                         })}
                     </div>
