@@ -5,50 +5,68 @@ import { Op } from "sequelize";
 
 class PayrollService {
   // Lấy bảng lương chi tiết của tất cả nhân viên theo tháng, phòng ban, hoặc nhân viên
-  public getAllPayrolls = async (filters: {
-    month?: string;
-    department_id?: number;
-    employee_id?: string;
-  }) => {
-    try {
-      const payrolls = await db.PayrollPayslipLine.findAll({
-        where: {
-          ...(filters.month && { month: filters.month }),  // Lọc theo tháng nếu có
-          ...(filters.department_id && { "$employee.department_id$": filters.department_id }),  // Lọc theo phòng ban nếu có
-          ...(filters.employee_id && { employee_id: filters.employee_id }),  // Lọc theo nhân viên nếu có
-        },
-        include: [
-          {
-            model: db.Employee,  // Liên kết với bảng Employee
-            as: "employee",  // Alias đã định nghĩa trong mô hình Employee
-            attributes: ["employee_id", "full_name", "basic_salary"],  // Các thuộc tính cần lấy từ bảng Employee
-            include: [
-              {
-                model: db.Department,  // Liên kết với bảng Department để lấy thông tin phòng ban
-                as: "department",  // Alias đã định nghĩa trong Employee
-                attributes: ["value"],  // Lấy tên phòng ban
-              },
-              {
-                model: db.Position,  // Liên kết với bảng Position để lấy thông tin vị trí
-                as: "position",  // Alias đã định nghĩa trong Employee
-                attributes: ["value"],  // Lấy tên vị trí
-              },
-            ],
-          },
-        ],
-        order: [["employee_id", "ASC"]],  // Sắp xếp theo employee_id và loại khoản (basic_salary, allowance, etc.)
-      });
+  public getAllPayrolls = async (
+  reqUser: { email: string; role_code: string; department_id?: number | null },
+  filters: { month?: string; department_id?: number; employee_id?: string }
+) => {
 
-      return {
-        err: payrolls.length > 0 ? 0 : 1,
-        mes: payrolls.length > 0 ? "Get payrolls successfully" : "No payrolls found",
-        data: payrolls,
-      };
-    } catch (error) {
-      console.error("Error in getAllPayrolls:", error);
-      throw error;
+  // ✅ role_2 & role_3: chỉ được xem của chính mình
+  if (reqUser.role_code === "role_2" || reqUser.role_code === "role_3") {
+    const emp = await db.Employee.findOne({
+      where: { email: reqUser.email },   // hoặc user_id: reqUser.id
+      attributes: ["employee_id"],
+    });
+    if (!emp) return { err: 0, data: [] };
+
+    const where: any = { employee_id: emp.employee_id };
+    if (filters.month) where.month = filters.month;
+
+    const rows = await db.PayrollPayslipLine.findAll({
+      where,
+      include: [{
+        model: db.Employee,
+        as: "employee",
+        attributes: ["employee_id", "full_name", "basic_salary", "department_id"],
+        include: [
+          { model: db.Department, as: "department", attributes: ["value"] },
+          { model: db.Position,   as: "position",   attributes: ["value"] },
+        ],
+      }],
+      order: [["employee_id", "ASC"]],
+    });
+    return { err: 0, data: rows };
+  }
+
+  // ✅ role_1: xem tất cả; hỗ trợ lọc department_id, month, employee_id
+  if (reqUser.role_code === "role_1") {
+    const where: any = {};
+    if (filters.month) where.month = filters.month;
+    if (filters.employee_id) where.employee_id = filters.employee_id; // 🔎 tìm theo mã nhân viên
+
+    const includeEmp: any = {
+      model: db.Employee,
+      as: "employee",
+      attributes: ["employee_id", "full_name", "basic_salary", "department_id"],
+      include: [
+        { model: db.Department, as: "department", attributes: ["value"] },
+        { model: db.Position,   as: "position",   attributes: ["value"] },
+      ],
+    };
+    if (filters.department_id) {
+      includeEmp.where = { department_id: Number(filters.department_id) };
+      includeEmp.required = true;
     }
-  };
+
+    const rows = await db.PayrollPayslipLine.findAll({
+      where,
+      include: [includeEmp],
+      order: [["employee_id", "ASC"]],
+    });
+    return { err: 0, data: rows };
+  }
+
+  return { err: 1, mes: "Forbidden" };
+};
 }
 
 export default new PayrollService();

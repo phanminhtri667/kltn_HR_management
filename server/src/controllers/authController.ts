@@ -1,36 +1,46 @@
-import  authService from '../services/authService';
-import { Request, Response } from 'express';
-import { email, password } from "../utils/joi_schema";
-import Joi from 'joi';
-import {badRequest, internalServerError} from '../middlewares/handle_error';
-import { io } from "../../index";
+import { Request, Response } from "express";
+import AuthService from "../services/authService";
+
 class AuthController {
-  public register = async (req: Request, res: Response) => {
+  // Đăng ký
+  async register(req: Request, res: Response) {
     try {
+      const response = await AuthService.register(req.body);
 
-      const { error } = Joi.object({email,password}).validate(req.body)
-      // if (error) return badRequest(error.details[0].message, res)
-      const response = await authService.register(req.body);
-      console.log('response',response);
-    
-      return res.status(200).json(response);
-    } catch (error) {
-      return internalServerError(res)
+      if (response.err === 0) {
+        return res.status(201).json(response); // Created
+      } else {
+        return res.status(400).json(response); // Bad Request (Email đã tồn tại)
+      }
+    } catch (error: any) {
+      console.error("Register error detail:", error);
+      return res.status(500).json({
+        err: 1,
+        mes: "Internal server error during register",
+        detail: error.message || error,
+      });
     }
-  };
+  }
 
-  public login = async (req: Request, res: Response) => {
+  // Đăng nhập
+  async login(req: Request, res: Response) {
     try {
-      const { error } = Joi.object({email,password}).validate(req.body)
-      const response = await authService.login(req.body);
-     if (response.err === 0) {
-       io.emit("login_success", "Đăng nhập thành công");
-     }
-      return res.status(200).json(response);
-    } catch (error) {
-      return internalServerError(res)
+      const response = await AuthService.login(req.body);
+
+      if (response.err === 0) {
+        return res.status(200).json(response); // OK
+      } else {
+        return res.status(401).json(response); // Unauthorized (sai pass / email chưa đăng ký)
+      }
+    } catch (error: any) {
+      console.error("Login error detail:", error);
+      return res.status(500).json({
+        err: 1,
+        mes: "Internal server error during login",
+        detail: error.message || error,
+      });
     }
-  };
+  }
 }
 
 export default new AuthController();

@@ -56,8 +56,14 @@ const AppRoutes = () => {
           </PrivateRoute>
         ) 
       },
-      { path: "/payroll", element: <Payroll /> },
-      { path: "/test", element: <Emty/> },
+      { 
+        path: "/payroll",
+        element: (
+          <PrivateRoute allowedRoles={['role_1','role_2','role_3']}>
+            <Payroll />
+          </PrivateRoute>
+        ),
+      },  
       { path: "/test1", element: <Emty/> },
       { path: "/test2", element: <Emty/> },
       { path: "/test3", element: <Emty/> },

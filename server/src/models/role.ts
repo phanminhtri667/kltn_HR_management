@@ -20,6 +20,10 @@ module.exports = (sequelize: any, DataTypes: any) => {
       // Role.belongsToMany(models.Project, {
       //   through: "ProjectAssignments",
       // });
+      Role.hasMany(models.User, {
+  foreignKey: 'role_code',
+  sourceKey: 'code',
+});
     }
   }
   Role.init(

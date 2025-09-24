@@ -15,14 +15,15 @@ const apiUrl = {
   position: {
     index: `${api}/position`,
   },
-  working_hours: {                         // ✅ thêm block này
+  working_hours: {                         
     index: `${api}/working-hours`,
   },
   timekeeping: {                           // ✅ nếu sau này cần chấm công
     index: `${api}/timekeeping`,
   },
-  payroll: {  // ✅ Thêm block payroll vào đây
+  payroll: { 
     index: `${api}/payroll`,       // Endpoint lấy tất cả bảng lương
+     mine:  `${api}/payroll/me`,  // Endpoint lấy bảng lương của chính mình
   },
 };
 
