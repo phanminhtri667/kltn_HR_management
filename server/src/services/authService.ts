@@ -1,3 +1,4 @@
+// server/src/services/authService.ts
 import db from '../models';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -37,42 +38,88 @@ class AuthService {
     
     public login = ({email, password}: any) => new Promise<any>(async (resolve, reject) => {
         try {
-            const response = await db.User.findOne({
-                where: {email},
-                attributes:{
-                    include: ['password', 'role_code' , 'department_id']
-                },
+            let account: any = await db.User.findOne({
+                where: { email },
+                attributes: { include: ['password', 'role_code', 'department_id'] },
                 include: [
                     {
                       model: db.Role,
                       attributes: ['id', 'code', 'value'],
-                      as: 'Role', 
+                      as: 'Role',
                     },
-                  ],
-                  raw: true,
-                  nest: true,
+                ],
+                raw: true,
+                nest: true,
+            });
+            let isEmployee = false;
+            if (!account) {
+                account = await db.Employee.findOne({
+                    where: { email },
+                    attributes: ['employee_id', 'full_name', 'email', 'password', 'role_code', 'department_id', 'basic_salary'],
+                    include: [
+                        {
+                        model: db.Position,
+                        attributes: ['id', 'code', 'value'],
+                        as: 'position',
+                        },
+                        {
+                        model: db.Department,
+                        attributes: ['id', 'code', 'value'],
+                        as: 'department',
+                        },
+                    ],
+                    raw: true,
+                    nest: true,
+                });
+                if (account) isEmployee = true;
+            }
+            // --- 3. Nếu không có thì báo lỗi ---
+            if (!account) {
+                return resolve({
+                    err: 1,
+                    mes: "Email is not registered",
+                    access_token: null,
+                    user: null
+                });
+            }
+            const isChecked = bcrypt.compareSync(password, account.password);
+            if (!isChecked) {
+                return resolve({
+                    err: 1,
+                    mes: "Wrong password",
+                    access_token: null,
+                    user: null
+                });
+            }
+             // --- 5. Tạo token ---
+             const token = jwt.sign(
+                {
+                  id: isEmployee ? account.employee_id : account.id,
+                  email: account.email,
+                  role_code: account.role_code,
+                  department_id: account.department_id,
+                  type: isEmployee ? "employee" : "user"
+                },
+                process.env.JWT_SECRET!,
+                { expiresIn: '365d' }
+            );
+             // --- 6. Trả về dữ liệu ---
+             resolve({
+                err: 0,
+                mes: "Login successfully",
+                access_token: `Bearer ${token}`,
+                user: {
+                  id: isEmployee ? account.employee_id : account.id,
+                  name: isEmployee ? account.full_name : account.name,
+                  email: account.email,
+                  role_code: account.role_code,
+                  department_id: account.department_id,
+                  type: isEmployee ? "employee" : "user"
+                }
             });
 
-            const isChecked = response && bcrypt.compareSync(password, response.password);
-            const token = isChecked ? jwt.sign({id: response.id, email: response.email, role_code: response.role_code, department_id: response.department_id}, process.env.JWT_SECRET!, {expiresIn: '365d'}) : null;
-            
-            resolve({
-                err: token ? 0 : 1,
-                mes: token ? 'Login successfully' : response ? 'Wrong password' : 'Email is not registered',
-                access_token: token ? `Bearer ${token}` : null,
-                user: token
-                  ? {
-                      id: response.id,
-                      name: response.name,
-                      email: response.email,
-                      role_code: response.role_code,
-                      department_id: response.department_id,
-                    }
-                  : null,
-              });
-              // code mới
-
         } catch (error) {
+            console.error("LOGIN ERROR:", error);
             reject(error);
         }
     });

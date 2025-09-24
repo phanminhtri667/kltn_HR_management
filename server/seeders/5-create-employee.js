@@ -1,8 +1,12 @@
 'use strict';
 const removeDiacritics = require('remove-diacritics');
+const bcrypt = require('bcryptjs');
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
+
+    const hashPassword = bcrypt.hashSync('123', bcrypt.genSaltSync(3)); // mật khẩu mặc định
+
     // Lấy danh sách các employee_id và email đã tồn tại
     const existingEmployees = await queryInterface.sequelize.query(
       `SELECT employee_id, email FROM Employees`,
@@ -22,6 +26,9 @@ module.exports = {
         email: 'tamtm@gmail.com',
         gender: 'male',
         dayOfBirth: new Date('1990-05-05'),
+        password: hashPassword,
+        role_code: 'role_3',
+        basic_salary: 8000000,
         department_id: 1,
         position_id: 2,
         deleted: '0',
@@ -36,8 +43,11 @@ module.exports = {
         email: 'thongtha@gmail.com',
         gender: 'male',
         dayOfBirth: new Date('1992-03-15'),
-        department_id: 1,
-        position_id: 3,
+        password: hashPassword,
+        role_code: 'role_3',
+        basic_salary: 9000000,
+        department_id: 2,
+        position_id: 2,
         deleted: '0',
         createdAt: new Date('2023-10-10'),
         updatedAt: new Date('2023-10-10')
@@ -50,8 +60,11 @@ module.exports = {
         email: 'vudh@gmail.com',
         gender: 'male',
         dayOfBirth: new Date('1991-08-20'),
-        department_id: 1,
-        position_id: 3,
+        password: hashPassword,
+        role_code: 'role_3',
+        basic_salary: 7000000,
+        department_id: 3,
+        position_id: 2,
         deleted: '0',
         createdAt: new Date('2023-10-10'),
         updatedAt: new Date('2023-10-10')
@@ -64,8 +77,11 @@ module.exports = {
         email: 'trungpd@gmail.com',
         gender: 'male',
         dayOfBirth: new Date('1993-07-01'),
+        password: hashPassword,
+        role_code: 'role_3',
+        basic_salary: 7000000,
         department_id: 1,
-        position_id: 3,
+        position_id: 2,
         deleted: '0',
         createdAt: new Date('2023-10-10'),
         updatedAt: new Date('2023-10-10')
@@ -99,6 +115,9 @@ module.exports = {
         email: email,
         gender: lastName.includes('Thị') || firstName.includes('Ngọc') ? 'female' : 'male',
         dayOfBirth: new Date('1990-05-05'),
+        password: hashPassword,
+        role_code: 'role_3',
+        basic_salary: 6000000,
         department_id: 3,
         position_id: 3,
         deleted: '0',
