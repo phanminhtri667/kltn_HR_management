@@ -13,6 +13,9 @@ interface EmployeeAttributes {
   department_id: number;
   position_id: number;
   deleted: string;
+  password: string;       
+  role_code: string;      
+  basic_salary: number; 
 }
 
 module.exports = (sequelize: any, DataTypes: any) => {
@@ -27,6 +30,9 @@ module.exports = (sequelize: any, DataTypes: any) => {
     public department_id!: number;
     public position_id!: number;
     public deleted!: string;
+    public password!: string;      
+    public role_code!: string;     
+    public basic_salary!: number;
 
     static associate(models: any) {
       // Liên kết với Department
@@ -42,6 +48,14 @@ module.exports = (sequelize: any, DataTypes: any) => {
         targetKey: "id",
         as: "position",
       });
+
+      // Liên kết với Timekeeping
+      Employee.hasMany(models.Timekeeping, {
+        foreignKey: "employee_id",
+        sourceKey: "employee_id",
+        as: "Timekeepings",
+      });
+
     }
   }
 
@@ -61,11 +75,20 @@ module.exports = (sequelize: any, DataTypes: any) => {
       department_id: DataTypes.INTEGER,
       position_id: DataTypes.INTEGER,
       deleted: DataTypes.STRING,
+      password: DataTypes.STRING,
+      role_code: {
+        type: DataTypes.STRING,
+        defaultValue: "role_3",
+      },
+      basic_salary: {
+        type: DataTypes.DECIMAL(12, 2),
+        defaultValue: 0.0,
+      },
     },
     {
       sequelize,
       modelName: "Employee",
-      tableName: "Employees", // ✅ rõ ràng
+      tableName: "Employees", 
       timestamps: true,
     }
   );

@@ -38,6 +38,23 @@ module.exports = {
         allowNull: true,
         defaultValue: null,
       },
+      // thêm password
+      password: {
+        type: Sequelize.STRING(255),
+        allowNull: false,
+      },
+      // thêm role_code
+      role_code: {
+        type: Sequelize.STRING(50),
+        allowNull: false,
+        defaultValue: "role_3",
+      },
+      // thêm basic_salary
+      basic_salary: {
+        type: Sequelize.DECIMAL(12, 2),
+        allowNull: true,
+        defaultValue: 0.0,
+      },
       deleted: {
         type: Sequelize.STRING(255),
         allowNull: true,
