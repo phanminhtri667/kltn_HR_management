@@ -1,111 +1,100 @@
+"use strict";
+
 import { Request, Response } from "express";
-import TimekeepingService from "../services/timekeepingService";
+import TimekeepingService from "../services/timekeepingService"; // Import service của Timekeeping
 
 class TimekeepingController {
-  // Lọc theo employee_id / department_id / date range
-  public async list(req: Request, res: Response) {
+  // role_1: xem tất cả (có thể lọc theo department_id, employee_id, date_from, date_to)
+  // role_3: nếu gọi vào đây cũng vẫn được vì service sẽ tự chặn/giới hạn
+  public getAll = async (req: Request, res: Response) => {
     try {
-      // Lấy thông tin vai trò và phòng ban của người dùng từ token
-      const userRole = req.user.role_code;  // Vai trò người dùng (role_1 hoặc role_2)
-      const departmentId = req.user.department_id;  // ID phòng ban của người dùng
+      const { date_from, date_to, employee_id, department_id } = req.query;
+      const filters: { date_from?: string; date_to?: string; employee_id?: string; department_id?: number } = {};
 
-      // Các tham số lọc khác
-      const employee_id =
-        typeof req.query.employee_id === "string" && req.query.employee_id.trim()
-          ? req.query.employee_id.trim()
-          : undefined;
+      if (typeof date_from === "string") filters.date_from = date_from;
+      if (typeof date_to === "string") filters.date_to = date_to;
+      if (typeof employee_id === "string" && employee_id.trim()) filters.employee_id = employee_id.trim();
+      if (typeof department_id === "string" && department_id.trim()) filters.department_id = Number(department_id);
 
-      const department_id =
-        typeof req.query.department_id === "string" || typeof req.query.department_id === "number"
-          ? Number(req.query.department_id)
-          : undefined;
+      // Kiểm tra quyền truy cập
+      const userRole = (req as any).user.role_code;
 
-      const date_from =
-        typeof req.query.date_from === "string" && req.query.date_from.trim()
-          ? req.query.date_from.trim()
-          : undefined;
-
-      const date_to =
-        typeof req.query.date_to === "string" && req.query.date_to.trim()
-          ? req.query.date_to.trim()
-          : undefined;
-
-      // Nếu người dùng là admin, hiển thị tất cả nhân viên
-      if (userRole === "role_1") {
-        const result = await TimekeepingService.list({
-          employee_id,
-          department_id,
-          date_from,
-          date_to,
-        });
-        return res.status(200).json(result);
-      }
-
-      // Nếu người dùng là quản lý (role_2), chỉ hiển thị nhân viên của phòng ban người quản lý
       if (userRole === "role_2") {
-        const result = await TimekeepingService.list({
-          employee_id,
-          department_id: departmentId,  // Lọc theo phòng ban của người quản lý
-          date_from,
-          date_to,
-        });
-        return res.status(200).json(result);
+        // Quản lý chỉ có thể xem dữ liệu của nhân viên trong phòng ban của mình
+        filters.department_id = (req as any).user.department_id; // Lọc theo phòng ban của quản lý
+      } else if (userRole === "role_3") {
+        // Nhân viên chỉ có thể xem dữ liệu của chính mình
+        filters.employee_id = (req as any).user.employee_id; // Lọc theo employee_id của nhân viên
       }
 
-      // Nếu vai trò không hợp lệ, trả về lỗi
-      return res.status(403).json({ err: 1, mes: "Forbidden: Invalid role" });
-      
+      const result = await TimekeepingService.getAllTimekeeping((req as any).user, filters);
+      const status = result.err === 0 ? 200 : result.mes === "Forbidden" ? 403 : 404;
+      return res.status(status).json(result);
     } catch (e) {
-      console.error("Error in list:", e);
-      return res.status(500).json({ err: -1, mes: "Internal server error" });
-    }
-  }
-
-  public getAll = async (_req: Request, res: Response) => {
-    try {
-      const response = await TimekeepingService.getAllTimekeeping();
-      return res.status(200).json(response);
-    } catch (error) {
-      console.error("Error in getAll:", error);
-      return res.status(500).json({ err: -1, mes: "Internal server error" });
+      console.error("getAll error:", e);
+      return res.status(500).json({ err: 1, mes: "Internal server error" });
     }
   };
 
+  // role_2, role_3: chỉ xem dữ liệu của chính mình hoặc phòng ban của mình
+  // FE không cần gửi department_id hay employee_id, sẽ được tự động xử lý trong service
+  public getMine = async (req: Request, res: Response) => {
+  try {
+    const { date_from, date_to } = req.query;
+    const filters: { date_from?: string; date_to?: string } = {};
+
+    if (typeof date_from === "string") filters.date_from = date_from;
+    if (typeof date_to === "string") filters.date_to = date_to;
+
+    // Gọi service để lấy dữ liệu timekeeping cho chính nhân viên hoặc phòng ban của họ
+    const result = await TimekeepingService.getAllTimekeeping((req as any).user, filters);
+    const status = result.err === 0 ? 200 : result.mes === "Forbidden" ? 403 : 404;
+    return res.status(status).json(result);
+  } catch (e) {
+    console.error("getMine error:", e);
+    return res.status(500).json({ err: 1, mes: "Internal server error" });
+  }
+};
+
+  // Lấy chấm công theo phòng ban (role_1 và role_2 mới có thể gọi)
   public getByDepartment = async (req: Request, res: Response) => {
     try {
       const id = Number(req.params.departmentId);
       if (Number.isNaN(id)) {
         return res.status(400).json({ err: 1, mes: "Invalid departmentId" });
       }
-      const response = await TimekeepingService.getByDepartment(id);
-      return res.status(200).json(response);
-    } catch (error) {
-      console.error("Error in getByDepartment:", error);
-      return res.status(500).json({ err: -1, mes: "Internal server error" });
+
+      const result = await TimekeepingService.getByDepartment(id);
+      const status = result.err === 0 ? 200 : 404;
+      return res.status(status).json(result);
+    } catch (e) {
+      console.error("getByDepartment error:", e);
+      return res.status(500).json({ err: 1, mes: "Internal server error" });
     }
   };
 
+  // Nhân viên check-in (tạo bản ghi mới)
   public create = async (req: Request, res: Response) => {
     try {
-      const { employee_id, work_date } = req.body || {};
+      const { employee_id, work_date, check_in } = req.body || {};
       if (!employee_id || !work_date) {
         return res.status(400).json({ err: 1, mes: "employee_id and work_date are required" });
       }
+
       const response = await TimekeepingService.createTimekeeping(req.body);
       return res.status(201).json(response);
-    } catch (error) {
-      console.error("Error in create:", error);
-      return res.status(500).json({ err: -1, mes: "Internal server error" });
+    } catch (e) {
+      console.error("create error:", e);
+      return res.status(500).json({ err: 1, mes: "Internal server error" });
     }
   };
 
+  // Nhân viên check-out (cập nhật checkout + status)
   public checkout = async (req: Request, res: Response) => {
     try {
       const { employee_id, work_date, check_out } = req.body || {};
       if (!employee_id || !work_date || !check_out) {
-        return res
-          .status(400)
-          .json({ err: 1, mes: "employee_id, work_date and check_out are required" });
+        return res.status(400).json({ err: 1, mes: "employee_id, work_date, and check_out are required" });
       }
 
       const response = await TimekeepingService.updateCheckout(
@@ -115,9 +104,9 @@ class TimekeepingController {
       );
 
       return res.status(200).json(response);
-    } catch (error) {
-      console.error("Error in checkout:", error);
-      return res.status(500).json({ err: -1, mes: "Internal server error" });
+    } catch (e) {
+      console.error("checkout error:", e);
+      return res.status(500).json({ err: 1, mes: "Internal server error" });
     }
   };
 }

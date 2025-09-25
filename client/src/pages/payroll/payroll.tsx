@@ -114,13 +114,15 @@ const Payroll = () => {
       <Card style={{ marginBottom: 12, padding: 16 }}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 12 }}>
           {/* Search theo Employee ID (role_1) */}
-          <InputText
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search by Employee ID (e.g., AD0001)"
-            disabled={!isRole1}
-            onKeyDown={(e) => e.key === "Enter" && fetchPayrolls()}
-          />
+          {isRole1 && (
+            <InputText
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search by Employee ID (e.g., AD0001)"
+              disabled={!isRole1}
+              onKeyDown={(e) => e.key === "Enter" && fetchPayrolls()}
+            />
+          )}
 
           {/* Department: chỉ hiện với role_1 */}
           {isRole1 ? (

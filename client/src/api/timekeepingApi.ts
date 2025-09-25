@@ -1,6 +1,7 @@
 import axios from "../services/axios";
 import apiUrl from "../constant/apiUrl";
 
+// Định nghĩa các tham số lọc cho timekeeping
 export type TimekeepingFilters = {
   employee_id?: string;
   department_id?: number | string;
@@ -9,24 +10,20 @@ export type TimekeepingFilters = {
 };
 
 const timekeepingApi = {
-  // 🔎 Lấy danh sách có filter qua query:
-  // GET /api/timekeeping?employee_id=AD0001&department_id=1&date_from=2025-09-01&date_to=2025-09-13
-  list: (filters: TimekeepingFilters = {}) =>
-    axios.get(apiUrl.timekeeping.index, { params: filters }),
+  // Lấy danh sách chấm công với bộ lọc
+  list: (filters: TimekeepingFilters) => axios.get(apiUrl.timekeeping.index, { params: filters }),
 
-  // 👀 Xem toàn bộ (không filter) — khớp router GET "/all"
-  getAll: () => axios.get(`${apiUrl.timekeeping.index}/all`),
+  // Lấy tất cả chấm công (Admin)
+  getAll: () => axios.get(apiUrl.timekeeping.index),  // Không cần `/all` nữa vì đã có route `/` cho admin
 
-  // 🏢 Lấy theo phòng ban (route cũ vẫn dùng được)
-  getByDepartment: (id: string | number) =>
-    axios.get(`${apiUrl.timekeeping.index}/department/${id}`),
+  // Lấy chấm công theo phòng ban (Quản lý, Admin)
+  getByDepartment: (departmentId: string) => axios.get(`${apiUrl.timekeeping.department}/${departmentId}`),
 
-  // ⏱️ Check-in (tạo bản ghi mới)
+  // ⏱️ Nhân viên check-in (tạo bản ghi mới)
   create: (data: any) => axios.post(apiUrl.timekeeping.index, data),
 
-  // 🔚 Checkout (cập nhật giờ ra + tính giờ) — dùng PATCH cho khớp router
-  checkout: (data: any) =>
-    axios.patch(`${apiUrl.timekeeping.index}/checkout`, data),
+  // 🔚 Nhân viên check-out (cập nhật giờ check-out + tính tổng giờ làm)
+  checkout: (data: any) => axios.patch(`${apiUrl.timekeeping.index}/checkout`, data),
 };
 
 export default timekeepingApi;

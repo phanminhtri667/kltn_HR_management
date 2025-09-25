@@ -55,13 +55,8 @@ class AuthService {
             if (!account) {
                 account = await db.Employee.findOne({
                     where: { email },
-                    attributes: ['employee_id', 'full_name', 'email', 'password', 'role_code', 'department_id', 'basic_salary'],
-                    include: [
-                        {
-                        model: db.Position,
-                        attributes: ['id', 'code', 'value'],
-                        as: 'position',
-                        },
+                    attributes: ['employee_id', 'full_name', 'email', 'password', 'role_code', 'department_id'],
+                    include: [                 
                         {
                         model: db.Department,
                         attributes: ['id', 'code', 'value'],

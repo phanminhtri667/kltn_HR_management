@@ -2,86 +2,63 @@ import "./timekeeping.scss";
 import DefaultLayout from "../../layouts/DefaultLayout";
 import { Card } from "primereact/card";
 import { useEffect, useRef, useState } from "react";
-import workingHoursApi from "../../api/workingHoursApi";
-import timekeepingApi, { TimekeepingFilters } from "../../api/timekeepingApi";
+import timekeepingApi, { TimekeepingFilters } from "../../api/timekeepingApi"; // Import API
 import { Toast } from "primereact/toast";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
 import AxiosInstance from "../../services/axios";
 import apiUrl from "../../constant/apiUrl";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
-import { logout } from "../../redux/features/authSlice";
 
 const Timekeeping = () => {
-  const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth); // Lấy thông tin người dùng từ Redux
-
-  const [workingHours, setWorkingHours] = useState<any>(null);
-
-  // dữ liệu bảng chấm công
-  const [timekeepingData, setTimekeepingData] = useState<any[]>([]);
-
-  // danh sách phòng ban để render dropdown
-  const [departments, setDepartments] = useState<any[]>([]);
-
-  // filters
-  const [employeeId, setEmployeeId] = useState<string>("");
-  const [departmentId, setDepartmentId] = useState<string>("");
-  const [dateFrom, setDateFrom] = useState<string>("");
-  const [dateTo, setDateTo] = useState<string>("");
-
-  const [loading, setLoading] = useState(false);
   const toast = useRef<Toast | null>(null);
 
-  useEffect(() => {
-    getWorkingHours();
-    getDepartments();
-    load(); // lần đầu load tất cả
-  }, []);
+  // ===== State =====
+  const [timekeepingData, setTimekeepingData] = useState<any[]>([]); // Dữ liệu bảng chấm công
+  const [filtered, setFiltered] = useState<any[]>([]); // Dữ liệu đã lọc
+  const [employeeId, setEmployeeId] = useState<string>(""); // Nhân viên ID
+  const [departmentId, setDepartmentId] = useState<string>(""); // Phòng ban
+  const [dateFrom, setDateFrom] = useState<string>(""); // Ngày từ
+  const [dateTo, setDateTo] = useState<string>(""); // Ngày đến
+  const [loading, setLoading] = useState(false); // Trạng thái loading
+  const [departments, setDepartments] = useState<any[]>([]); // Danh sách phòng ban
 
   useEffect(() => {
-    if (user) {
-      setEmployeeId("");  // Hoặc các giá trị mặc định nếu cần
-      setDepartmentId(user.department_id || "");  // Lấy phòng ban của người dùng từ Redux
-      load();  // Tải lại dữ liệu từ API
-    }
-  }, [user]);  // Khi user thay đổi
+    load(); // Lần đầu load tất cả
+    getDepartments(); // Lấy danh sách phòng ban
+  }, []); // Khi component mount
 
-  // tự động load khi filter thay đổi (debounce 300ms)
+  // Tự động load khi filter thay đổi (debounce 300ms)
   useEffect(() => {
     const h = setTimeout(() => load(), 300);
     return () => clearTimeout(h);
   }, [employeeId, departmentId, dateFrom, dateTo]);
 
-  const getDepartments = async () => {
-    try {
-      const res = await AxiosInstance.get(apiUrl.department.index);
-      setDepartments(res?.data?.data || []);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const getWorkingHours = async () => {
-    try {
-      const res = await workingHoursApi.get();
-      setWorkingHours(res.data.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
+  // ===== API Fetch =====
   const load = async () => {
     try {
       setLoading(true);
       const params: TimekeepingFilters = {
-        employee_id: employeeId.trim() || undefined,
-        department_id: user?.role_code === "role_2" ? departmentId : departmentId || undefined, // Nếu là quản lý chỉ lấy phòng ban của họ
+        employee_id: user?.role_code === "role_3" ? user.employee_id : employeeId.trim() || undefined,
+        department_id: user?.role_code === "role_2" ? user.department_id : departmentId || undefined,
         date_from: dateFrom || undefined,
         date_to: dateTo || undefined,
       };
-      const res = await timekeepingApi.list(params);
+
+      let res;
+      if (user?.role_code === "role_3") {
+        // Nếu là nhân viên, lấy chỉ dữ liệu của chính họ
+        res = await timekeepingApi.list({ employee_id: user.employee_id, ...params });
+      } else if (user?.role_code === "role_2") {
+        // Nếu là quản lý, lấy dữ liệu của phòng ban
+        res = await timekeepingApi.getByDepartment(user.department_id);
+      } else {
+        // Admin (role_1), lấy tất cả chấm công
+        res = await timekeepingApi.getAll();
+      }
+
       setTimekeepingData(res?.data?.data || []);
     } catch (err) {
       console.error(err);
@@ -95,121 +72,74 @@ const Timekeeping = () => {
     }
   };
 
-  const handleUpdateWorkingHours = async () => {
+  // ===== Client-side filter (để sync UI tức thời) =====
+  useEffect(() => {
+    const t = setTimeout(() => {
+      let data = [...timekeepingData];
+
+      // Tìm kiếm không phân biệt hoa thường
+      if (employeeId) data = data.filter(p => String(p.employee?.employee_id || "").toLowerCase().includes(employeeId.toLowerCase()));
+      if (departmentId) data = data.filter(p => String(p.employee?.department_id || "").includes(departmentId));
+      if (dateFrom) data = data.filter(p => p.date >= dateFrom);
+      if (dateTo) data = data.filter(p => p.date <= dateTo);
+
+      setFiltered(data);
+    }, 250);
+
+    return () => clearTimeout(t);
+  }, [employeeId, departmentId, dateFrom, dateTo, timekeepingData]);
+
+  // ===== Get departments =====
+  const getDepartments = async () => {
     try {
-      if (workingHours) {
-        await workingHoursApi.update(workingHours);
-        toast.current?.show({
-          severity: "success",
-          summary: "Success",
-          detail: "Working hours updated successfully",
-        });
-        getWorkingHours();
-      }
+      const res = await AxiosInstance.get(apiUrl.department.index);
+      setDepartments(res?.data?.data || []);
     } catch (err) {
-      toast.current?.show({
-        severity: "error",
-        summary: "Error",
-        detail: "Failed to update working hours",
-      });
+      console.error("Load departments error:", err);
     }
   };
 
   const clearFilters = () => {
     setEmployeeId("");
-    setDepartmentId(user?.department_id || ""); // Đặt lại phòng ban mặc định
+    setDepartmentId("");
     setDateFrom("");
     setDateTo("");
+    setFiltered(timekeepingData);
   };
 
+  // ===== Render =====
   return (
     <DefaultLayout>
       <Toast ref={toast} />
+      <h2 className="section-title">Employee Timekeeping</h2>
 
-      {/* Working hours config */}
-      <h2 className="section-title">Working Hours</h2>
-      <Card className="form-card">
-        {workingHours && (
-          <div className="form-inline">
-            <div className="form-group">
-              <label>Start Time</label>
-              <InputText
-                type="time"
-                value={workingHours.start_time}
-                onChange={(e) =>
-                  setWorkingHours({ ...workingHours, start_time: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="form-group">
-              <label>End Time</label>
-              <InputText
-                type="time"
-                value={workingHours.end_time}
-                onChange={(e) =>
-                  setWorkingHours({ ...workingHours, end_time: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Grace Period (minutes)</label>
-              <InputText
-                type="number"
-                value={workingHours.grace_period}
-                onChange={(e) =>
-                  setWorkingHours({
-                    ...workingHours,
-                    grace_period: Number(e.target.value),
-                  })
-                }
-              />
-            </div>
-
-            <div className="btn-container">
-              <Button
-                label="Update"
-                onClick={handleUpdateWorkingHours}
-                className="btn-update"
-              />
-            </div>
-          </div>
-        )}
-      </Card>
-
-      {/* Filters */}
-      <h2 style={{ marginTop: "40px" }}>Employee Timekeeping</h2>
       <Card style={{ marginBottom: 12, padding: 16 }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr 1fr auto", gap: 12 }}>
-          {/* Employee ID */}
-          <InputText
-            value={employeeId}
-            onChange={(e) => setEmployeeId(e.target.value)}
-            placeholder="Search by Employee ID (e.g., AD0001)"
-          />
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr auto", gap: 12 }}>
+          {/* Employee ID (Search by Employee ID) */}
+          {(user?.role_code === "role_1" || user?.role_code === "role_2") && (
+            <InputText
+              value={employeeId}
+              onChange={(e) => setEmployeeId(e.target.value)}
+              placeholder="Search by Employee ID (e.g., AD0001)"
+              onKeyDown={(e) => e.key === "Enter" && load()}
+              disabled={user?.role_code === "role_3"} // Ẩn cho role 3
+            />
+          )}
 
-          {/* Department */}
-          <select
-            value={departmentId}
-            onChange={(e) => setDepartmentId(e.target.value)}
-            style={{ padding: 8, borderRadius: 6, border: "1px solid #ddd" }}
-            disabled={user?.role_code === "role_2"}  // Disable dropdown cho role_2
-          >
-            <option value="">
-              {departmentId
-                ? departments.find(d => d.id === departmentId)?.value  // Hiển thị tên phòng ban đã chọn
-                : "All departments"  // Nếu không có phòng ban được chọn, hiển thị "All departments"
-              }
-            </option>
-            {user?.role_code === "role_1" &&  // Hiển thị dropdown cho role_1
-              departments.map((d: any) => (
-                <option key={d.id} value={d.id}>
-                  {d.value}
-                </option>
-              ))
-            }
-          </select>
+          {/* Department (Search by Department) */}
+          {(user?.role_code === "role_1" || user?.role_code === "role_2") && (
+            <select
+              value={user?.role_code === "role_2" ? user.department_id : departmentId}
+              onChange={(e) => setDepartmentId(e.target.value)}
+              style={{ padding: 8, borderRadius: 6, border: "1px solid #ddd" }}
+              disabled={user?.role_code === "role_2"} // Disabled for role_2
+            >
+              <option value="">All departments</option>
+              {departments.map((d: any) => (
+                <option key={d.id} value={d.id}>{d.value}</option>
+              ))}
+            </select>
+          )}
 
           {/* Date from */}
           <InputText
@@ -233,7 +163,6 @@ const Timekeeping = () => {
         </div>
       </Card>
 
-      {/* Timekeeping table */}
       <div className="employee-table">
         <Card>
           <table className="table">
@@ -251,17 +180,14 @@ const Timekeeping = () => {
               </tr>
             </thead>
             <tbody>
-              {timekeepingData.length ? (
-                timekeepingData.map((item, index) => {
-                  // service list alias work_date -> 'date'. fallback cho trường hợp getAll cũ.
+              {filtered.length ? (
+                filtered.map((item, index) => {
                   const dateStr = (item.date || item.work_date || "").toString();
                   const dateShort = dateStr ? dateStr.slice(0, 10) : "-";
                   return (
                     <tr key={`${item.id}-${index}`}>
                       <td>{index + 1}</td>
-                      <td style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>
-                        {item.employee?.employee_id}
-                      </td>
+                      <td>{item.employee?.employee_id}</td>
                       <td>{item.employee?.full_name}</td>
                       <td>{item.employee?.department?.value}</td>
                       <td>{dateShort}</td>

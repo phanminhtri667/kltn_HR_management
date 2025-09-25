@@ -18,8 +18,10 @@ const apiUrl = {
   working_hours: {                         
     index: `${api}/working-hours`,
   },
-  timekeeping: {                           // ✅ nếu sau này cần chấm công
-    index: `${api}/timekeeping`,
+  timekeeping: { // Đổi endpoint cho phù hợp với các route đã thay đổi trong Backend
+    index: `${api}/timekeeping`,             // Lấy tất cả dữ liệu chấm công (dành cho Admin)
+    mine: `${api}/timekeeping/mine`,         // Lấy chấm công của chính người dùng (dành cho role_3)
+    department: `${api}/timekeeping/department`, // Lấy chấm công theo phòng ban (dành cho role_2 và role_1)
   },
   payroll: { 
     index: `${api}/payroll`,       // Endpoint lấy tất cả bảng lương
