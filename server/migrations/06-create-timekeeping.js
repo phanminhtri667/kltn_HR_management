@@ -49,14 +49,28 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "SET NULL",  // Nếu phòng ban bị xóa, set null cho nhân viên
       },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
+      ot_weekday_hours: {
+        type: Sequelize.DECIMAL(5, 2),
+        defaultValue: 0.0,
       },
-      updatedAt: {
+      ot_weekend_hours: {
+        type: Sequelize.DECIMAL(5, 2),
+        defaultValue: 0.0,
+      },
+      ot_holiday_hours: {
+        type: Sequelize.DECIMAL(5, 2),
+        defaultValue: 0.0,
+      },
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
-      }
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+      },
+      updated_at: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"),
+      },
     });
   },
   async down(queryInterface, Sequelize) {

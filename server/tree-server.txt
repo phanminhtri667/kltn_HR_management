@@ -3,27 +3,36 @@
 │   └── config.json
 ├── index.ts
 ├── migrations
-│   ├── 1-create-department.js
-│   ├── 2-create-position.js
-│   ├── 3-create-role.js
-│   ├── 4-create-user.js
-│   ├── 5-create-employee.js
-│   ├── 6-create-timekeeping.js
-│   ├── 7-create-working-hours.js
-│   ├── 8-create-leave-requests.js
-│   └── 9-create-notification.js
+│   ├── 01-create-department.js
+│   ├── 02-create-position.js
+│   ├── 03-create-role.js
+│   ├── 04-create-user.js
+│   ├── 05-create-employee.js
+│   ├── 06-create-timekeeping.js
+│   ├── 07-create-working-hours.js
+│   ├── 08-create-notification.js
+│   ├── 09-create-allowances.js
+│   ├── 10-create-deductions.js
+│   ├── 11-create-overtime-policies.js
+│   ├── 12-create-payroll-payslip-lines.js
+│   └── 13-create-public-holidays.js
 ├── package.json
 ├── package-lock.json
 ├── README.md
 ├── seeders
-│   ├── 1-create-department.js
-│   ├── 2-create-position.js
-│   ├── 3-create-role.js
-│   ├── 4-create-user.js
-│   ├── 5-create-employee.js
-│   ├── 6-create-timekeeping.js
-│   ├── 7-create-working-hours.js
-│   └── 8-create-leave-requests.js
+│   ├── 01-create-department.js
+│   ├── 02-create-position.js
+│   ├── 03-create-role.js
+│   ├── 04-create-user.js
+│   ├── 05-create-employee.js
+│   ├── 06-create-timekeeping.js
+│   ├── 07-create-working-hours.js
+│   ├── 08-create-notification.js
+│   ├── 09-create-allowances.js
+│   ├── 10-create-deductions.js
+│   ├── 11-create-overtime-policies.js
+│   ├── 12-create-payroll-payslip-lines.js
+│   └── 13-create-public-holidays.js
 ├── src
 │   ├── config
 │   │   └── databaseConfig.ts
@@ -33,6 +42,7 @@
 │   │   ├── employeeController.ts
 │   │   ├── leaveRequestController.ts
 │   │   ├── notificationController.ts
+│   │   ├── payrollController.ts
 │   │   ├── positionController.ts
 │   │   ├── roleController.ts
 │   │   ├── timekeepingController.ts
@@ -42,10 +52,13 @@
 │   │   ├── handle_error.ts
 │   │   └── verify_token.ts
 │   ├── models
+│   │   ├── allowance.ts
 │   │   ├── department.ts
 │   │   ├── employee.ts
 │   │   ├── index.ts
 │   │   ├── notification.ts
+│   │   ├── overtime_policies.ts
+│   │   ├── payroll.ts
 │   │   ├── position.ts
 │   │   ├── role.ts
 │   │   ├── timekeeping.ts
@@ -57,6 +70,7 @@
 │   │   ├── employeeRouter.ts
 │   │   ├── leaveRequestRouter.ts
 │   │   ├── notificationRouter.ts
+│   │   ├── payrollRouter.ts
 │   │   ├── positionRouter.ts
 │   │   ├── roleRouter.ts
 │   │   ├── timekeepingRouter.ts
@@ -67,6 +81,7 @@
 │   │   ├── departmentService.ts
 │   │   ├── employeeService.ts
 │   │   ├── notificationService.ts
+│   │   ├── payrollService.ts
 │   │   ├── positionService.ts
 │   │   ├── roleService.ts
 │   │   ├── timekeepingService.ts
@@ -81,4 +96,4 @@
 ├── tree-server.txt
 └── tsconfig.json
 
-13 directories, 68 files
+13 directories, 83 files

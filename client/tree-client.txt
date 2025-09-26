@@ -13,6 +13,7 @@
 ├── src
 │   ├── api
 │   │   ├── employeeApi.ts
+│   │   ├── payrollApi.ts
 │   │   ├── timekeepingApi.ts
 │   │   └── workingHoursApi.ts
 │   ├── App.scss
@@ -84,10 +85,11 @@
 │   │   ├── login
 │   │   │   ├── login.scss
 │   │   │   └── login.tsx
+│   │   ├── payroll
+│   │   │   ├── payroll.scss
+│   │   │   └── payroll.tsx
 │   │   ├── profile
 │   │   │   └── Profile.tsx
-│   │   ├── salary
-│   │   │   └── Salary.tsx
 │   │   ├── test
 │   │   │   └── Test.tsx
 │   │   ├── timekeeping
@@ -112,4 +114,4 @@
 ├── tree-client.txt
 └── tsconfig.json
 
-43 directories, 69 files
+43 directories, 71 files

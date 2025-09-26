@@ -94,7 +94,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
     {
       sequelize,
       modelName: "Timekeeping",
-      tableName: "timekeeping",
+      tableName: "Timekeeping",
       timestamps: true,
       createdAt: "created_at",
       updatedAt: "updated_at",
