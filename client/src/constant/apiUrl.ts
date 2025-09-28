@@ -22,6 +22,8 @@ const apiUrl = {
     index: `${api}/timekeeping`,             // Lấy tất cả dữ liệu chấm công (dành cho Admin)
     mine: `${api}/timekeeping/mine`,         // Lấy chấm công của chính người dùng (dành cho role_3)
     department: `${api}/timekeeping/department`, // Lấy chấm công theo phòng ban (dành cho role_2 và role_1)
+    checkIn: `${api}/timekeeping`,               // NEW: POST check-in
+    checkOut: `${api}/timekeeping/checkout`,   
   },
   payroll: { 
     index: `${api}/payroll`,       // Endpoint lấy tất cả bảng lương

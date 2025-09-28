@@ -94,3 +94,123 @@
     }
   }
 }
+.card-timekeeping {
+  text-align: center;
+
+  h3 {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 20px;
+    color: #000;
+  }
+
+  .time-display {
+    font-size: 48px;
+    font-weight: bold;
+    color: green;
+    margin-bottom: 8px;
+  }
+
+  .date-display {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 20px;
+  }
+
+  .btn-group {
+    display: flex;
+    justify-content: center;
+    gap: 12px; // khoảng cách giữa 2 nút
+  }
+
+  .btn-check,
+  .btn-leave {
+    font-size: 18px;
+    font-weight: 700;
+    padding: 14px 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.25s ease;
+  }
+
+  // Check In/Out
+  .btn-check.check-in {
+    background-color: green;
+    color: white;
+
+    &:hover {
+      background-color: darkgreen;
+    }
+  }
+
+  .btn-check.check-out {
+    background-color: red;
+    color: white;
+
+    &:hover {
+      background-color: darkred;
+    }
+  }
+
+  // Xin Nghỉ
+  .btn-leave {
+    background-color: #1976d2; // xanh dương
+    color: white;
+
+    &:hover {
+      background-color: #125ca1;
+    }
+  }
+}
+
+
+.card-summary {
+  text-align: center;
+
+  h3 {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 20px;
+    color: #000;
+  }
+
+  .summary-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;   // label trái - value phải
+    gap: 12px 20px;
+    margin-bottom: 20px;
+
+    .label {
+      text-align: right;
+      font-weight: 700;
+      font-size: 16px;
+      color: #000;
+    }
+
+    .value {
+      text-align: left;
+      font-weight: 700;
+      font-size: 16px;
+      color: #000;
+    }
+  }
+
+  .btn-export {
+    font-size: 18px;
+    font-weight: 700;
+    padding: 14px 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+    background-color: #f5f5f5;
+    color: #000;
+    transition: all 0.25s ease;
+
+    &:hover {
+      background-color: #e0e0e0;
+    }
+  }
+}
+
+

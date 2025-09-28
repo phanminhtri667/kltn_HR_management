@@ -25,10 +25,30 @@ const Timekeeping = () => {
   const [loading, setLoading] = useState(false); // Trạng thái loading
   const [departments, setDepartments] = useState<any[]>([]); // Danh sách phòng ban
 
+  // ===== NEW: State cho check in/out và đồng hồ =====
+  const [currentTime, setCurrentTime] = useState<string>("");
+  const [isCheckedIn, setIsCheckedIn] = useState<boolean>(false);
+
+  const [summary, setSummary] = useState({
+    totalHours: 0,
+    ot: 0,
+    lateMinutes: 0,
+    leave: 0,
+  });
+
   useEffect(() => {
     load(); // Lần đầu load tất cả
     getDepartments(); // Lấy danh sách phòng ban
   }, []); // Khi component mount
+
+  // NEW: Cập nhật đồng hồ realtime
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date();
+      setCurrentTime(now.toLocaleTimeString());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Tự động load khi filter thay đổi (debounce 300ms)
   useEffect(() => {
@@ -107,12 +127,94 @@ const Timekeeping = () => {
     setFiltered(timekeepingData);
   };
 
+  // ===== NEW: Handle Check In / Check Out =====
+  const handleCheck = async () => {
+    try {
+      if (!isCheckedIn) {
+        // Check In
+        await AxiosInstance.post(apiUrl.timekeeping.checkIn, { employee_id: user.employee_id });
+        setIsCheckedIn(true);
+        toast.current?.show({
+          severity: "success",
+          summary: "Check In",
+          detail: "Bạn đã Check In thành công",
+        });
+      } else {
+        // Check Out
+        await AxiosInstance.post(apiUrl.timekeeping.checkOut, { employee_id: user.employee_id });
+        setIsCheckedIn(false);
+        toast.current?.show({
+          severity: "success",
+          summary: "Check Out",
+          detail: "Bạn đã Check Out thành công",
+        });
+      }
+      load(); // reload bảng sau khi chấm
+    } catch (err) {
+      console.error(err);
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Chấm công thất bại",
+      });
+    }
+  };
+
   // ===== Render =====
   return (
     <DefaultLayout>
       <Toast ref={toast} />
       <h2 className="section-title">Employee Timekeeping</h2>
 
+      {/* NEW: Khu vực chấm công + tổng quan */}
+      {/* NEW: Khu vực chấm công + tổng quan */}
+      <div style={{ display: "flex", gap: 20, marginBottom: 16 }}>
+        {/* Card Chấm Công */}
+        <Card className="card-timekeeping" style={{ flex: 1 }}>
+        <h3>Chấm Công</h3>
+        <div className="time-display">{currentTime}</div>
+        <div className="date-display">{new Date().toLocaleDateString()}</div>
+
+        <div className="btn-group">
+          <Button
+            label={isCheckedIn ? "Check Out" : "Check In"}
+            className={`btn-check ${isCheckedIn ? "check-out" : "check-in"}`}
+            onClick={handleCheck}
+          />
+          <Button
+            label="Xin Nghỉ"
+            className="btn-leave"
+            onClick={() => console.log("Open Leave Form")}
+          />
+        </div>
+      </Card>
+
+        {/* Card Tổng Quan */}
+        <Card className="card-summary" style={{ flex: 1 }}>
+          <h3>Tổng Quan</h3>
+          <div className="summary-list">
+            <div className="label">Tổng Giờ :</div>
+            <div className="value">{summary.totalHours}</div>
+
+            <div className="label">OT:</div>
+            <div className="value">{summary.ot}</div>
+
+            <div className="label">Đi Muộn:</div>
+            <div className="value">{summary.lateMinutes} phút</div>
+
+            <div className="label">Vắng/Phép:</div>
+            <div className="value">{summary.leave}</div>
+          </div>
+          <Button
+            label="Xuất file CSV"
+            className="btn-export"
+            onClick={() => console.log("Export CSV")}
+          />
+        </Card>
+      </div>
+
+
+      {/* Bộ lọc */}
       <Card style={{ marginBottom: 12, padding: 16 }}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr auto", gap: 12 }}>
           {/* Employee ID (Search by Employee ID) */}
