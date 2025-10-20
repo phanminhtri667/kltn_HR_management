@@ -1,20 +1,27 @@
 import express from "express";
-import * as leaveRequestController from "../controllers/leaveRequestController";
-import { approveLeaveRequest } from "../controllers/leaveRequestController";
+import LeaveRequestController from "../controllers/leaveRequestController";
 import verifyToken from "../middlewares/verify_token";
-
 
 const router = express.Router();
 
 router.use(verifyToken);
 
-router.post('/', leaveRequestController.createLeaveRequest);
-router.get('/my', leaveRequestController.getMyLeaveRequests);
+// Nhân viên gửi đơn nghỉ
+router.post("/", LeaveRequestController.createLeave);
 
-// Admin/Leader
-router.get('/', leaveRequestController.getAllLeaveRequests);
-//router.patch('/:id/approve', leaveRequestController.approveLeaveRequest);
-router.patch("/:id/approve", approveLeaveRequest); // Duyệt đơn nghỉ phép
-router.patch('/:id/reject', leaveRequestController.rejectLeaveRequest);
+// Lấy danh sách đơn của chính mình
+router.get("/my", LeaveRequestController.getMyLeaves);
+
+// Dành cho leader/admin xem tất cả
+router.get("/", LeaveRequestController.getAllLeaves);
+
+// Duyệt đơn
+router.patch("/:id/approve", LeaveRequestController.approveLeave);
+
+// Từ chối đơn
+router.patch("/:id/reject", LeaveRequestController.rejectLeave);
+
+// Huỷ đơn
+router.patch("/:id/cancel", LeaveRequestController.cancelLeave);
 
 export default router;

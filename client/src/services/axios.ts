@@ -15,6 +15,17 @@ const AxiosInstance = axios.create({
 //const token = localStorage.getItem('token');
 
 // Tạo hàm để lấy token từ localStorage và gán vào header Authorization
+// const setAuthHeader = () => {
+//   const token = localStorage.getItem('token');
+//   if (token) {
+//     AxiosInstance.defaults.headers['Authorization'] = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+//   } else {
+//     // Nếu không có token, xóa header Authorization
+//     delete AxiosInstance.defaults.headers['Authorization'];
+//   }
+// };
+// // Gọi hàm setAuthHeader khi khởi tạo AxiosInstance và mỗi khi token thay đổi
+// setAuthHeader();
 const setAuthHeader = () => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -24,7 +35,7 @@ const setAuthHeader = () => {
     delete AxiosInstance.defaults.headers['Authorization'];
   }
 };
-// Gọi hàm setAuthHeader khi khởi tạo AxiosInstance và mỗi khi token thay đổi
+// Gọi setAuthHeader mỗi lần AxiosInstance được sử dụng
 setAuthHeader();
 
 

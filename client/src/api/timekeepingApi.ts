@@ -20,10 +20,11 @@ const timekeepingApi = {
   getByDepartment: (departmentId: string) => axios.get(`${apiUrl.timekeeping.department}/${departmentId}`),
 
   // ⏱️ Nhân viên check-in (tạo bản ghi mới)
-  create: (data: any) => axios.post(apiUrl.timekeeping.index, data),
+  create: (data: any) => axios.post(apiUrl.timekeeping.checkIn, data),  // Đảm bảo đúng URL và phương thức POST
 
   // 🔚 Nhân viên check-out (cập nhật giờ check-out + tính tổng giờ làm)
-  checkout: (data: any) => axios.patch(`${apiUrl.timekeeping.index}/checkout`, data),
+  checkout: (data: any) => axios.patch(`${apiUrl.timekeeping.checkOut}`, data),
 };
 
 export default timekeepingApi;
+  

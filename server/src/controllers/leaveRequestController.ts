@@ -1,52 +1,80 @@
 import { Request, Response } from "express";
-import db from "../models";
+import LeaveService from "../services/leaveService";
 
-export const createLeaveRequest = async (req: Request, res: Response) => {
-  const { type, startDate, endDate, reason } = req.body;
-  const userId = req.user.id;
+class LeaveRequestController {
+  // ===== Tạo đơn xin nghỉ =====
+  public createLeave = async (req: Request, res: Response) => {
+    try {
+      const data = req.body;
+      const response = await LeaveService.createLeaveRequest(data);
+      return res.status(response.err === 0 ? 200 : 400).json(response);
+    } catch (error) {
+      console.error("createLeave:", error);
+      return res.status(500).json({ err: -1, mes: "Internal server error" });
+    }
+  };
 
-  const newRequest = await db.LeaveRequest.create({
-    userId,
-    type,
-    startDate,
-    endDate,
-    reason,
-    status: "PENDING",
-  });
+  // ===== Lấy đơn của chính nhân viên =====
+  public getMyLeaves = async (req: Request, res: Response) => {
+    try {
+      const employee_id = req.query.employee_id as string;
+      const response = await LeaveService.getLeavesByEmployee(employee_id);
+      return res.status(200).json(response);
+    } catch (error) {
+      console.error("getMyLeaves:", error);
+      return res.status(500).json({ err: -1, mes: "Internal server error" });
+    }
+  };
 
-  res.status(201).json({ message: "Gửi đơn nghỉ thành công", data: newRequest });
-};
+  // ===== Lấy tất cả đơn nghỉ (Leader/Admin) =====
+  public getAllLeaves = async (req: Request, res: Response) => {
+    try {
+      const filters = req.query;
+      const response = await LeaveService.getAllLeaves(filters);
+      return res.status(200).json(response);
+    } catch (error) {
+      console.error("getAllLeaves:", error);
+      return res.status(500).json({ err: -1, mes: "Internal server error" });
+    }
+  };
 
-export const getMyLeaveRequests = async (req: Request, res: Response) => {
-  const userId = req.user.id;
-  const requests = await db.LeaveRequest.findAll({ where: { userId }, order: [["createdAt", "DESC"]] });
-  res.status(200).json({ data: requests });
-};
+  // ===== Duyệt đơn =====
+  public approveLeave = async (req: Request, res: Response) => {
+    try {
+      const id = Number(req.params.id);
+      const { approver_id } = req.body;
+      const response = await LeaveService.approveLeave(id, approver_id);
+      return res.status(response.err === 0 ? 200 : 400).json(response);
+    } catch (error) {
+      console.error("approveLeave:", error);
+      return res.status(500).json({ err: -1, mes: "Internal server error" });
+    }
+  };
 
-export const getAllLeaveRequests = async (req: Request, res: Response) => {
-  const requests = await db.LeaveRequest.findAll({ include: db.User });
-  res.status(200).json({ data: requests });
-};
+  // ===== Từ chối đơn =====
+  public rejectLeave = async (req: Request, res: Response) => {
+    try {
+      const id = Number(req.params.id);
+      const { approver_id, reject_reason } = req.body;
+      const response = await LeaveService.rejectLeave(id, approver_id, reject_reason);
+      return res.status(response.err === 0 ? 200 : 400).json(response);
+    } catch (error) {
+      console.error("rejectLeave:", error);
+      return res.status(500).json({ err: -1, mes: "Internal server error" });
+    }
+  };
 
-export const approveLeaveRequest = async (req: Request, res: Response) => {
-  const userRole = req.user?.role;  // lấy role từ user trong JWT
+  // ===== Huỷ đơn =====
+  public cancelLeave = async (req: Request, res: Response) => {
+    try {
+      const id = Number(req.params.id);
+      const response = await LeaveService.cancelLeave(id);
+      return res.status(response.err === 0 ? 200 : 400).json(response);
+    } catch (error) {
+      console.error("cancelLeave:", error);
+      return res.status(500).json({ err: -1, mes: "Internal server error" });
+    }
+  };
+}
 
-  // Kiểm tra quyền người dùng trước khi duyệt đơn
-  if (userRole !== 'admin' && userRole !== 'leader') {
-    return res.status(403).json({ message: 'Không đủ quyền truy cập' });
-  }
-
-  const leaveRequest = await db.LeaveRequest.findByPk(req.params.id);
-  leaveRequest.status = 'APPROVED';
-  await leaveRequest.save();
-
-  res.status(200).json({ message: 'Đã duyệt đơn nghỉ phép' });
-};
-
-export const rejectLeaveRequest = async (req: Request, res: Response) => {
-  const id = req.params.id;
-  const request = await db.LeaveRequest.findByPk(id);
-  request.status = "REJECTED";
-  await request.save();
-  res.status(200).json({ message: "Đã từ chối đơn nghỉ" });
-};
+export default new LeaveRequestController();

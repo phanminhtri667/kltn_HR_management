@@ -90,6 +90,7 @@ class AuthService {
              const token = jwt.sign(
                 {
                   id: isEmployee ? account.employee_id : account.id,
+                  employee_id: isEmployee ? account.employee_id : null,
                   email: account.email,
                   role_code: account.role_code,
                   department_id: account.department_id,
@@ -105,6 +106,7 @@ class AuthService {
                 access_token: `Bearer ${token}`,
                 user: {
                   id: isEmployee ? account.employee_id : account.id,
+                  employee_id: isEmployee ? account.employee_id : null,
                   name: isEmployee ? account.full_name : account.name,
                   email: account.email,
                   role_code: account.role_code,

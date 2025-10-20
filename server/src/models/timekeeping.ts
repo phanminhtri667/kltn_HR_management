@@ -2,15 +2,16 @@ import { Model, DataTypes } from "sequelize";
 
 interface TimekeepingAttributes {
   id: number;
-  employee_id: number;
-  work_date: Date;
-  check_in: Date | null;
-  check_out: Date | null;
+  employee_id: string;
+  department_id?: number | null;
+  work_date: string;
+  check_in: string | null;
+  check_out: string | null;
   total_hours: number;
   status: string;
-  ot_weekday_hours: number;  // Thêm cột giờ OT trong tuần
-  ot_weekend_hours: number;  // Thêm cột giờ OT cuối tuần
-  ot_holiday_hours: number;  // Thêm cột giờ OT ngày lễ
+  ot_weekday_hours: number;  
+  ot_weekend_hours: number;  
+  ot_holiday_hours: number; 
   created_at?: Date;
   updated_at?: Date;
 }
@@ -18,15 +19,16 @@ interface TimekeepingAttributes {
 module.exports = (sequelize: any, DataTypes: any) => {
   class Timekeeping extends Model<TimekeepingAttributes> implements TimekeepingAttributes {
     id!: number;
-    employee_id!: number;
-    work_date!: Date;
-    check_in!: Date | null;
-    check_out!: Date | null;
+    employee_id!: string;
+    department_id!: number | null;
+    work_date!: string;
+    check_in!: string | null;
+    check_out!: string | null;
     total_hours!: number;
     status!: string;
-    ot_weekday_hours!: number;  // Giờ OT trong tuần
-    ot_weekend_hours!: number;  // Giờ OT cuối tuần
-    ot_holiday_hours!: number;  // Giờ OT ngày lễ
+    ot_weekday_hours!: number;  
+    ot_weekend_hours!: number; 
+    ot_holiday_hours!: number; 
     created_at?: Date;
     updated_at?: Date;
 
@@ -49,6 +51,10 @@ module.exports = (sequelize: any, DataTypes: any) => {
       employee_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
+      },
+      department_id:{
+        type: DataTypes.INTEGER,
+        allowNull: true,
       },
       work_date: {
         type: DataTypes.DATEONLY,
@@ -81,15 +87,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
       ot_holiday_hours: {
         type: DataTypes.DECIMAL(5, 2),
         defaultValue: 0,  // Giờ làm thêm ngày lễ
-      },
-      created_at: {
-        type: DataTypes.DATE,
-        allowNull: false,
-      },
-      updated_at: {     
-        type: DataTypes.DATE,
-        allowNull: false,
-      },
+      }
     },
     {
       sequelize,

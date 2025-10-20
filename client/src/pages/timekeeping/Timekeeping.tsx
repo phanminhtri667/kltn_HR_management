@@ -10,6 +10,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import AxiosInstance from "../../services/axios";
 import apiUrl from "../../constant/apiUrl";
+import { Dialog } from "primereact/dialog";
 
 const Timekeeping = () => {
   const { user } = useSelector((state: RootState) => state.auth); // Lấy thông tin người dùng từ Redux
@@ -37,11 +38,11 @@ const Timekeeping = () => {
   });
 
   useEffect(() => {
-    load(); // Lần đầu load tất cả
-    getDepartments(); // Lấy danh sách phòng ban
-  }, []); // Khi component mount
+    load(); 
+    getDepartments(); 
+  }, []);
 
-  // NEW: Cập nhật đồng hồ realtime
+  
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
@@ -128,37 +129,73 @@ const Timekeeping = () => {
   };
 
   // ===== NEW: Handle Check In / Check Out =====
+  useEffect(() => {
+    const initCheckState = async () => {
+      try {
+        if (!user?.employee_id) return;
+        const today = nowDate();
+        // lấy chấm công của chính mình trong ngày
+        const res = await AxiosInstance.get(`${apiUrl.timekeeping.mine}?date_from=${today}&date_to=${today}`);
+        const rows = res?.data?.data || [];
+        const todayRec = rows.find((r: any) => r.work_date?.slice(0,10) === today || r.date?.slice(0,10) === today);
+        setIsCheckedIn(!!(todayRec && todayRec.check_in && !todayRec.check_out));
+      } catch (e) {
+        console.log("init state failed", e);
+      }
+    };
+    initCheckState();
+  }, [user]);
+  
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const nowDate = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  };
+  const nowTime = () => {
+    const d = new Date();
+    return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  };
   const handleCheck = async () => {
     try {
-      if (!isCheckedIn) {
-        // Check In
-        await AxiosInstance.post(apiUrl.timekeeping.checkIn, { employee_id: user.employee_id });
-        setIsCheckedIn(true);
-        toast.current?.show({
-          severity: "success",
-          summary: "Check In",
-          detail: "Bạn đã Check In thành công",
-        });
-      } else {
-        // Check Out
-        await AxiosInstance.post(apiUrl.timekeeping.checkOut, { employee_id: user.employee_id });
-        setIsCheckedIn(false);
-        toast.current?.show({
-          severity: "success",
-          summary: "Check Out",
-          detail: "Bạn đã Check Out thành công",
-        });
+      if (!user?.employee_id) {
+        toast.current?.show({ severity: "warn", summary: "Không có employee_id trong token" });
+        return;
       }
-      load(); // reload bảng sau khi chấm
-    } catch (err) {
+      const payload = {
+        employee_id: user.employee_id,
+        work_date: nowDate(),
+        ...(isCheckedIn ? { check_out: nowTime() } : { check_in: nowTime() }),
+      };
+
+      const endpoint = isCheckedIn ? apiUrl.timekeeping.checkOut : apiUrl.timekeeping.checkIn;
+      await AxiosInstance[isCheckedIn ? "patch" : "post"](endpoint, payload);
+
+      toast.current?.show({
+        severity: "success",
+        summary: isCheckedIn ? "Check Out thành công" : "Check In thành công",
+      });
+
+      setIsCheckedIn(!isCheckedIn);
+      load(); // reload bảng
+    } catch (err: any) {
       console.error(err);
       toast.current?.show({
         severity: "error",
         summary: "Error",
-        detail: "Chấm công thất bại",
+        detail: err?.response?.data?.mes || "Thao tác thất bại",
       });
     }
   };
+
+// popup xin nghỉ phép
+// Thêm state cho popup form xin nghỉ phép
+const [showLeaveForm, setShowLeaveForm] = useState(false);
+const [leaveFormData, setLeaveFormData] = useState({
+  reason: '',
+  startDate: '',
+  endDate: '',
+});
+
 
   // ===== Render =====
   return (
@@ -171,23 +208,97 @@ const Timekeeping = () => {
       <div style={{ display: "flex", gap: 20, marginBottom: 16 }}>
         {/* Card Chấm Công */}
         <Card className="card-timekeeping" style={{ flex: 1 }}>
-        <h3>Chấm Công</h3>
-        <div className="time-display">{currentTime}</div>
-        <div className="date-display">{new Date().toLocaleDateString()}</div>
+          <h3>Chấm Công</h3>
+          <div className="time-display">{currentTime}</div>
+          <div className="date-display">{new Date().toLocaleDateString()}</div>
 
-        <div className="btn-group">
-          <Button
-            label={isCheckedIn ? "Check Out" : "Check In"}
-            className={`btn-check ${isCheckedIn ? "check-out" : "check-in"}`}
-            onClick={handleCheck}
-          />
-          <Button
-            label="Xin Nghỉ"
-            className="btn-leave"
-            onClick={() => console.log("Open Leave Form")}
-          />
-        </div>
-      </Card>
+          <div className="btn-group">
+            <Button
+              label={isCheckedIn ? "Check Out" : "Check In"}
+              className={`btn-check ${isCheckedIn ? "check-out" : "check-in"}`}
+              onClick={handleCheck}
+            />
+            <Button
+              label="Xin Nghỉ"
+              className="btn-leave"
+              onClick={() => setShowLeaveForm(true)} // Hiển thị form khi nhấn nút
+            />
+          </div>
+        </Card>
+        <Dialog
+          header="Đơn Xin Phép"
+          visible={showLeaveForm}
+          onHide={() => setShowLeaveForm(false)} // Đóng form khi nhấn nút Close
+          style={{ width: "50vw" }}
+        >
+          <div>
+            <div className="p-field">
+              <label htmlFor="fullName">Họ Tên:</label>
+              <InputText
+                id="fullName"
+                value={user?.name} // Hiển thị họ tên người xin nghỉ
+                disabled
+              />
+            </div>
+
+            <div className="p-field">
+              <label htmlFor="department">Phòng Ban:</label>
+              <InputText
+                id="department"
+                value={user?.department?.value} // Hiển thị phòng ban
+                disabled
+              />
+            </div>
+
+            <div className="p-field">
+              <label htmlFor="startDate">Ngày Bắt Đầu:</label>
+              <InputText
+                id="startDate"
+                type="date"
+                value={leaveFormData.startDate}
+                onChange={(e) => setLeaveFormData({ ...leaveFormData, startDate: e.target.value })}
+              />
+            </div>
+
+            <div className="p-field">
+              <label htmlFor="endDate">Ngày Kết Thúc:</label>
+              <InputText
+                id="endDate"
+                type="date"
+                value={leaveFormData.endDate}
+                onChange={(e) => setLeaveFormData({ ...leaveFormData, endDate: e.target.value })}
+              />
+            </div>
+
+            <div className="p-field">
+              <label htmlFor="reason">Lý Do:</label>
+              <InputText
+                id="reason"
+                value={leaveFormData.reason}
+                onChange={(e) => setLeaveFormData({ ...leaveFormData, reason: e.target.value })}
+                placeholder="Nhập lý do nghỉ"
+              />
+            </div>
+
+            <div className="p-d-flex p-jc-between">
+              <Button
+                label="Cancel"
+                className="p-button-secondary"
+                onClick={() => setShowLeaveForm(false)} // Đóng form khi nhấn nút Cancel
+              />
+              <Button
+                label="Submit"
+                onClick={async () => {
+                  // Handle submit here (Gửi yêu cầu nghỉ phép)
+                  console.log(leaveFormData);
+                  // Gửi dữ liệu đến backend hoặc gửi thông báo
+                  setShowLeaveForm(false); // Đóng form sau khi gửi
+                }}
+              />
+            </div>
+          </div>
+        </Dialog>
+
 
         {/* Card Tổng Quan */}
         <Card className="card-summary" style={{ flex: 1 }}>

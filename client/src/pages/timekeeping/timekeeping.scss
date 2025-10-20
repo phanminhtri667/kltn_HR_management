@@ -214,3 +214,46 @@
 }
 
 
+.p-dialog .p-dialog-header {
+  font-size: 28px;
+  font-weight: 700; /* In đậm chữ */
+  text-align: center; /* Căn giữa tiêu đề */
+}
+.p-dialog .p-d-flex {
+  display: flex;
+  justify-content: center; /* Căn giữa các nút */
+  gap: 16px; /* Khoảng cách giữa các nút */
+}
+
+.p-dialog .p-button {
+  width: 120px; /* Đặt kích thước nút */
+}
+.p-dialog .p-dialog-footer {
+  background-color: #f0f0f0;
+  padding: 16px; /* Tăng padding cho footer */
+  display: flex;
+  justify-content: center; /* Căn giữa các nút */
+  gap: 16px; /* Khoảng cách giữa nút Cancel và Submit */
+}
+
+.p-dialog .p-button-secondary {
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ddd;
+
+  &:hover {
+    background-color: #e0e0e0;
+  }
+}
+
+.p-dialog .p-button-primary {
+  background-color: #1976d2; /* Màu chính cho nút submit */
+  color: white;
+
+  &:hover {
+    background-color: #125ca1; /* Màu khi hover */
+  }
+}
+
+
+

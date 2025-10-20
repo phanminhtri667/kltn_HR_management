@@ -28,6 +28,7 @@ class AuthController {
       const response = await AuthService.login(req.body);
 
       if (response.err === 0) {
+        console.log("login thành công");
         return res.status(200).json(response); // OK
       } else {
         return res.status(401).json(response); // Unauthorized (sai pass / email chưa đăng ký)
