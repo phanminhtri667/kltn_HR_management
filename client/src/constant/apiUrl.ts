@@ -31,6 +31,13 @@ const apiUrl = {
     index: `${api}/payroll`,       
      mine:  `${api}/payroll/me`,  
   },
+  leave: {
+    create: "/api/leaves",
+    my: "/api/leaves/my",
+    getAll: "/api/leaves",
+    approve: "/api/leaves",
+    reject: "/api/leaves",
+  },
 };
 
 export default apiUrl;

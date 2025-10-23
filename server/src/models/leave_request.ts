@@ -77,6 +77,8 @@ module.exports = (sequelize: any, DataTypes: any) => {
       modelName: "LeaveRequest",
       tableName: "leave_requests",
       timestamps: true,
+      createdAt: "created_at",  
+      updatedAt: "updated_at", 
     }
   );
 

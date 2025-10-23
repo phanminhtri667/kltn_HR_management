@@ -64,6 +64,22 @@ const AppRoutes = () => {
           </PrivateRoute>
         ),
       },  
+      { 
+        path: "/leave",
+        element: (
+          <PrivateRoute allowedRoles={['role_2','role_3']}>
+            <LeavePage />
+          </PrivateRoute>
+        ),
+      },
+      { 
+        path: "/approve-leave",
+        element: (
+          <PrivateRoute allowedRoles={['role_1']}>
+            <ApproveLeave />
+          </PrivateRoute>
+        ),
+      },
       { path: "/test1", element: <Emty/> },
       { path: "/test2", element: <Emty/> },
       { path: "/test3", element: <Emty/> },

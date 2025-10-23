@@ -195,6 +195,76 @@ const [leaveFormData, setLeaveFormData] = useState({
   startDate: '',
   endDate: '',
 });
+const [departmentName, setDepartmentName] = useState("");
+// lấy tên phòng ban
+useEffect(() => {
+  const fetchDepartmentName = async () => {
+    try {
+      if (user?.department_id) {
+        const res = await AxiosInstance.get(apiUrl.department.index);
+        const dept = res.data.data.find((d: any) => d.id === user.department_id);
+        if (dept) setDepartmentName(dept.value);
+      }
+    } catch (err) {
+      console.error("Error fetching department name:", err);
+    }
+  };
+
+  fetchDepartmentName();
+}, [user]);
+//xử lý  logic tạo đon xin ngỉ phép
+const handleSubmitLeave = async () => {
+  try {
+    const start = new Date(leaveFormData.startDate);
+    const now = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(now.getDate() + 1);
+
+    // 1️⃣ Không được xin nghỉ ngày quá khứ hoặc hôm nay
+    if (start <= now) {
+      toast.current?.show({
+        severity: "warn",
+        summary: "Không thể xin nghỉ trong quá khứ hoặc hôm nay",
+      });
+      return;
+    }
+
+    // 2️⃣ Nếu xin nghỉ ngày kế tiếp → phải tạo trước 17h hôm nay
+    const isTomorrow = start.toDateString() === tomorrow.toDateString();
+    const hour = now.getHours();
+
+    if (isTomorrow && hour >= 17) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Đã quá 17h, không thể xin nghỉ cho ngày mai",
+      });
+      return;
+    }
+
+    // Nếu hợp lệ → gửi API
+    const payload = {
+      employee_id: user.employee_id,
+      department_id: user.department_id,
+      type_id: 1,
+      start_date: leaveFormData.startDate,
+      end_date: leaveFormData.endDate,
+      reason: leaveFormData.reason,
+    };
+
+    console.log("📤 Payload gửi lên:", payload);
+    const res = await AxiosInstance.post(apiUrl.leave.create, payload);
+
+    toast.current?.show({
+      severity: res.data.err === 0 ? "success" : "warn",
+      summary: res.data.mes,
+    });
+
+    setShowLeaveForm(false);
+  } catch (err) {
+    console.error("❌ Submit error:", err);
+  }
+};
+
 
 
   // ===== Render =====
@@ -245,7 +315,7 @@ const [leaveFormData, setLeaveFormData] = useState({
               <label htmlFor="department">Phòng Ban:</label>
               <InputText
                 id="department"
-                value={user?.department?.value} // Hiển thị phòng ban
+                value={departmentName || ""} // Hiển thị phòng ban
                 disabled
               />
             </div>
@@ -286,15 +356,38 @@ const [leaveFormData, setLeaveFormData] = useState({
                 className="p-button-secondary"
                 onClick={() => setShowLeaveForm(false)} // Đóng form khi nhấn nút Cancel
               />
-              <Button
+              {/* <Button
                 label="Submit"
                 onClick={async () => {
-                  // Handle submit here (Gửi yêu cầu nghỉ phép)
-                  console.log(leaveFormData);
-                  // Gửi dữ liệu đến backend hoặc gửi thông báo
-                  setShowLeaveForm(false); // Đóng form sau khi gửi
+                  try {
+                    const payload = {
+                      employee_id: user.employee_id,
+                      department_id: user.department_id,
+                      type_id: 1, // tạm loại nghỉ Annual Leave
+                      start_date: leaveFormData.startDate,
+                      end_date: leaveFormData.endDate,
+                      reason: leaveFormData.reason,
+                    };
+                    console.log("📤 Payload gửi lên:", payload);
+                    const res = await AxiosInstance.post("/api/leaves", payload);
+                    toast.current?.show({
+                      severity: res.data.err === 0 ? "success" : "warn",
+                      summary: res.data.mes,
+                    });
+                    setShowLeaveForm(false);
+                  } catch (err) {
+                    toast.current?.show({
+                      severity: "error",
+                      summary: "Gửi đơn nghỉ thất bại",
+                    });
+                  }
                 }}
+              /> */}
+              <Button
+                label="Submit"
+                onClick={handleSubmitLeave} // ✅ Gọi hàm bạn đã viết
               />
+
             </div>
           </div>
         </Dialog>

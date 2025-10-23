@@ -1,5 +1,6 @@
 import db from "../models";
 import { Op } from "sequelize";
+import cron from "node-cron";
 
 class LeaveService {
   // ===== Tạo đơn nghỉ phép =====
@@ -77,11 +78,23 @@ class LeaveService {
       const leaves = await db.LeaveRequest.findAll({
         where,
         include: [
-          { model: db.Employee, as: "employee", attributes: ["employee_id", "full_name"] },
+          {
+            model: db.Employee,
+            as: "employee",
+            attributes: ["employee_id", "full_name"],
+            include: [
+              {
+                model: db.Department,
+                as: "department",
+                attributes: ["id", "value"], // value là tên phòng ban
+              },
+            ],
+          },
           { model: db.LeaveType, as: "leave_type" },
         ],
         order: [["created_at", "DESC"]],
       });
+      
       return { err: 0, data: leaves };
     } catch (error) {
       console.error("getAllLeaves error:", error);
@@ -145,5 +158,38 @@ class LeaveService {
     }
   }
 }
+// === AUTO-REJECT LEAVE REQUESTS ===
+// Chạy mỗi ngày lúc 17:00 (giờ server)
+// === AUTO-REJECT LEAVE REQUESTS ===
+cron.schedule("0 17 * * *", async () => {
+  try {
+    const now = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(now.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().slice(0, 10);
+
+    console.log(`⏰ Auto reject job running at ${now.toLocaleString()}`);
+
+    const pendingLeaves = await db.LeaveRequest.findAll({
+      where: {
+        status: "PENDING",
+        start_date: tomorrowStr,
+      },
+    });
+
+    for (const leave of pendingLeaves) {
+      await leave.update({
+        status: "REJECTED",
+        reject_reason: "Tự động từ chối do không được duyệt trước 17h hôm trước",
+        rejected_at: new Date(),
+      });
+      console.log(`❌ Auto rejected leave id=${leave.id} for ${leave.employee_id}`);
+    }
+
+    console.log(`✅ Auto-reject job done, ${pendingLeaves.length} đơn bị từ chối.`);
+  } catch (error) {
+    console.error("Auto-reject job error:", error);
+  }
+});
 
 export default new LeaveService();

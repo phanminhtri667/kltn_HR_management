@@ -1,62 +1,94 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect, useState, useRef } from "react";
+import DefaultLayout from "../../layouts/DefaultLayout";
+import { Toast } from "primereact/toast";
+import { Button } from "primereact/button";
+import leaveApi from "../../api/leaveApi";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
 
 const ApproveLeave = () => {
-  const [leaveRequests, setLeaveRequests] = useState<any[]>([]);
+  const toast = useRef<Toast>(null);
+  const { user } = useSelector((state: RootState) => state.auth);
+  const [leaves, setLeaves] = useState<any[]>([]);
 
   useEffect(() => {
-    // Lấy danh sách đơn nghỉ phép chưa duyệt từ API
-    axios.get('/api/leave-request')
-      .then(response => {
-        setLeaveRequests(response.data.data);
-      })
-      .catch(error => {
-        console.log('Error fetching leave requests', error);
-      });
+    loadLeaves();
   }, []);
 
-  const handleApprove = (id: number) => {
-    axios.patch(`/api/leave-request/${id}/approve`)
-      .then(response => {
-        alert('Đơn nghỉ phép đã được duyệt');
-        // Cập nhật lại danh sách đơn nghỉ phép
-        setLeaveRequests(prevRequests => prevRequests.filter(request => request.id !== id));
-      })
-      .catch(error => {
-        console.log('Error approving leave request', error);
-      });
+  const loadLeaves = async () => {
+    try {
+      const res = await leaveApi.getAll();
+      setLeaves(res.data.data || []);
+    } catch (err) {
+      toast.current?.show({ severity: "error", summary: "Load thất bại" });
+    }
+  };
+
+  const handleAction = async (id: number, action: "approve" | "reject") => {
+    try {
+      if (!user?.employee_id) return;
+      if (action === "approve") {
+        await leaveApi.approve(id, user.employee_id);
+      } else {
+        const reason = prompt("Nhập lý do từ chối:");
+        await leaveApi.reject(id, user.employee_id, reason || "Không có lý do");
+      }
+      toast.current?.show({ severity: "success", summary: "Cập nhật thành công" });
+      loadLeaves();
+    } catch (err) {
+      toast.current?.show({ severity: "error", summary: "Lỗi khi cập nhật" });
+    }
   };
 
   return (
-    <div>
-      <h1>Duyệt đơn nghỉ phép</h1>
-      <table>
+    <DefaultLayout>
+      <Toast ref={toast} />
+      <h2 className="section-title">Duyệt Đơn Nghỉ Phép</h2>
+
+      <table className="table">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Employee</th>
-            <th>Start Date</th>
-            <th>End Date</th>
-            <th>Reason</th>
-            <th>Action</th>
+            <th>#</th>
+            <th>Nhân viên</th>
+            <th>Phòng ban</th>
+            <th>Từ ngày</th>
+            <th>Đến ngày</th>
+            <th>Lý do</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
           </tr>
         </thead>
         <tbody>
-          {leaveRequests.map(request => (
-            <tr key={request.id}>
-              <td>{request.id}</td>
-              <td>{request.user.name}</td>
-              <td>{request.startDate}</td>
-              <td>{request.endDate}</td>
-              <td>{request.reason}</td>
+          {leaves.map((l, i) => (
+            <tr key={l.id}>
+              <td>{i + 1}</td>
+              <td>{l.employee?.full_name}</td>
+              <td>{l.employee?.department?.value}</td>
+              <td>{l.start_date}</td>
+              <td>{l.end_date}</td>
+              <td>{l.reason}</td>
+              <td>{l.status}</td>
               <td>
-                <button onClick={() => handleApprove(request.id)}>Duyệt</button>
+                {l.status === "PENDING" && (
+                  <>
+                    <Button
+                      label="Duyệt"
+                      onClick={() => handleAction(l.id, "approve")}
+                      className="p-button-success p-button-sm"
+                    />
+                    <Button
+                      label="Từ chối"
+                      onClick={() => handleAction(l.id, "reject")}
+                      className="p-button-danger p-button-sm"
+                    />
+                  </>
+                )}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-    </div>
+    </DefaultLayout>
   );
 };
 

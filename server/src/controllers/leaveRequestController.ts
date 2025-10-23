@@ -4,6 +4,7 @@ import LeaveService from "../services/leaveService";
 class LeaveRequestController {
   // ===== Tạo đơn xin nghỉ =====
   public createLeave = async (req: Request, res: Response) => {
+    console.log("==> BODY CLIENT:", req.body);
     try {
       const data = req.body;
       const response = await LeaveService.createLeaveRequest(data);

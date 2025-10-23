@@ -4,6 +4,8 @@ import "dotenv/config";
 import http from "http";
 import { Server as SocketIOServer } from "socket.io";
 
+import "./src/utils/autoRejectJob";
+
 // Routers
 import authRouter from "./src/routers/authRouter";
 import roleRouter from "./src/routers/roleRouter";
@@ -53,7 +55,8 @@ app.use("/api/position", positionRouter);
 app.use("/api/notification", notificationRouter);
 app.use("/api/timekeeping", timekeepingRouter);
 app.use("/api/working-hours", workingHoursRouter);
-app.use("/api/payroll", payrollRouter); // Thêm route cho Payroll
+app.use("/api/payroll", payrollRouter); 
+app.use("/api/leaves", leaveRequestRouter);
 
 // Error handling (⚡ phải đặt cuối cùng)
 app.use(notFound);
