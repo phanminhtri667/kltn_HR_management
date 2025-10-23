@@ -20,7 +20,8 @@ import axios from './services/axios';
 import apiUrl from './constant/apiUrl';
 import {setPosition} from './redux/features/positionSlice';
 import Timekeeping from "./pages/timekeeping/Timekeeping";
-import Payroll from "./pages/payroll/payroll";  // ✅ Thêm route cho Payroll
+import Payroll from "./pages/payroll/payroll";
+import Contracts from "./pages/contracts/contracts";
 
 const AppRoutes = () => {
   const navigate= useNavigate()
@@ -64,6 +65,13 @@ const AppRoutes = () => {
           </PrivateRoute>
         ),
       },  
+      { path: "/contracts",
+        element: (
+          <PrivateRoute allowedRoles={['role_1','role_2','role_3']}>
+            <Contracts />
+          </PrivateRoute>
+        )
+      },
       { path: "/test1", element: <Emty/> },
       { path: "/test2", element: <Emty/> },
       { path: "/test3", element: <Emty/> },

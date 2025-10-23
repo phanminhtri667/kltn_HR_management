@@ -17,6 +17,7 @@ interface PayrollPayslipLineAttributes {
   absent_days: number;  // Thêm cột absent_days
   created_at: Date;
   updated_at: Date;
+  status: "draft" | "approved" | "paid";
 }
 
 module.exports = (sequelize: any) => {
@@ -37,6 +38,7 @@ module.exports = (sequelize: any) => {
     public absent_days!: number;  // Thêm cột absent_days
     public created_at!: Date;
     public updated_at!: Date;
+    public status!: "draft" | "approved" | "paid";
 
     static associate(models: any) {
       PayrollPayslipLine.belongsTo(models.Employee, {
@@ -113,6 +115,11 @@ module.exports = (sequelize: any) => {
       updated_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
+      },
+      status: {
+        type: DataTypes.ENUM("draft", "approved", "paid"),
+        allowNull: false,
+        defaultValue: "draft",
       },
     },
     {

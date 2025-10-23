@@ -22,6 +22,8 @@ module.exports = (sequelize: any, DataTypes: any) => {
         foreignKey: "department_id",
         as: "employees",
       });
+      Department.hasMany(models.EmploymentContract, { foreignKey: 'department_id', as: 'contracts' });
+
     }
   }
 

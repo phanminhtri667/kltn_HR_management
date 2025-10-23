@@ -26,7 +26,7 @@ const Employee = () => {
   const toast = useRef<Toast | null>(null);
 
   // Lấy token từ Redux
-  const token = useSelector((state: RootState) => state.auth.token);
+  const user = useSelector((state: RootState) => state.auth.user);
 
   useEffect(() => {
     getEmployee();
@@ -142,25 +142,23 @@ const Employee = () => {
 
             {/* Thanh tìm kiếm kiểu Timekeeping (ô nhập + nút Clear) */}
             {/* Thanh tìm kiếm mini */}
-<Card className="search-card">
-  <div className="search-bar">
-    <span className="p-input-icon-left">
-      <i className="pi pi-search" />
-      <InputText
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-        placeholder="Search by Employee ID (e.g., AD0001)"
-      />
-    </span>
-    <Button
-      label="Clear"
-      className="p-button-secondary p-button-sm clear-button"
-      onClick={clearSearch}
-      type="button"
-    />
-  </div>
-</Card>
-
+            <Card className="search-card">
+              <div className="search-bar">
+                <span className="p-input-icon-left">
+                  <InputText
+                    value={q}
+                    onChange={(e) => setQ(e.target.value)}
+                    placeholder="Search by Employee ID (e.g., AD0001)"
+                  />
+                </span>
+                <Button
+                  label="Clear"
+                  className="p-button-secondary p-button-sm clear-button"
+                  onClick={clearSearch}
+                  type="button"
+                />
+              </div>
+            </Card>
 
             <div className="employee-table">
               <Card>
@@ -173,9 +171,12 @@ const Employee = () => {
             </div>
           </TabPanel>
 
-          <TabPanel header="Add Employee">
-            <EmployeeFormCreate />
-          </TabPanel>
+          {/* Chỉ hiển thị Tab này cho role_1 */}
+          {user?.role_code === "role_1" && (
+            <TabPanel header="Add Employee">
+              <EmployeeFormCreate />
+            </TabPanel>
+          )}
         </TabView>
 
         <Dialog

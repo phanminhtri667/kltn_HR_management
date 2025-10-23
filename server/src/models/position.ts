@@ -16,10 +16,8 @@ module.exports = (sequelize: any, DataTypes: any) => {
     deleted!: string;
     
     static associate(models: any) {
-      // define association here
-      // Position.belongsToMany(models.Project, {
-      //   through: "ProjectAssignments",
-      // });
+      Position.hasMany(models.EmploymentContract, { foreignKey: 'position_id', as: 'contracts' });
+
     }
   }
   Position.init(

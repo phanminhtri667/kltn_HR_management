@@ -35,6 +35,7 @@ const menus = [
     { id: 3, name: "Employee", path: "/employee" },
     { id: 4, name: "Timekeeping", path: "/timekeeping" },
     { id: 5, name: "Payroll", path: "/payroll" },
+    { id: 6, name: "Contracts", path: "/contracts" },
     
 ];
 const Sidebar = () => {

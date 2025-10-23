@@ -2,6 +2,8 @@ import EmployeeService from "../services/employeeService";
 import { Request, Response } from "express";
 import { io } from "../../index";
 import UserService from "../services/userService";
+import PayrollService from "../services/payrollService";
+
 class EmployeeController {
   public getAllEmployee = async (req: Request, res: Response) => {
     try {
@@ -38,20 +40,32 @@ class EmployeeController {
   
 
   public insertEmployee = async (req: Request, res: Response) => {
-    try {
-      const response = await EmployeeService.insertEmployee(req.body);
-      if (response.err === 0) {
-        io.emit("employee_created", response.mes);
-      }
-      return res.status(200).json(response);
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({
-        err: -1,
-        mess: "Internal server error",
-      });
+  try {
+    const user = req.user;  // Lấy thông tin người dùng từ req.user
+    if (!user) {
+      return res.status(401).json({ message: "User not authenticated" });
     }
-  };
+
+    // Kiểm tra xem người dùng có phải là role_1 (Admin) hay không
+    if (user.role_code !== 'role_1') {
+      return res.status(403).json({ message: "Permission denied: Only Admin can add employees." });
+    }
+
+    const response = await EmployeeService.insertEmployee(req.body);
+    if (response.err === 0) {
+      io.emit("employee_created", response.mes);  // Nếu tạo thành công, phát sự kiện
+    }
+
+    return res.status(200).json(response);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      err: -1,
+      mess: "Internal server error",
+    });
+  }
+};
+
   public suggestEmployeeIds = async (req: Request, res: Response) => {
   try {
     const q = (req.query.q as string) || "";
@@ -67,14 +81,27 @@ class EmployeeController {
   public updateEmployee = async (req: Request, res: Response) => {
   try {
     const updatedData = req.body;
-    const { employeeId } = req.params;
+    const { employeeId } = req.params;      // giữ string "AD0001"
+
+    // 1) Cập nhật employee
     const response = await EmployeeService.updateEmployee(employeeId, updatedData);
+    if (response.err !== 0) {
+      return res.status(200).json(response);
+    }
+
+    // 2) Nếu có sửa lương cơ bản (hoặc bạn muốn luôn rebuild), cập nhật payslip draft tương ứng
+    if (updatedData.basic_salary !== undefined) {
+      // month có thể truyền từ FE (vd updatedData.month) hoặc bạn để undefined để rebuild bản gần nhất
+      await PayrollService.updatePayrollWhenDataChangesByEmployee(employeeId, updatedData.month, updatedData);
+    }
+
     return res.status(200).json(response);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ err: -1, mess: "Internal server error" });
   }
 };
+
 
 
   public removeEmployee = async (req: Request, res: Response) => {

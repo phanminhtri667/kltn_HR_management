@@ -2,44 +2,53 @@
 
 import { Model, DataTypes } from "sequelize";
 
-// Định nghĩa các thuộc tính của bảng overtime_policies
+// Giữ nguyên naming & cấu trúc như bạn đang dùng (bảng: overtime_policies)
 interface OvertimePolicyAttributes {
-  id: number;             // Cột id, không phải là khóa chính
-  code: string;           // Mã chính sách OT (OT_WEEKDAY, OT_WEEKEND, OT_HOLIDAY)
-  day_type: string;       // Loại ngày: weekday, weekend, holiday
-  multiplier: number;     // Hệ số nhân cho mỗi loại giờ OT
-  start_time: string;     // Thời gian bắt đầu (định dạng HH:mm:ss)
-  end_time: string;       // Thời gian kết thúc (định dạng HH:mm:ss)
+  id: number;            // int(11) NOT NULL (không phải PK/AI)
+  code: string;          // PRIMARY KEY (varchar(50))
+  day_type: "weekday" | "weekend" | "holiday"; // enum(...)
+  multiplier: number;    // DECIMAL(4,2) NOT NULL
+  start_time: string;    // TIME NOT NULL
+  end_time: string;      // TIME NOT NULL
 }
 
 module.exports = (sequelize: any) => {
-  class OvertimePolicy extends Model<OvertimePolicyAttributes> implements OvertimePolicyAttributes {
-    public id!: number;           // Cột id, không phải là khóa chính
-    public code!: string;         // Mã chính sách OT
-    public day_type!: string;     // Loại ngày
-    public multiplier!: number;   // Hệ số nhân
-    public start_time!: string;   // Thời gian bắt đầu
-    public end_time!: string;     // Thời gian kết thúc
+  class OvertimePolicy
+    extends Model<OvertimePolicyAttributes>
+    implements OvertimePolicyAttributes {
+    public id!: number;
+    public code!: string;
+    public day_type!: "weekday" | "weekend" | "holiday";
+    public multiplier!: number;
+    public start_time!: string;
+    public end_time!: string;
+
+    static associate(_models: any) {
+      // Không cần associations ở đây
+    }
   }
 
   OvertimePolicy.init(
     {
+      // id: int(11) NOT NULL (không PK, không AI)
       id: {
-        type: DataTypes.INTEGER,     // Cột id, không phải là khóa chính, không có auto_increment
+        type: DataTypes.INTEGER,
         allowNull: false,
-        primaryKey: false,           // Không phải khóa chính
       },
+      // code: PK theo DB
       code: {
         type: DataTypes.STRING(50),
         allowNull: false,
-        primaryKey: true,            // `code` làm khóa chính
+        primaryKey: true,
       },
+      // enum như trong DB
       day_type: {
         type: DataTypes.ENUM("weekday", "weekend", "holiday"),
         allowNull: false,
       },
+      // DECIMAL(4,2) theo DB
       multiplier: {
-        type: DataTypes.DECIMAL(5, 2),
+        type: DataTypes.DECIMAL(4, 2),
         allowNull: false,
       },
       start_time: {
@@ -54,8 +63,8 @@ module.exports = (sequelize: any) => {
     {
       sequelize,
       modelName: "OvertimePolicy",
-      tableName: "overtime_policies",  // Tên bảng trong cơ sở dữ liệu
-      timestamps: false,  // Không cần timestamps (created_at, updated_at)
+      tableName: "overtime_policies",
+      timestamps: false, // bảng không có created_at/updated_at
     }
   );
 

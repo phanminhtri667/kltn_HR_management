@@ -15,9 +15,17 @@ import notificationRouter from "./src/routers/notificationRouter";
 import leaveRequestRouter from "./src/routers/leaveRequestRouter";
 import timekeepingRouter from "./src/routers/timekeepingRouter";
 import workingHoursRouter from "./src/routers/workingHoursRouter";
-import payrollRouter from "./src/routers/payrollRouter"; // Thêm Payroll Router
+import payrollRouter from "./src/routers/payrollRouter";
+import payrollChangeRouter from "./src/routers/payrollChangeRouter";
 
-// Middlewares
+// ✅ Thêm router Hợp đồng
+import contractsRouter from "./src/routers/contractsRouter";
+
+// Cron jobs
+import "./src/cronJobs/payrollJob";
+// (tuỳ chọn) nếu bạn có cron cho hợp đồng, import ở đây, ví dụ:
+// import "./src/cronJobs/contractJob";
+
 import { notFound, errorHandler } from "./src/middlewares/handle_error";
 
 const app = express();
@@ -36,14 +44,11 @@ const io = new SocketIOServer(server, {
 app.use(cors({ origin: process.env.CORS_ORIGIN || "*", credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use("/api/timekeeping", timekeepingRouter);
-app.use("/api/leave-request", leaveRequestRouter);
 
-// Health check
+// Routes
 app.get("/", (_req, res) => res.send("API OK"));
 app.get("/healthz", (_req, res) => res.json({ status: "ok" }));
 
-// Routes
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/role", roleRouter);
@@ -51,11 +56,16 @@ app.use("/api/employee", employeeRouter);
 app.use("/api/department", departmentRouter);
 app.use("/api/position", positionRouter);
 app.use("/api/notification", notificationRouter);
+app.use("/api/leave-request", leaveRequestRouter);
 app.use("/api/timekeeping", timekeepingRouter);
 app.use("/api/working-hours", workingHoursRouter);
-app.use("/api/payroll", payrollRouter); // Thêm route cho Payroll
+app.use("/api/payroll", payrollRouter);
+app.use("/api/payroll-changes", payrollChangeRouter);
 
-// Error handling (⚡ phải đặt cuối cùng)
+// ✅ Mount router Hợp đồng
+app.use("/api/contracts", contractsRouter);
+
+// Error handling (đặt cuối)
 app.use(notFound);
 app.use(errorHandler);
 
