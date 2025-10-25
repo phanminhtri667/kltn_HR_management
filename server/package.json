@@ -13,6 +13,7 @@
   },
   "homepage": "https://github.com/phanminhtri667/kltn_HR_management#readme",
   "scripts": {
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon index.ts",
     "dev": "nodemon index.ts",
