@@ -5,10 +5,7 @@
     COPY package*.json ./
     RUN npm ci
     
-    # copy toàn bộ code (bao gồm index.ts và tsconfig.json)
     COPY . .
-    
-    # Build TypeScript -> build/
     RUN npm run build
     
     # ---------- Runtime Stage ----------
@@ -16,14 +13,15 @@
     WORKDIR /app
     ENV NODE_ENV=production
     
-    # chỉ cài dependencies cần thiết cho runtime
     COPY package*.json ./
     RUN npm ci --omit=dev
     
-    # copy file build từ stage trước
+    # Copy output build từ stage trước
     COPY --from=builder /app/build ./build
-    COPY --from=builder /app/.env ./  # nếu bạn có file .env
-    COPY --from=builder /app/config ./config  # nếu có config
+    
+    # Nếu bạn KHÔNG có file .env hay folder config trong repo, comment 2 dòng sau
+    # COPY --from=builder /app/.env ./
+    # COPY --from=builder /app/config ./config
     
     EXPOSE 3000
     CMD ["node", "build/index.js"]
