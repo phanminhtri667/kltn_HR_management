@@ -12,9 +12,8 @@ env:
   IMAGE_TAG: ${{ github.sha }}
   GHCR: ghcr.io/${{ github.repository_owner }}
   REPO_NAME: ${{ github.event.repository.name }}
-  # Helm repo (repo2) + đường dẫn chart cần sửa values.yaml
-  HELM_REPO_URL: https://github.com/phanminhtri667/kltn_HR_managementkltn_helm.git
-  CHART_DIR: helmchart/project-fullstack-helm
+  HELM_REPO_URL: https://github.com/phanminhtri667/kltn_HR_management_helm.git
+  CHART_DIR: helmchart
   FRONTEND_IMAGE_FIELD: .frontend.image.tag
 
 permissions:
@@ -44,15 +43,15 @@ jobs:
 
       - name: Debug context
         run: |
-          echo ":: repo name = $REPO_NAME"
-          echo ":: list client/"
+          echo "Repository Name (Raw): $REPO_NAME"
+          echo "Listing ./client:"
           ls -la ./client
-          echo ":: .dockerignore"
-          cat ./client/.dockerignore || echo "No .dockerignore found"
 
       - name: Build & Push Frontend Image
         run: |
-          IMAGE_NAME="$GHCR/$REPO_NAME-frontend:${IMAGE_TAG}"
+          SAFE_REPO_NAME=$(echo "$REPO_NAME" | tr '[:upper:]' '[:lower:]' | tr '_' '-')
+          IMAGE_NAME="$GHCR/$SAFE_REPO_NAME-frontend:${IMAGE_TAG}"
+          echo "Building image: $IMAGE_NAME"
           docker build --no-cache -t "$IMAGE_NAME" ./client
           docker push "$IMAGE_NAME"
 
@@ -71,14 +70,17 @@ jobs:
         run: |
           cd "$CHART_DIR"
 
-          # cập nhật duy nhất field frontend
+          if [ ! -f values.yaml ]; then
+            echo "❌ Error: values.yaml not found!"
+            exit 1
+          fi
+
+          echo "Updating $FRONTEND_IMAGE_FIELD in values.yaml"
           yq -i "${FRONTEND_IMAGE_FIELD} = strenv(IMAGE_TAG)" values.yaml
 
           git config user.name "github-actions"
           git config user.email "actions@github.com"
 
           git add values.yaml || true
-          # chỉ commit khi có thay đổi
           git diff --cached --quiet || git commit -m "frontend: update image tag to ${IMAGE_TAG}"
-          # push với token
           git push "https://x-access-token:${GIT_TOKEN}@${HELM_REPO_URL#https://}" HEAD:main
