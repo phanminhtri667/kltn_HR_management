@@ -53,8 +53,11 @@ jobs:
           docker push "$IMAGE_NAME"
 
       - name: 📦 Clone Helm chart repo
+        env:
+          GIT_TOKEN: ${{ secrets.PASS_TOKEN }}
         run: |
-          git clone "$HELM_REPO_URL" helmchart
+          git clone "https://x-access-token:${GIT_TOKEN}@github.com/phanminhtri667/kltn_HR_management_helm.git" helmchart
+
 
       - name: 🧠 Install yq
         run: |
@@ -78,4 +81,5 @@ jobs:
 
           git add values.yaml
           git diff --cached --quiet || git commit -m "backend: update image tag to ${IMAGE_TAG}"
-          git push "https://x-access-token:${GIT_TOKEN}@${HELM_REPO_URL#https://}" HEAD:main
+          git push "https://x-access-token:${GIT_TOKEN}@github.com/phanminhtri667/kltn_HR_management_helm.git" HEAD:main
+

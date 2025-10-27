@@ -41,7 +41,6 @@ jobs:
       - name: 🔍 Debug repo info
         run: |
           echo "Repository: $REPO_NAME"
-          echo "Listing ./client files:"
           ls -R ./client
 
       - name: 🐳 Build & Push Frontend Image
@@ -52,9 +51,14 @@ jobs:
           docker build -t "$IMAGE_NAME" ./client
           docker push "$IMAGE_NAME"
 
+      - name: 🧩 Debug Helm repo info
+        run: echo "HELM_REPO_URL: $HELM_REPO_URL"
+
       - name: 📦 Clone Helm chart repo
+        env:
+          GIT_TOKEN: ${{ secrets.PASS_TOKEN }}
         run: |
-          git clone "$HELM_REPO_URL" helmchart
+          git clone "https://x-access-token:${GIT_TOKEN}@github.com/phanminhtri667/kltn_HR_management_helm.git" helmchart
 
       - name: 🧠 Install yq
         run: |
@@ -67,15 +71,14 @@ jobs:
         run: |
           cd "$CHART_DIR"
           if [ ! -f values.yaml ]; then
-            echo "❌ Error: values.yaml not found!"
-            exit 1
+            echo "⚠️ values.yaml not found, creating..."
+            echo "frontend:" > values.yaml
+            echo "  image:" >> values.yaml
+            echo "    tag: ${IMAGE_TAG}" >> values.yaml
           fi
-          echo "Updating frontend image tag..."
           yq -i "${FRONTEND_IMAGE_FIELD} = strenv(IMAGE_TAG)" values.yaml
-
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-
           git add values.yaml
           git diff --cached --quiet || git commit -m "frontend: update image tag to ${IMAGE_TAG}"
-          git push "https://x-access-token:${GIT_TOKEN}@${HELM_REPO_URL#https://}" HEAD:main
+          git push "https://x-access-token:${GIT_TOKEN}@github.com/phanminhtri667/kltn_HR_management_helm.git" HEAD:main
