@@ -1,0 +1,224 @@
+.
+├── client
+│   ├── Dockerfile
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── public
+│   │   ├── favicon.ico
+│   │   ├── index.html
+│   │   ├── logo192.png
+│   │   ├── logo-48.png
+│   │   ├── logo512.png
+│   │   ├── manifest.json
+│   │   └── robots.txt
+│   ├── README.md
+│   ├── src
+│   │   ├── api
+│   │   │   ├── employeeApi.ts
+│   │   │   ├── leaveApi.ts
+│   │   │   ├── payrollApi.ts
+│   │   │   ├── timekeepingApi.ts
+│   │   │   └── workingHoursApi.ts
+│   │   ├── App.scss
+│   │   ├── App.tsx
+│   │   ├── assets
+│   │   │   ├── css
+│   │   │   │   └── variables.scss
+│   │   │   ├── fonts
+│   │   │   │   ├── Montserrat-Bold.ttf
+│   │   │   │   ├── Montserrat-Italic.ttf
+│   │   │   │   ├── Montserrat-Medium.ttf
+│   │   │   │   └── static
+│   │   │   └── images
+│   │   │       └── icons8-logo.svg
+│   │   ├── components
+│   │   │   ├── breadcrumb
+│   │   │   │   ├── Breadcrumb.scss
+│   │   │   │   └── Breadcrumb.tsx
+│   │   │   ├── Charts
+│   │   │   │   ├── BarChartBasic.tsx
+│   │   │   │   ├── BarChart.tsx
+│   │   │   │   ├── DoughnutChart.tsx
+│   │   │   │   ├── LineChart.tsx
+│   │   │   │   ├── PieChart.tsx
+│   │   │   │   └── RadarChart.tsx
+│   │   │   ├── footer
+│   │   │   │   ├── Footer.scss
+│   │   │   │   └── Footer.tsx
+│   │   │   ├── forms
+│   │   │   │   ├── button
+│   │   │   │   ├── input
+│   │   │   │   └── select
+│   │   │   ├── header
+│   │   │   │   ├── Header.scss
+│   │   │   │   └── Header.tsx
+│   │   │   ├── PrivateRoute.tsx
+│   │   │   └── sidebar
+│   │   │       ├── Sidebar.scss
+│   │   │       └── Sidebar.tsx
+│   │   ├── constant
+│   │   │   └── apiUrl.ts
+│   │   ├── index.scss
+│   │   ├── index.tsx
+│   │   ├── layouts
+│   │   │   ├── DefaultLayout.scss
+│   │   │   └── DefaultLayout.tsx
+│   │   ├── pages
+│   │   │   ├── approve-leave
+│   │   │   │   └── ApproveLeave.tsx
+│   │   │   ├── dashBoard
+│   │   │   │   ├── DashBoard.scss
+│   │   │   │   ├── DashBoard.tsx
+│   │   │   │   └── table
+│   │   │   ├── department
+│   │   │   │   ├── department.scss
+│   │   │   │   ├── department.tsx
+│   │   │   │   ├── form
+│   │   │   │   └── table
+│   │   │   ├── employee
+│   │   │   │   ├── detail
+│   │   │   │   ├── employee.scss
+│   │   │   │   ├── employee.tsx
+│   │   │   │   ├── form
+│   │   │   │   └── table
+│   │   │   ├── emty
+│   │   │   │   └── emty.tsx
+│   │   │   ├── leave
+│   │   │   │   └── index.tsx
+│   │   │   ├── login
+│   │   │   │   ├── login.scss
+│   │   │   │   └── login.tsx
+│   │   │   ├── payroll
+│   │   │   │   ├── payroll.scss
+│   │   │   │   └── payroll.tsx
+│   │   │   ├── profile
+│   │   │   │   └── Profile.tsx
+│   │   │   ├── test
+│   │   │   │   └── Test.tsx
+│   │   │   ├── timekeeping
+│   │   │   │   ├── index.tsx
+│   │   │   │   ├── timekeeping.scss
+│   │   │   │   └── Timekeeping.tsx
+│   │   │   └── unauthorized
+│   │   │       └── Unauthorized.tsx
+│   │   ├── react-app-env.d.ts
+│   │   ├── redux
+│   │   │   ├── features
+│   │   │   │   ├── authSlice.ts
+│   │   │   │   ├── departmentSlice.ts
+│   │   │   │   ├── positionSlice.ts
+│   │   │   │   └── toastSlice.ts
+│   │   │   └── store.ts
+│   │   ├── reportWebVitals.ts
+│   │   ├── services
+│   │   │   └── axios.ts
+│   │   └── validation
+│   │       └── employee.ts
+│   ├── tree-client.txt
+│   └── tsconfig.json
+├── server
+│   ├── config
+│   │   └── config.json
+│   ├── Dockerfile
+│   ├── index.ts
+│   ├── migrations
+│   │   ├── 01-create-department.js
+│   │   ├── 02-create-position.js
+│   │   ├── 03-create-role.js
+│   │   ├── 04-create-user.js
+│   │   ├── 05-create-employee.js
+│   │   ├── 06-create-timekeeping.js
+│   │   ├── 07-create-working-hours.js
+│   │   ├── 08-create-notification.js
+│   │   ├── 09-create-allowances.js
+│   │   ├── 10-create-deductions.js
+│   │   ├── 11-create-overtime-policies.js
+│   │   ├── 12-create-payroll-payslip-lines.js
+│   │   └── 13-create-public-holidays.js
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── README.md
+│   ├── seeders
+│   │   ├── 01-create-department.js
+│   │   ├── 02-create-position.js
+│   │   ├── 03-create-role.js
+│   │   ├── 04-create-user.js
+│   │   ├── 05-create-employee.js
+│   │   ├── 06-create-timekeeping.js
+│   │   ├── 07-create-working-hours.js
+│   │   ├── 08-create-notification.js
+│   │   ├── 09-create-allowances.js
+│   │   ├── 10-create-deductions.js
+│   │   ├── 11-create-overtime-policies.js
+│   │   ├── 12-create-payroll-payslip-lines.js
+│   │   └── 13-create-public-holidays.js
+│   ├── src
+│   │   ├── config
+│   │   │   └── databaseConfig.ts
+│   │   ├── controllers
+│   │   │   ├── authController.ts
+│   │   │   ├── departmentController.ts
+│   │   │   ├── employeeController.ts
+│   │   │   ├── leaveRequestController.ts
+│   │   │   ├── notificationController.ts
+│   │   │   ├── payrollController.ts
+│   │   │   ├── positionController.ts
+│   │   │   ├── roleController.ts
+│   │   │   ├── timekeepingController.ts
+│   │   │   ├── userController.ts
+│   │   │   └── workingHoursController.ts
+│   │   ├── middlewares
+│   │   │   ├── handle_error.ts
+│   │   │   └── verify_token.ts
+│   │   ├── models
+│   │   │   ├── allowance.ts
+│   │   │   ├── department.ts
+│   │   │   ├── employee.ts
+│   │   │   ├── index.ts
+│   │   │   ├── leave_request.ts
+│   │   │   ├── leave_type.ts
+│   │   │   ├── notification.ts
+│   │   │   ├── overtime_policies.ts
+│   │   │   ├── payroll.ts
+│   │   │   ├── position.ts
+│   │   │   ├── public_holiday.ts
+│   │   │   ├── role.ts
+│   │   │   ├── timekeeping.ts
+│   │   │   ├── user.ts
+│   │   │   └── working_hours.ts
+│   │   ├── routers
+│   │   │   ├── authRouter.ts
+│   │   │   ├── departmentRouter.ts
+│   │   │   ├── employeeRouter.ts
+│   │   │   ├── leaveRequestRouter.ts
+│   │   │   ├── notificationRouter.ts
+│   │   │   ├── payrollRouter.ts
+│   │   │   ├── positionRouter.ts
+│   │   │   ├── roleRouter.ts
+│   │   │   ├── timekeepingRouter.ts
+│   │   │   ├── userRouter.ts
+│   │   │   └── workingHoursRouter.ts
+│   │   ├── services
+│   │   │   ├── authService.ts
+│   │   │   ├── departmentService.ts
+│   │   │   ├── employeeService.ts
+│   │   │   ├── leaveService.ts
+│   │   │   ├── notificationService.ts
+│   │   │   ├── payrollService.ts
+│   │   │   ├── positionService.ts
+│   │   │   ├── roleService.ts
+│   │   │   ├── timekeepingService.ts
+│   │   │   ├── userService.ts
+│   │   │   └── workingHoursService.ts
+│   │   ├── types
+│   │   │   └── express
+│   │   │       └── index.d.ts
+│   │   └── utils
+│   │       ├── autoRejectJob.ts
+│   │       ├── commonUtils.ts
+│   │       └── joi_schema.ts
+│   ├── tree-server.txt
+│   └── tsconfig.json
+└── tree.txt
+
+58 directories, 163 files
