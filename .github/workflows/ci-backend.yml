@@ -50,3 +50,4 @@ jobs:
           echo "🚀 Building image: $IMAGE_NAME"
           docker build -t "$IMAGE_NAME" ./server
           docker push "$IMAGE_NAME"
+

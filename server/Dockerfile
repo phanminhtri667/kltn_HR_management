@@ -1,28 +1,21 @@
-# ---------- Build Stage ----------
-    FROM node:18-alpine AS builder
-    WORKDIR /app
-    
-    COPY package*.json ./
-    RUN npm ci
-    
-    COPY . .
-    RUN npm run build
-    
-    # ---------- Runtime Stage ----------
-    FROM node:18-alpine
-    WORKDIR /app
-    ENV NODE_ENV=production
-    
-    COPY package*.json ./
-    RUN npm ci --omit=dev
-    
-    # Copy output build từ stage trước
-    COPY --from=builder /app/build ./build
-    
-    # Nếu bạn KHÔNG có file .env hay folder config trong repo, comment 2 dòng sau
-    # COPY --from=builder /app/.env ./
-    # COPY --from=builder /app/config ./config
-    
-    EXPOSE 3000
-    CMD ["node", "build/index.js"]
-    
+# Base image
+FROM node:18-alpine
+
+# Làm việc trong thư mục server
+WORKDIR /app
+
+# Copy package và cài dependencies
+COPY package*.json ./
+RUN npm ci
+
+# Copy toàn bộ code backend
+COPY . .
+
+# Build TypeScript sang JS (nếu dùng TypeScript)
+RUN npm run build
+
+# Expose port cho backend
+EXPOSE 8080
+
+# Chạy ứng dụng (từ thư mục dist hoặc build)
+CMD ["npm", "run", "start"]
