@@ -1,4 +1,6 @@
-const api = "api";
+const api = process.env.REACT_APP_API_URL
+  ? process.env.REACT_APP_API_URL.replace(/\/$/, '')  // bỏ dấu "/" cuối
+  : '/api';
 
 const apiUrl = {
   notification: {
