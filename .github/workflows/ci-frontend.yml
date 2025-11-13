@@ -48,5 +48,8 @@ jobs:
           SAFE_REPO=$(echo "$REPO_NAME" | tr '[:upper:]' '[:lower:]' | tr '_' '-')
           IMAGE_NAME="$GHCR/$SAFE_REPO-frontend:${IMAGE_TAG}"
           echo "🚀 Building image: $IMAGE_NAME"
-          docker build -t "$IMAGE_NAME" ./client
+          docker build \
+            --build-arg REACT_APP_API_URL=http://hr.thongtri.com/api \
+            -t "$IMAGE_NAME" ./client
           docker push "$IMAGE_NAME"
+
