@@ -1,21 +1,23 @@
 # Base image
 FROM node:18-alpine
 
-# Làm việc trong thư mục server
 WORKDIR /app
 
 # Copy package và cài dependencies
 COPY package*.json ./
 RUN npm ci
 
-# Copy toàn bộ code backend
+# Copy toàn bộ source code
 COPY . .
 
-# Build TypeScript sang JS (nếu dùng TypeScript)
+# Build TypeScript sang JS
 RUN npm run build
 
-# Expose port cho backend
+# Xóa bớt source TypeScript (giảm dung lượng image, tránh nhầm)
+RUN rm -rf src tsconfig.json
+
+# Expose port
 EXPOSE 8080
 
-# Chạy ứng dụng (từ thư mục dist hoặc build)
-CMD ["npm", "run", "start"]
+# ✅ Chạy file đã build
+CMD ["node", "dist/index.js"]

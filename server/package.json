@@ -15,7 +15,7 @@
   "scripts": {
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.ts",
+    "start": "ts-node index.ts",
     "dev": "nodemon index.ts",
     "migrate-cli": "npx sequelize-cli db:migrate",
     "migrate": " npx sequelize db:migrate",
