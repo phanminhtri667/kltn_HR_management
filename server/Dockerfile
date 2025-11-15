@@ -1,23 +1,33 @@
-# Base image
-FROM node:18-alpine
-
+# ===============================
+# Stage 1: Build TypeScript
+# ===============================
+FROM node:18-alpine AS build
 WORKDIR /app
 
-# Copy package và cài dependencies
+# Copy package và cài đặt dependencies
 COPY package*.json ./
 RUN npm ci
 
-# Copy toàn bộ source code
+# Copy toàn bộ code
 COPY . .
 
-# Build TypeScript sang JS
-RUN npm run build
+# Build TypeScript -> dist
+RUN npx tsc
 
-# Xóa bớt source TypeScript (giảm dung lượng image, tránh nhầm)
-RUN rm -rf src tsconfig.json
+# ===============================
+# Stage 2: Production runtime
+# ===============================
+FROM node:18-alpine
+WORKDIR /app
 
-# Expose port
+# Copy dist và package.json từ stage build
+COPY --from=build /app/dist ./dist
+COPY package*.json ./
+
+# Cài dependencies runtime (omit dev)
+RUN npm ci --omit=dev
+
 EXPOSE 8080
 
-# ✅ Chạy file đã build
+# ✅ Run file build sẵn, không chạy ts-node
 CMD ["node", "dist/index.js"]
