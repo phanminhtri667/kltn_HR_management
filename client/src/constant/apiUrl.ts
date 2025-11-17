@@ -33,27 +33,23 @@ const apiUrl = {
     detail: `${api}/payroll-changes/`,        // GET /payroll-changes/:id (nếu có dùng)
   },
   contracts: {
-    base: `${api}/contracts`,                         // GET list, POST create
-    detail: (id: number) => `${api}/contracts/${id}`, // GET chi tiết
-
-    // Draft update (Manager/Admin)
-    updateDraft: (id: number) => `${api}/contracts/${id}/draft`,
-
-    // Quy trình duyệt & gửi ký
-    submitApproval: (id: number) => `${api}/contracts/${id}/submit-approval`,
-    approve: (id: number) => `${api}/contracts/${id}/approve`,
-    setSigners: (id: number) => `${api}/contracts/${id}/signers`,
-    sendForSigning: (id: number) => `${api}/contracts/${id}/send-for-signing`,
-    sign: (id: number, order: number) => `${api}/contracts/${id}/sign/${order}`,
-
-    // Kích hoạt / Chấm dứt
-    activate: (id: number) => `${api}/contracts/${id}/activate`,
-    terminate: (id: number) => `${api}/contracts/${id}/terminate`,
-
-    // Phụ lục, tệp đính kèm, nhật ký
-    amendments: (id: number) => `${api}/contracts/${id}/amendments`,   // POST tạo phụ lục
-    attachments: (id: number) => `${api}/contracts/${id}/attachments`, // GET danh sách / POST thêm
-    audits: (id: number) => `${api}/contracts/${id}/audits`,           // GET audit logs
+    base: `${api}/contracts`,
+    detail: (id:number)=>`${api}/contracts/${id}`,
+    updateDraft: (id:number)=>`${api}/contracts/${id}/draft`,
+// submitApproval: (id: number) => `${api}/contracts/${id}/submit-approval`,
+    approve: (id:number)=>`${api}/contracts/${id}/approve`,
+    setSigners: (id:number)=>`${api}/contracts/${id}/signers`,
+    sendForSigning: (id:number)=>`${api}/contracts/${id}/send-for-signing`,
+    sign: (id:number, order:number)=>`${api}/contracts/${id}/sign/${order}`,
+// activate: (id: number) => `${api}/contracts/${id}/activate`,
+    terminate: (id:number)=>`${api}/contracts/${id}/terminate`,
+    amendments: (id:number)=>`${api}/contracts/${id}/amendments`,
+    attachments: (id:number)=>`${api}/contracts/${id}/attachments`,
+    audits: (id:number)=>`${api}/contracts/${id}/audits`,
+    // ⭐ NEW
+    createForm: `${api}/contracts/create-form`,
+    templates: `${api}/contracts/templates`,
+    legalEntity: { index: `${api}/legal-entities` },
   },
 };
 

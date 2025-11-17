@@ -7,6 +7,7 @@ interface ContractAttachmentAttrs {
   file_type?: string | null;
   notes?: string | null;
   uploaded_by?: number | null;
+  uploaded_by_employee_id?: string | null;
   uploaded_at?: Date;
 }
 type ContractAttachmentCreation = Optional<ContractAttachmentAttrs, 'id' | 'file_type' | 'notes' | 'uploaded_by' | 'uploaded_at'>;
@@ -20,6 +21,7 @@ module.exports = (sequelize: any) => {
     public file_type!: string | null;
     public notes!: string | null;
     public uploaded_by!: number | null;
+    public uploaded_by_employee_id!: string | null;
     public uploaded_at!: Date;
 
     static associate(models: any) {
@@ -35,6 +37,7 @@ module.exports = (sequelize: any) => {
       file_type: { type: DataTypes.STRING(100), allowNull: true },
       notes: { type: DataTypes.STRING(255), allowNull: true },
       uploaded_by: { type: DataTypes.INTEGER, allowNull: true },
+      uploaded_by_employee_id: { type: DataTypes.STRING(64), allowNull: true },
       uploaded_at: { type: DataTypes.DATE }
     },
     { sequelize, modelName: 'ContractAttachment', tableName: 'contract_attachments', timestamps: false }

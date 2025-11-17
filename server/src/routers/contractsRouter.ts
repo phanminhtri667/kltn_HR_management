@@ -6,15 +6,18 @@ import ContractController from "../controllers/contractController";
 const r = Router();
 
 // ===== Employment contracts
+r.get("/create-form", ContractController.createForm);
+r.get("/templates", ContractController.listTemplates);
 r.post("/", ContractController.create);
 r.get("/", ContractController.list);
 r.get("/:id", ContractController.detail);
 r.put("/:id/draft", ContractController.updateDraft);
 
-r.post("/:id/submit-approval", ContractController.submitApproval);
+
 r.post("/:id/approve", ContractController.approve);
 r.post("/:id/send-for-signing", ContractController.sendForSigning);
-r.post("/:id/activate", ContractController.activate);
+/*r.post("/:id/activate", ContractController.activate);
+r.post("/:id/submit-approval", ContractController.submitApproval);*/
 r.post("/:id/terminate", ContractController.terminate);
 
 // ===== Signatures

@@ -17,9 +17,11 @@ import timekeepingRouter from "./src/routers/timekeepingRouter";
 import workingHoursRouter from "./src/routers/workingHoursRouter";
 import payrollRouter from "./src/routers/payrollRouter";
 import payrollChangeRouter from "./src/routers/payrollChangeRouter";
+import legalEntityRouter from "./src/routers/legalEntityRouter";
 
 // ✅ Thêm router Hợp đồng
 import contractsRouter from "./src/routers/contractsRouter";
+
 
 // Cron jobs
 import "./src/cronJobs/payrollJob";
@@ -61,9 +63,10 @@ app.use("/api/timekeeping", timekeepingRouter);
 app.use("/api/working-hours", workingHoursRouter);
 app.use("/api/payroll", payrollRouter);
 app.use("/api/payroll-changes", payrollChangeRouter);
+app.use("/api/legal-entities", legalEntityRouter);
 
-// ✅ Mount router Hợp đồng
-app.use("/api/contracts", contractsRouter);
+import verifyToken from "./src/middlewares/verify_token";
+app.use("/api/contracts", verifyToken, contractsRouter);
 
 // Error handling (đặt cuối)
 app.use(notFound);

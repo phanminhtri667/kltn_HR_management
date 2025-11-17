@@ -17,14 +17,29 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   }
 
   // Kiểm tra và xác thực token
-  jwt.verify(accessToken, process.env.JWT_SECRET as string, (err, user) => {
+  jwt.verify(accessToken, process.env.JWT_SECRET as string, (err, payload) => {
     if (err) {
       console.log("Token verification failed:", err);  // Log khi token không hợp lệ
       return notAuth(res, "Authorization expired");
     }
 
-    console.log("User from token:", user);  // Log thông tin người dùng từ token
-    (req as any).user = user;  // Gán thông tin người dùng vào req.user
+    // payload do AuthService ký: { id, email, role_code, department_id, type: 'user' | 'employee', ... }
+    const p: any = payload || {};
+    const type = p?.type === "employee" ? "employee" : "user";
+
+    // Chuẩn hoá tối thiểu, giữ nguyên payload cũ qua _raw để tránh vỡ code cũ
+    const normalized = {
+      email: p.email,
+      role_code: p.role_code,
+      department_id: p.department_id ?? null,
+      type,                                   // 'user' | 'employee'
+      id: type === "user" ? Number(p.id) : undefined,           // users.id (INT)
+      employee_id: type === "employee" ? String(p.id) : undefined, // employees.employee_id (STRING)
+      _raw: p,                                // giữ lại payload gốc cho tương thích ngược
+    };
+
+    console.log("User from token (normalized):", normalized);
+    (req as any).user = normalized;  // Gán thông tin người dùng vào req.user
     next();
   });
 };

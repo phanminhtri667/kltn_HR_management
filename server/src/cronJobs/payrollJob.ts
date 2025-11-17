@@ -5,8 +5,8 @@ import payrollService from "../services/payrollService";
 console.log("[payrollJob] module loaded …");
 
 /**cron.schedule("* * * * *", */
-cron.schedule("59 59 23 28-31 * *", // sec min hour day-of-month month day-of-week
-  async () => {
+cron.schedule("59 59 23 28-31 * *", async () => {
+//cron.schedule("* * * * *", async () => {
     try {
       const now = moment().tz("Asia/Ho_Chi_Minh");
       const isForce = process.env.TEST_FORCE_CRON === "true";

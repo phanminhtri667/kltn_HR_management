@@ -8,8 +8,11 @@ import { Toast } from "primereact/toast";
 import contractsApi from "../../api/contractsApi";
 import ContractsList from "./contractsList";
 import ContractDetail from "./contractDetail";
-import ContractEditor from "./contractEditor";
+import ContractCreate from "./contractCreate";
 import ContractSign from "./contractSign";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
+
 
 type Contract = any; // TODO: thay bằng interface của bạn nếu có
 
@@ -18,6 +21,7 @@ export default function Contracts() {
   const [selected, setSelected] = useState<Contract | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const toast = useRef<Toast | null>(null);
+  const user = useSelector((state: RootState) => state.auth.user);
 
   // Load danh sách
   const load = async () => {
@@ -39,18 +43,24 @@ export default function Contracts() {
   }, []);
 
   // Bấm View -> mở modal Detail
-  const handleView = async (id: number) => {
-    try {
-      const res = await contractsApi.detail(id);
-       console.log(res.data);
-      setSelected(res?.data?.data ?? null);
-    } catch {
-      const fallback = rows.find((r: any) => Number(r.id) === Number(id)) || null;
-      setSelected(fallback);
-    } finally {
-      setDetailOpen(true);
-    }
-  };
+const handleView = async (id: number) => {
+  try {
+    const res = await contractsApi.detail(id);
+    // BE trả: { err, data, view, context, rendered_html }
+    const payload = res?.data || {};
+    const contract = payload.data
+      ? { ...payload.data, rendered_html: payload.rendered_html }
+      : null;
+
+    setSelected(contract);
+  } catch {
+    const fallback = rows.find((r: any) => Number(r.id) === Number(id)) || null;
+    setSelected(fallback);
+  } finally {
+    setDetailOpen(true);
+  }
+};
+
 
   // Cho Editor/Sign gọi refresh
   const refreshContracts = () => load();
@@ -61,15 +71,24 @@ export default function Contracts() {
         <TabPanel header="Contracts List">
           <ContractsList data={rows} onView={handleView} />
         </TabPanel>
-
-        <TabPanel header="Add / Edit Contract">
-          <ContractEditor
-            contract={selected}
-            closeModal={() => setSelected(null)}
-            refreshContracts={refreshContracts}
-          />
-        </TabPanel>
-
+        {user &&
+        (
+          (user.role_code !== "role_3" && user.role_code !== "role_2") ||
+          (user.role_code === "role_2" && user.department_id === 1)
+        ) && (
+          <TabPanel header="Add Contract">
+            <ContractCreate
+              onCreated={() =>
+                toast.current?.show({
+                  severity: "success",
+                  summary: "Thành công",
+                  detail: "Tạo hợp đồng thành công",
+                  life: 2000,
+                })
+              }
+            />
+          </TabPanel>
+        )}
         <TabPanel header="Sign Contract">
           <ContractSign contract={selected} refreshContracts={refreshContracts} />
         </TabPanel>

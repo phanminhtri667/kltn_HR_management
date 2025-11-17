@@ -1,4 +1,5 @@
-import { Model, DataTypes, Optional } from 'sequelize';
+"use strict";
+import { Model, DataTypes, Optional } from "sequelize";
 
 export interface LegalEntityAttrs {
   id: number;
@@ -7,14 +8,16 @@ export interface LegalEntityAttrs {
   address: string;
   representative_name: string;
   representative_title: string;
+  representative_user_id?: number | null;  // ✅ Thêm dòng này
   contact_phone?: string | null;
   contact_email?: string | null;
   created_at?: Date;
   updated_at?: Date;
 }
+
 type LegalEntityCreation = Optional<
   LegalEntityAttrs,
-  'id' | 'contact_phone' | 'contact_email' | 'created_at' | 'updated_at'
+  "id" | "representative_user_id" | "contact_phone" | "contact_email" | "created_at" | "updated_at"
 >;
 
 module.exports = (sequelize: any) => {
@@ -28,17 +31,27 @@ module.exports = (sequelize: any) => {
     public address!: string;
     public representative_name!: string;
     public representative_title!: string;
+    public representative_user_id!: number | null;  // ✅
     public contact_phone!: string | null;
     public contact_email!: string | null;
     public created_at!: Date;
     public updated_at!: Date;
 
     static associate(models: any) {
+      // ✅ 1. Liên kết tới EmploymentContract
       LegalEntity.hasMany(models.EmploymentContract, {
-        foreignKey: 'legal_entity_id',
-        as: 'contracts',
-        onDelete: 'SET NULL',
-        onUpdate: 'CASCADE',
+        foreignKey: "legal_entity_id",
+        as: "contracts",
+        onDelete: "SET NULL",
+        onUpdate: "CASCADE",
+      });
+
+      // ✅ 2. Liên kết tới User
+      LegalEntity.belongsTo(models.User, {
+        foreignKey: "representative_user_id",
+        as: "representative_user",
+        onDelete: "SET NULL",
+        onUpdate: "CASCADE",
       });
     }
   }
@@ -51,12 +64,18 @@ module.exports = (sequelize: any) => {
       address: { type: DataTypes.TEXT, allowNull: false },
       representative_name: { type: DataTypes.STRING(100), allowNull: false },
       representative_title: { type: DataTypes.STRING(100), allowNull: false },
+      representative_user_id: { type: DataTypes.INTEGER, allowNull: true },  // ✅
       contact_phone: { type: DataTypes.STRING(20), allowNull: true },
       contact_email: { type: DataTypes.STRING(100), allowNull: true },
       created_at: { type: DataTypes.DATE },
       updated_at: { type: DataTypes.DATE },
     },
-    { sequelize, modelName: 'LegalEntity', tableName: 'legal_entities', timestamps: false }
+    {
+      sequelize,
+      modelName: "LegalEntity",
+      tableName: "legal_entities",
+      timestamps: false,
+    }
   );
 
   return LegalEntity;

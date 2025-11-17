@@ -36,6 +36,8 @@ interface EmploymentContractAttrs {
 
   created_by?: number | null;
   updated_by?: number | null;
+  created_by_employee_id?: string | null;   // NEW
+  updated_by_employee_id?: string | null;
   created_at?: Date;
   updated_at?: Date;
 }
@@ -55,14 +57,16 @@ type EmploymentContractCreation = Optional<
   | 'signed_at'
   | 'activated_at'
   | 'terminated_at'
-  | 'bank_account_name'        // NEW
-  | 'bank_account_number'      // NEW
-  | 'bank_name'                // NEW
-  | 'approved_at'              // NEW
+  | 'bank_account_name'
+  | 'bank_account_number'
+  | 'bank_name'           
+  | 'approved_at'                       
   | 'sent_for_signing_at'      // NEW
   | 'terminated_reason'        // NEW
   | 'created_by'
   | 'updated_by'
+  | 'created_by_employee_id'   // NEW
+  | 'updated_by_employee_id'   // NEW
   | 'created_at'
   | 'updated_at'
 >;
@@ -106,6 +110,8 @@ module.exports = (sequelize: any) => {
 
     public created_by!: number | null;
     public updated_by!: number | null;
+    public created_by_employee_id!: string | null;  // NEW
+    public updated_by_employee_id!: string | null;  // NEW
     public created_at!: Date;
     public updated_at!: Date;
 
@@ -123,10 +129,10 @@ module.exports = (sequelize: any) => {
       EmploymentContract.hasMany(models.ContractAmendment, { foreignKey: 'contract_id', as: 'amendments', onDelete: 'CASCADE' });
       EmploymentContract.hasMany(models.ContractAttachment,{ foreignKey: 'contract_id', as: 'attachments', onDelete: 'CASCADE' });
       EmploymentContract.hasMany(models.ContractAudit,     { foreignKey: 'contract_id', as: 'audits', onDelete: 'CASCADE' });
-      EmploymentContract.hasMany(models.ContractWorkingHours,   { foreignKey: 'contract_id', as: 'contractWorkingHours' });
-      EmploymentContract.hasMany(models.ContractAllowance,      { foreignKey: 'contract_id', as: 'contractAllowances' });
-      EmploymentContract.hasMany(models.ContractDeduction,      { foreignKey: 'contract_id', as: 'contractDeductions' });
-      EmploymentContract.hasMany(models.ContractOvertimePolicy, { foreignKey: 'contract_id', as: 'contractOTPolicies' });
+      EmploymentContract.hasMany(models.ContractWorkingHours,   { foreignKey: 'contract_id', as: 'contractWorkingHours',   onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+      EmploymentContract.hasMany(models.ContractAllowance,      { foreignKey: 'contract_id', as: 'contractAllowances',     onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+      EmploymentContract.hasMany(models.ContractDeduction,      { foreignKey: 'contract_id', as: 'contractDeductions',     onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+      EmploymentContract.hasMany(models.ContractOvertimePolicy, { foreignKey: 'contract_id', as: 'contractOTPolicies',     onDelete: 'CASCADE', onUpdate: 'CASCADE' });
 
     }
   }
@@ -167,6 +173,8 @@ module.exports = (sequelize: any) => {
 
       created_by:        { type: DataTypes.INTEGER, allowNull: true },
       updated_by:        { type: DataTypes.INTEGER, allowNull: true },
+      created_by_employee_id:  { type: DataTypes.STRING(64), allowNull: true },  // NEW
+      updated_by_employee_id:  { type: DataTypes.STRING(64), allowNull: true },  // NEW
       created_at:        { type: DataTypes.DATE },
       updated_at:        { type: DataTypes.DATE }
     },

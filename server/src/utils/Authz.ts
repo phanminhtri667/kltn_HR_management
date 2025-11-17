@@ -3,7 +3,9 @@ export type ReqUser = {
   email: string;
   role_code: 'role_1' | 'role_2' | 'role_3';
   department_id?: number | null;
-  employee_id?: string;
+  employee_id?: string;                 // employee login (VARCHAR)
+  id?: number;                          // user login (INT)
+  type?: 'user' | 'employee';           // nguồn đăng nhập (tuỳ chọn)
 };
 
 export const isAdmin    = (u?: ReqUser) => u?.role_code === 'role_1';

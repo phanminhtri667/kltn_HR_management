@@ -21,59 +21,62 @@ export type SignerInput = {
   sign_order: number;
 };
 
-// ==== API object ====
 const contractsApi = {
-  // Danh sách hợp đồng
+  // ===== Templates & Create-form =====
+  // GET /api/contracts/templates
+  listTemplates: () => axios.get(apiUrl.contracts.templates),
+
+  // GET /api/contracts/create-form?template_id=&employee_id=
+  // (employee_id optional để BE gợi ý dept/position)
+  createForm: (template_id?: number, employee_id?: string) =>
+    axios.get(apiUrl.contracts.createForm, {
+      params: { template_id, employee_id },
+    }),
+
+  // (tuỳ chọn) GET /api/legal-entities để đổ dropdown công ty
+  listLegalEntities: () => axios.get(apiUrl.contracts.legalEntity.index),
+
+  // ===== Contracts CRUD & workflow =====
   list: (filters?: ContractsListFilters) =>
     axios.get(apiUrl.contracts.base, { params: filters }),
 
-  // Chi tiết
   detail: (id: number) =>
-    axios.get(apiUrl.contracts.detail(id)).then((res) => {
-     console.log("API Response:", res.data);  // In dữ liệu trả về từ API  // Kiểm tra xem dữ liệu trả về có đủ thông tin không
-    return res;
-  }),
-  
+    axios.get(apiUrl.contracts.detail(id)),
 
-  // Tạo mới (Manager/Admin)
   create: (data: any) =>
     axios.post(apiUrl.contracts.base, data),
 
-  // Cập nhật khi còn draft (Manager/Admin)
   updateDraft: (id: number, data: any) =>
     axios.put(apiUrl.contracts.updateDraft(id), data),
 
-  // Quy trình duyệt
-  submitApproval: (id: number) =>
-    axios.post(apiUrl.contracts.submitApproval(id)),
+  //submitApproval: (id: number) =>axios.post(apiUrl.contracts.submitApproval(id)),
+
   approve: (id: number) =>
     axios.post(apiUrl.contracts.approve(id)),
 
-  // Chữ ký
   setSigners: (id: number, signers: SignerInput[]) =>
     axios.post(apiUrl.contracts.setSigners(id), { signers }),
+
   sendForSigning: (id: number) =>
     axios.post(apiUrl.contracts.sendForSigning(id)),
+
   sign: (id: number, order: number, evidence?: any) =>
     axios.post(apiUrl.contracts.sign(id, order), { evidence }),
 
-  // Trạng thái hiệu lực / chấm dứt
-  activate: (id: number) =>
-    axios.post(apiUrl.contracts.activate(id)),
+  //activate: (id: number) =>axios.post(apiUrl.contracts.activate(id)),
+
   terminate: (id: number, reason?: string) =>
     axios.post(apiUrl.contracts.terminate(id), { reason }),
 
-  // Phụ lục
   addAmendment: (id: number, payload: any) =>
     axios.post(apiUrl.contracts.amendments(id), payload),
 
-  // Đính kèm
   listAttachments: (id: number) =>
     axios.get(apiUrl.contracts.attachments(id)),
+
   addAttachment: (id: number, payload: any) =>
     axios.post(apiUrl.contracts.attachments(id), payload),
 
-  // Audit
   listAudits: (id: number) =>
     axios.get(apiUrl.contracts.audits(id)),
 };

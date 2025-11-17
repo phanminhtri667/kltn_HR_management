@@ -5,6 +5,7 @@ interface ContractAuditAttrs {
   contract_id: number;
   action: string; // create/update/approve/send_for_sign/sign/activate/terminate/auto_expire...
   by_user?: number | null;
+  by_employee_id?: string | null;
   at?: Date;
   meta: object; // JSON
 }
@@ -17,6 +18,7 @@ module.exports = (sequelize: any) => {
     public contract_id!: number;
     public action!: string;
     public by_user!: number | null;
+    public by_employee_id!: string | null;
     public at!: Date;
     public meta!: object;
 
@@ -31,6 +33,7 @@ module.exports = (sequelize: any) => {
       contract_id: { type: DataTypes.BIGINT, allowNull: false },
       action: { type: DataTypes.STRING(50), allowNull: false },
       by_user: { type: DataTypes.INTEGER, allowNull: true },
+      by_employee_id: { type: DataTypes.STRING(64), allowNull: true },
       at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
       meta: { type: DataTypes.JSON, allowNull: false }
     },
