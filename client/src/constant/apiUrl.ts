@@ -1,4 +1,5 @@
-const api = "api";
+const api = process.env.REACT_APP_API_URL || "/api";
+
 
 const apiUrl = {
   notification: {

@@ -14,8 +14,9 @@
   "homepage": "https://github.com/phanminhtri667/kltn_HR_management#readme",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.ts",
-    "dev": "nodemon index.ts"
+    "start": "node dist/index.ts",
+    "dev": "nodemon index.ts",
+    "build": "tsc"
   },
   "keywords": [],
   "license": "ISC",
