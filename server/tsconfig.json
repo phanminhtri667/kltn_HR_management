@@ -5,9 +5,10 @@
     "module": "commonjs",                     
     
     "allowJs": true,                      
-    "outDir": "./build",                        
+    "outDir": "./dist", 
+    "rootDir": "./src",                       
     "strict": true,                           
-     "moduleResolution": "node",           
+    "moduleResolution": "node",           
     "resolveJsonModule": true,
     "typeRoots": ["./src/types", "./node_modules/@types"],
     "esModuleInterop": true,                  
