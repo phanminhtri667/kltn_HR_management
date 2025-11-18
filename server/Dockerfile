@@ -7,7 +7,8 @@ RUN npm install
 
 COPY . .
 
-RUN npm run build    
+# build TypeScript -> dist/
+RUN npm run build
 
 EXPOSE 8080
 
