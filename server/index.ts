@@ -26,16 +26,21 @@ const app = express();
 const server = http.createServer(app);
 
 // Socket.IO
+const allowedOrigins = ['http://localhost:3000', 'http://hr.thongtri.com'];
+
 const io = new SocketIOServer(server, {
   cors: {
-    origin: process.env.CORS_ORIGIN || "*",
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
     credentials: true,
   },
 });
 
 // Middleware
-app.use(cors({ origin: process.env.CORS_ORIGIN || "*", credentials: true }));
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/timekeeping", timekeepingRouter);

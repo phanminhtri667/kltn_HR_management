@@ -5,7 +5,7 @@ COPY package*.json ./
 RUN npm ci
 COPY . .
 
-# ✅ Nhận biến môi trường REACT_APP_API_URL khi build
+# ✅ Set API URL dynamically based on environment
 ARG REACT_APP_API_URL
 ENV REACT_APP_API_URL=$REACT_APP_API_URL
 
