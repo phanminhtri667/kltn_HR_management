@@ -49,26 +49,52 @@ export default class ContractController {
       });
     }
   }
-
-  static async list(req: Request, res: Response) {
+  public static async getStatusOptions(req: Request, res: Response) {
     try {
-      const user = req.user as ReqUser;
-      const dept_id_raw = req.query.department_id ? Number(req.query.department_id) : undefined;
-      const dept_id = typeof dept_id_raw === "number" && !Number.isNaN(dept_id_raw) ? dept_id_raw : undefined;
-
-      const out = await EmploymentContractService.list(user, {
-        status: (req.query.status as string) || undefined,
-        employee_id: (req.query.employee_id as string) || undefined,
-        dept_id,
-      });
-      return res.status(out.err ? 400 : 200).json(out);
-    } catch (e: any) {
+      const response = await EmploymentContractService.getStatusOptions();
+      return res.status(response.err ? 400 : 200).json(response);
+    } catch (error) {
+      console.error("Error in ContractController.getStatusOptions:", error);
       return res.status(500).json({
         err: 1,
-        mes: e?.message || "Internal Server Error (list)",
+        mes: "Internal server error",
       });
     }
   }
+  static async list(req: Request, res: Response) {
+  try {
+    const user = req.user as ReqUser;
+
+    // 🧩 Lấy params từ query
+    const filters = {
+      status: req.query.status ? String(req.query.status) : undefined,
+      employee_id: req.query.employee_id ? String(req.query.employee_id) : undefined,
+      dept_id: req.query.dept_id ? Number(req.query.dept_id) : undefined,
+      created_at: req.query.created_at ? String(req.query.created_at) : undefined,
+    };
+
+    // Chuyển đổi created_at từ query (đảm bảo ngày đúng múi giờ)
+    if (filters.created_at) {
+      const createdDate = new Date(filters.created_at); // Chuyển thành Date
+      // Đảm bảo rằng múi giờ là chính xác (lấy theo múi giờ địa phương)
+      filters.created_at = createdDate.toLocaleDateString('en-CA'); // Chuyển sang định dạng YYYY-MM-DD
+    }
+
+    // ⚙️ Gọi service
+    const out = await EmploymentContractService.list(user, filters);
+
+    // ✅ Trả về kết quả
+    return res.status(out.err ? 400 : 200).json(out);
+  } catch (e: any) {
+    console.error("ContractController.list error:", e);
+    return res.status(500).json({
+      err: 1,
+      mes: e?.message || "Internal Server Error (list)",
+    });
+  }
+}
+
+
 
   static async detail(req: Request, res: Response) {
     try {

@@ -34,6 +34,7 @@ const apiUrl = {
   },
   contracts: {
     base: `${api}/contracts`,
+    statuses: `${api}/contracts/statuses`,
     detail: (id:number)=>`${api}/contracts/${id}`,
     updateDraft: (id:number)=>`${api}/contracts/${id}/draft`,
 // submitApproval: (id: number) => `${api}/contracts/${id}/submit-approval`,

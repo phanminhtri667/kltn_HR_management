@@ -5,6 +5,7 @@ import { Transaction, Op } from "sequelize";
 import moment from "moment-timezone";
 import { ReqUser, isAdmin, isManager, isEmployee } from "../utils/Authz";
 import { renderTemplate } from "../utils/templateRenderer";
+import NotificationService from "./notificationService";
 
 /* ================== Types ================== */
 export type CreateContractInput = {
@@ -38,6 +39,7 @@ export type ListFilter = {
   status?: string;
   employee_id?: string;
   dept_id?: number;
+  created_at?: string;
 };
 
 const TZ = process.env.TZ || "Asia/Ho_Chi_Minh";
@@ -555,77 +557,111 @@ class EmploymentContractService {
 
       if (signatureList.length)
         await db.ContractSignature.bulkCreate(signatureList, { transaction: t });
+      // 🧩 Gọi NotificationService để tạo thông báo
+      await NotificationService.notifyContractCreation(reqUser, ec, legalEntity);
 
       return { err: 0, data: ec };
     });
   }
+  public async getStatusOptions() {
+  try {
+    const statusOptions = [
+      { label: "Draft", value: "draft" },
+      { label: "Approved", value: "approved" },
+      { label: "Sent for Signing", value: "sent_for_signing" },
+      { label: "Signed", value: "signed" },
+      { label: "Active", value: "active" },
+      { label: "Terminated", value: "terminated" },
+    ];
+
+    return {
+      err: 0,
+      mes: "Get status options successfully",
+      data: statusOptions,
+    };
+  } catch (error) {
+    console.error("Error in getStatusOptions:", error);
+    return { err: 1, mes: "Failed to get status options", data: [] };
+  }
+}
 
   /* ================== LIST ================== */
   public async list(reqUser: ReqUser, filter?: ListFilter) {
-    const where: any = {};
-    if (filter?.status) where.status = filter.status;
-    if (filter?.employee_id) where.employee_id = filter.employee_id;
+  const where: any = {};
 
-    const includeEmp: any = {
-      model: db.Employee,
-      as: "employee",
-      attributes: ["employee_id", "full_name", "department_id", "position_id"],
-      include: [
-        { model: db.Department, as: "department", attributes: ["value"] },
-        { model: db.Position, as: "position", attributes: ["value"] },
-      ],
-    };
+  // 🔸 Lọc theo trạng thái
+  if (filter?.status) where.status = filter.status;
 
-    // =============================
-    // 🛡️ Authorization rules
-    // =============================
-    if (
-      reqUser.role_code === "role_1" ||
-      (reqUser.role_code === "role_2" && reqUser.department_id === 1)
-    ) {
-      // ✅ full access, không cần thêm điều kiện
-    } else {
-      // role_3 hoặc role_2 khác dept=1 → chỉ xem hợp đồng của chính mình
-      const me = await db.Employee.findOne({
-        where: { email: reqUser.email },
-        attributes: ["employee_id"],
-      });
-      if (!me) return { err: 0, data: [] };
-      where.employee_id = me.employee_id;
-    }
+  // 🔸 Lọc theo nhân viên
+if (filter?.employee_id) {
+  where.employee_id = { [Op.like]: `%${filter.employee_id}%` }; // Tìm kiếm chứa chuỗi con
+}
+  // 🔸 Lọc theo phòng ban
+  if (filter?.dept_id) where.department_id = filter.dept_id;
 
-    // =============================
-    // 🔍 Query danh sách
-    // =============================
-    const rows = await db.EmploymentContract.findAll({
-      where,
-      attributes: [
-        "id",
-        "contract_code",
-        "employee_id",
-        "contract_type",
-        "status",
-        "start_date",
-        "end_date",
-        "probation_end_date",
-      ],
-      include: [
-        includeEmp,
-        {
-          model: db.LegalEntity,
-          as: "company",
-          attributes: ["company_name"],
-          required: false,
-        },
-      ],
-      order: [
-        ["start_date", "DESC"],
-        ["id", "DESC"],
-      ],
-    });
-
-    return { err: 0, data: rows };
+  // 🔸 Lọc theo ngày tạo (created_at)
+  if (filter?.created_at) {
+    const start = new Date(`${filter.created_at}T00:00:00Z`);  // Đảm bảo là UTC
+    const end = new Date(`${filter.created_at}T23:59:59Z`);    // Đảm bảo là UTC
+    where.created_at = { [db.Sequelize.Op.between]: [start, end] };
   }
+
+  // Include nhân viên và các liên kết khác
+  const includeEmp: any = {
+    model: db.Employee,
+    as: "employee",
+    attributes: ["employee_id", "full_name", "department_id", "position_id"],
+    include: [
+      { model: db.Department, as: "department", attributes: ["value"] },
+      { model: db.Position, as: "position", attributes: ["value"] },
+    ],
+  };
+
+  // 🔐 Quyền truy cập
+  if (
+    reqUser.role_code === "role_1" ||
+    (reqUser.role_code === "role_2" && reqUser.department_id === 1)
+  ) {
+    // full access
+  } else {
+    const me = await db.Employee.findOne({
+      where: { email: reqUser.email },
+      attributes: ["employee_id"],
+    });
+    if (!me) return { err: 0, data: [] };
+    where.employee_id = me.employee_id;  // Chỉ lấy hợp đồng của chính nhân viên
+  }
+
+  // ✅ Truy vấn danh sách hợp đồng theo các điều kiện lọc
+  const rows = await db.EmploymentContract.findAll({
+    where,
+    attributes: [
+      "id",
+      "contract_code",
+      "employee_id",
+      "department_id", // ← Thêm để hiển thị
+      "contract_type",
+      "status",
+      "start_date",
+      "end_date",
+      "created_at",
+    ],
+    include: [
+      includeEmp,
+      {
+        model: db.LegalEntity,
+        as: "company",
+        attributes: ["company_name"],
+      },
+    ],
+    order: [["created_at", "DESC"]], // Sắp xếp theo ngày tạo giảm dần
+  });
+
+  return { err: 0, data: rows };
+}
+
+
+
 
   /* ================== DETAIL (render template) ================== */
   public async detail(reqUser: ReqUser, id: number) {
@@ -748,9 +784,16 @@ class EmploymentContractService {
   public async approve(reqUser: ReqUser, id: number) {
     if (reqUser.role_code !== 'role_1')
       return { err: 1, mes: "Forbidden" };
-    return this._setStatus(id, "draft", "approved", "approve", (reqUser as any)?.id);
-  }
 
+    const result = await this._setStatus(id, "draft", "approved", "approve", (reqUser as any)?.id);
+    
+    // 🧩 Gửi thông báo khi duyệt hợp đồng
+    if (!result.err) {
+      await NotificationService.notifyContractStatusChange(result.data, "approved");
+    }
+
+    return result;
+  }
   public async sendForSigning(reqUser: ReqUser, id: number) {
     const isAdmin = reqUser.role_code === 'role_1';
     const isManagerDept1 = reqUser.role_code === 'role_2' && reqUser.department_id === 1;
@@ -760,9 +803,16 @@ class EmploymentContractService {
     const c = await db.ContractSignature.count({ where: { contract_id: id } });
     if (c === 0) return { err: 1, mes: "No signers configured" };
 
-    return this._setStatus(id, "approved", "sent_for_signing", "sent_for_signing", (reqUser as any)?.id);
+    const result = await this._setStatus(id, "approved", "sent_for_signing", "sent_for_signing", (reqUser as any)?.id);
 
+    // 🧩 Gửi thông báo
+    if (!result.err) {
+      await NotificationService.notifyContractStatusChange(result.data, "sent_for_signing");
+    }
+
+    return result;
   }
+
 
   /*public async markSignedIfAllSigned(id: number, by_user?: number | null) {
     const all = await db.ContractSignature.count({ where: { contract_id: id } });
@@ -792,10 +842,18 @@ class EmploymentContractService {
   public async terminate(reqUser: ReqUser, id: number, reason?: string) {
     if (reqUser.role_code !== 'role_1')
       return { err: 1, mes: "Forbidden" };
-    return this._setStatus(id, "active", "terminated", "terminate", (reqUser as any)?.id, {
+
+    const result = await this._setStatus(id, "active", "terminated", "terminate", (reqUser as any)?.id, {
       terminated_at: moment.tz(TZ).toDate(),
       terminated_reason: reason ?? null,
     });
+
+    // 🧩 Gửi thông báo khi chấm dứt hợp đồng
+    if (!result.err) {
+      await NotificationService.notifyContractTermination(result.data);
+    }
+
+    return result;
   }
 
   public async updateDraft(reqUser: ReqUser, id: number, patch: any) {

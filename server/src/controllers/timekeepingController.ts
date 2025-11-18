@@ -7,34 +7,27 @@ class TimekeepingController {
   // role_1: xem tất cả (có thể lọc theo department_id, employee_id, date_from, date_to)
   // role_3: nếu gọi vào đây cũng vẫn được vì service sẽ tự chặn/giới hạn
   public getAll = async (req: Request, res: Response) => {
-    try {
-      const { date_from, date_to, employee_id, department_id } = req.query;
-      const filters: { date_from?: string; date_to?: string; employee_id?: string; department_id?: number } = {};
+  try {
+    const { date_from, date_to, employee_id, department_id } = req.query;
+    const filters: { date_from?: string; date_to?: string; employee_id?: string; department_id?: number } = {};
 
-      if (typeof date_from === "string") filters.date_from = date_from;
-      if (typeof date_to === "string") filters.date_to = date_to;
-      if (typeof employee_id === "string" && employee_id.trim()) filters.employee_id = employee_id.trim();
-      if (typeof department_id === "string" && department_id.trim()) filters.department_id = Number(department_id);
+    if (typeof date_from === "string") filters.date_from = date_from;
+    if (typeof date_to === "string") filters.date_to = date_to;
+    if (typeof employee_id === "string" && employee_id.trim()) filters.employee_id = employee_id.trim();
+    if (typeof department_id === "string" && department_id.trim()) filters.department_id = Number(department_id);
 
-      // Kiểm tra quyền truy cập
-      const userRole = (req as any).user.role_code;
+    // ⚠️ Không cần set department_id hoặc employee_id ở đây nữa,
+    // vì service đã xử lý quyền dựa trên role_code và department_id
+    const result = await TimekeepingService.getAllTimekeeping((req as any).user, filters);
 
-      if (userRole === "role_2") {
-        // Quản lý chỉ có thể xem dữ liệu của nhân viên trong phòng ban của mình
-        filters.department_id = (req as any).user.department_id; // Lọc theo phòng ban của quản lý
-      } else if (userRole === "role_3") {
-        // Nhân viên chỉ có thể xem dữ liệu của chính mình
-        filters.employee_id = (req as any).user.employee_id; // Lọc theo employee_id của nhân viên
-      }
+    const status = result.err === 0 ? 200 : result.mes === "Forbidden" ? 403 : 404;
+    return res.status(status).json(result);
+  } catch (e) {
+    console.error("getAll error:", e);
+    return res.status(500).json({ err: 1, mes: "Internal server error" });
+  }
+};
 
-      const result = await TimekeepingService.getAllTimekeeping((req as any).user, filters);
-      const status = result.err === 0 ? 200 : result.mes === "Forbidden" ? 403 : 404;
-      return res.status(status).json(result);
-    } catch (e) {
-      console.error("getAll error:", e);
-      return res.status(500).json({ err: 1, mes: "Internal server error" });
-    }
-  };
 
   // role_2, role_3: chỉ xem dữ liệu của chính mình hoặc phòng ban của mình
   // FE không cần gửi department_id hay employee_id, sẽ được tự động xử lý trong service

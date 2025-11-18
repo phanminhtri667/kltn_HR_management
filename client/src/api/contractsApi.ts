@@ -37,6 +37,8 @@ const contractsApi = {
   listLegalEntities: () => axios.get(apiUrl.contracts.legalEntity.index),
 
   // ===== Contracts CRUD & workflow =====
+  getStatusOptions: () => axios.get(apiUrl.contracts.statuses),
+  getDepartments: () => axios.get(apiUrl.department.index),
   list: (filters?: ContractsListFilters) =>
     axios.get(apiUrl.contracts.base, { params: filters }),
 

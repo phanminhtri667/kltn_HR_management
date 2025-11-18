@@ -16,41 +16,52 @@ class PayrollService {
   // ===================== READ =====================
   // Lấy bảng lương chi tiết của tất cả nhân viên theo tháng, phòng ban, hoặc nhân viên
   public getAllPayrolls = async (reqUser: ReqUser, filters: GetAllFilters) => {
-    // role_2 & role_3: chỉ được xem của chính mình
-    if (reqUser.role_code === "role_2" || reqUser.role_code === "role_3") {
-      const emp = await db.Employee.findOne({
-        where: { email: reqUser.email },
-        attributes: ["employee_id"],
-      });
-      if (!emp) return { err: 0, data: [] };
+  const { month, employee_id, department_id } = filters;
+  const where: any = {};
+  if (month) where.month = month;
 
-      const where: any = { employee_id: emp.employee_id };
-      if (filters.month) where.month = filters.month;
+  // ------------------------------
+  // 🧩 Role 1 — Admin
+  // ------------------------------
+  if (reqUser.role_code === "role_1") {
+    const includeEmp: any = {
+      model: db.Employee,
+      as: "employee",
+      attributes: ["employee_id", "full_name", "basic_salary", "department_id"],
+      include: [
+        { model: db.Department, as: "department", attributes: ["value"] },
+        { model: db.Position, as: "position", attributes: ["value"] },
+      ],
+    };
 
-      const rows = await db.PayrollPayslipLine.findAll({
-        where,
-        include: [
-          {
-            model: db.Employee,
-            as: "employee",
-            attributes: ["employee_id", "full_name", "basic_salary", "department_id"],
-            include: [
-              { model: db.Department, as: "department", attributes: ["value"] },
-              { model: db.Position, as: "position", attributes: ["value"] },
-            ],
-          },
-        ],
-        order: [["employee_id", "ASC"]],
-      });
-      return { err: 0, data: rows };
+    if (department_id) {
+      includeEmp.where = { department_id: Number(department_id) };
+      includeEmp.required = true;
     }
 
-    // role_1: xem tất cả; hỗ trợ lọc department_id, month, employee_id
-    if (reqUser.role_code === "role_1") {
-      const where: any = {};
-      if (filters.month) where.month = filters.month;
-      if (filters.employee_id) where.employee_id = filters.employee_id;
+    if (employee_id) where.employee_id = employee_id;
 
+    const rows = await db.PayrollPayslipLine.findAll({
+      where,
+      include: [includeEmp],
+      order: [["employee_id", "ASC"]],
+    });
+
+    return { err: 0, data: rows };
+  }
+
+  // ------------------------------
+  // 🧩 Role 2 — HR hoặc Manager
+  // ------------------------------
+  if (reqUser.role_code === "role_2") {
+    const emp = await db.Employee.findOne({
+      where: { email: reqUser.email },
+      attributes: ["employee_id", "department_id"],
+    });
+    if (!emp) return { err: 0, data: [] };
+
+    // HR (department_id = 1) → xem tất cả payroll
+    if (emp.department_id === 1) {
       const includeEmp: any = {
         model: db.Employee,
         as: "employee",
@@ -60,10 +71,6 @@ class PayrollService {
           { model: db.Position, as: "position", attributes: ["value"] },
         ],
       };
-      if (filters.department_id) {
-        includeEmp.where = { department_id: Number(filters.department_id) };
-        includeEmp.required = true;
-      }
 
       const rows = await db.PayrollPayslipLine.findAll({
         where,
@@ -73,8 +80,61 @@ class PayrollService {
       return { err: 0, data: rows };
     }
 
-    return { err: 1, mes: "Forbidden" };
-  };
+    // Manager phòng khác → chỉ xem nhân viên trong phòng ban mình
+    const includeEmp: any = {
+      model: db.Employee,
+      as: "employee",
+      attributes: ["employee_id", "full_name", "basic_salary", "department_id"],
+      where: { department_id: emp.department_id },
+      required: true,
+      include: [
+        { model: db.Department, as: "department", attributes: ["value"] },
+        { model: db.Position, as: "position", attributes: ["value"] },
+      ],
+    };
+
+    const rows = await db.PayrollPayslipLine.findAll({
+      where,
+      include: [includeEmp],
+      order: [["employee_id", "ASC"]],
+    });
+    return { err: 0, data: rows };
+  }
+
+  // ------------------------------
+  // 🧩 Role 3 — Nhân viên
+  // ------------------------------
+  if (reqUser.role_code === "role_3") {
+    const emp = await db.Employee.findOne({
+      where: { email: reqUser.email },
+      attributes: ["employee_id"],
+    });
+    if (!emp) return { err: 0, data: [] };
+
+    const rows = await db.PayrollPayslipLine.findAll({
+      where: { ...where, employee_id: emp.employee_id },
+      include: [
+        {
+          model: db.Employee,
+          as: "employee",
+          attributes: ["employee_id", "full_name", "basic_salary", "department_id"],
+          include: [
+            { model: db.Department, as: "department", attributes: ["value"] },
+            { model: db.Position, as: "position", attributes: ["value"] },
+          ],
+        },
+      ],
+      order: [["employee_id", "ASC"]],
+    });
+    return { err: 0, data: rows };
+  }
+
+  // ------------------------------
+  // ❌ Các role khác
+  // ------------------------------
+  return { err: 1, mes: "Forbidden" };
+};
+
 
   // ===================== ENSURE (WRITE) =====================
   // Gọi khi là NGÀY 1 (Asia/Ho_Chi_Minh) & role_1/role_2: đảm bảo tạo đủ bảng lương tháng trước cho ALL employees

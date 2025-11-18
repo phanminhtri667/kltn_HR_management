@@ -51,10 +51,17 @@ const Timekeeping = () => {
       if (user?.role_code === "role_3") {
         // Nếu là nhân viên, lấy chỉ dữ liệu của chính họ
         res = await timekeepingApi.list({ employee_id: user.employee_id, ...params });
-      } else if (user?.role_code === "role_2") {
-        // Nếu là quản lý, lấy dữ liệu của phòng ban
-        res = await timekeepingApi.getByDepartment(user.department_id);
-      } else {
+      } 
+      else if (user?.role_code === "role_2") {
+        // Nếu là quản lý HR (phòng ban 1) → thấy toàn bộ
+        if (user.department_id === 1) {
+          res = await timekeepingApi.getAll();
+        } else {
+          // Các phòng khác chỉ thấy nhân viên trong phòng ban của mình
+          res = await timekeepingApi.getByDepartment(user.department_id);
+        }
+      }
+      else {
         // Admin (role_1), lấy tất cả chấm công
         res = await timekeepingApi.getAll();
       }

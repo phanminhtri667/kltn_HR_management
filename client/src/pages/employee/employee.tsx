@@ -171,8 +171,8 @@ const Employee = () => {
             </div>
           </TabPanel>
 
-          {/* Chỉ hiển thị Tab này cho role_1 */}
-          {user?.role_code === "role_1" && (
+          {/* Cho phép hiển thị với role_1 hoặc HR (role_2 thuộc phòng ban 1) */}
+          {(user?.role_code === "role_1" || (user?.role_code === "role_2" && user?.department_id === 1)) && (
             <TabPanel header="Add Employee">
               <EmployeeFormCreate />
             </TabPanel>

@@ -10,7 +10,7 @@ class PayrollChangeController {
    *  - employee_id=AD0001
    *  - department_id=1
    *  - limit=50
-   * Chỉ role_1 được phép.
+   * Cho phép: role_1 hoặc role_2 (nếu department_id = 1)
    */
   public getChanges = async (req: Request, res: Response) => {
     try {
@@ -18,7 +18,12 @@ class PayrollChangeController {
       if (!user) {
         return res.status(401).json({ err: 1, mes: "Unauthorized" });
       }
-      if (user.role_code !== "role_1") {
+
+      // ✅ Cho phép Admin hoặc HR (role_2 thuộc phòng ban 1)
+      const isHR = user.role_code === "role_2" && user.department_id === 1;
+      const isAdmin = user.role_code === "role_1";
+
+      if (!isAdmin && !isHR) {
         return res.status(403).json({ err: 1, mes: "Forbidden" });
       }
 

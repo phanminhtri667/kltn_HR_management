@@ -10,6 +10,7 @@ r.get("/create-form", ContractController.createForm);
 r.get("/templates", ContractController.listTemplates);
 r.post("/", ContractController.create);
 r.get("/", ContractController.list);
+r.get("/statuses", ContractController.getStatusOptions);
 r.get("/:id", ContractController.detail);
 r.put("/:id/draft", ContractController.updateDraft);
 

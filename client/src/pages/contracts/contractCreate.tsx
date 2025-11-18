@@ -106,20 +106,21 @@ export default function ContractCreate({
 
   // --- submit form ---
   const handleCreate = async () => {
-      try {
-        const res = await contractsApi.create(form);
+    try {
+      const res = await contractsApi.create(form);
 
+      // ✅ Trường hợp backend trả về JSON bình thường
+      if (res?.data) {
         if (res.data.err === 0) {
           toast.current?.show({
             severity: "success",
             summary: "Thành công",
             detail: "Tạo hợp đồng thành công 🎉",
+            life: 2500,
           });
 
-          // ✅ Gọi callback cha (hiện toast)
+          await new Promise((r) => setTimeout(r, 1200));
           onCreated?.();
-
-          // ✅ Reset toàn bộ dữ liệu chỉ khi tạo thành công
           setForm({});
           setFormCfg({ fieldsMap: {} });
           setTemplateId(undefined);
@@ -127,21 +128,45 @@ export default function ContractCreate({
           setEmployeeId("");
           setStep(1);
         } else {
+          // ✅ Nếu backend có message rõ ràng (vd: "contract_code is required")
           toast.current?.show({
             severity: "error",
-            summary: "Lỗi",
-            detail: res.data.mes,
+            summary: "Lỗi dữ liệu",
+            detail: res.data.mes || "Không thể tạo hợp đồng.",
+            life: 6000,
           });
         }
-      } catch (err) {
+        return;
+      }
+
+      // ❌ Nếu không có res.data (Axios không parse được)
+      toast.current?.show({
+        severity: "error",
+        summary: "Lỗi",
+        detail: "Phản hồi máy chủ không hợp lệ.",
+      });
+    } catch (error: any) {
+      // ✅ Axios có lỗi và backend vẫn trả về JSON
+      const backendMes = error?.response?.data?.mes;
+      const backendErr = error?.response?.data?.err;
+
+      if (backendErr === 1 && backendMes) {
         toast.current?.show({
           severity: "error",
-          summary: "Lỗi",
-          detail: "Không thể tạo hợp đồng",
+          summary: "Lỗi dữ liệu",
+          detail: backendMes,
+          life: 6000,
+        });
+      } else {
+        // ❌ Nếu thật sự không kết nối được
+        toast.current?.show({
+          severity: "error",
+          summary: "Lỗi hệ thống",
+          detail: "Không thể kết nối tới máy chủ. Vui lòng thử lại.",
         });
       }
-    };
-
+    }
+  };
 
   // --- render field ---
   const renderField = (key: string, field: FieldSpec) => {
