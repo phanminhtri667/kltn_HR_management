@@ -15,10 +15,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon index.ts",
-    "dev": "nodemon index.ts",
-    "migrate-cli": "npx sequelize-cli db:migrate",
-    "migrate": " npx sequelize db:migrate",
-    "seed": "npx sequelize db:seed:all  --config=./config/config.json"
+    "dev": "nodemon index.ts"
   },
   "keywords": [],
   "license": "ISC",

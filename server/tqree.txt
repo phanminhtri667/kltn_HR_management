@@ -1,0 +1,77 @@
+.
+├── Dockerfile
+├── index.ts
+├── package.json
+├── package-lock.json
+├── README.md
+├── src
+│   ├── config
+│   │   └── databaseConfig.ts
+│   ├── controllers
+│   │   ├── authController.ts
+│   │   ├── departmentController.ts
+│   │   ├── employeeController.ts
+│   │   ├── leaveRequestController.ts
+│   │   ├── notificationController.ts
+│   │   ├── payrollController.ts
+│   │   ├── positionController.ts
+│   │   ├── roleController.ts
+│   │   ├── timekeepingController.ts
+│   │   ├── userController.ts
+│   │   └── workingHoursController.ts
+│   ├── middlewares
+│   │   ├── handle_error.ts
+│   │   └── verify_token.ts
+│   ├── models
+│   │   ├── allowance.ts
+│   │   ├── department.ts
+│   │   ├── employee.ts
+│   │   ├── index.ts
+│   │   ├── leave_request.ts
+│   │   ├── leave_type.ts
+│   │   ├── notification.ts
+│   │   ├── overtime_policies.ts
+│   │   ├── payroll.ts
+│   │   ├── position.ts
+│   │   ├── public_holiday.ts
+│   │   ├── role.ts
+│   │   ├── timekeeping.ts
+│   │   ├── user.ts
+│   │   └── working_hours.ts
+│   ├── routers
+│   │   ├── authRouter.ts
+│   │   ├── departmentRouter.ts
+│   │   ├── employeeRouter.ts
+│   │   ├── leaveRequestRouter.ts
+│   │   ├── notificationRouter.ts
+│   │   ├── payrollRouter.ts
+│   │   ├── positionRouter.ts
+│   │   ├── roleRouter.ts
+│   │   ├── timekeepingRouter.ts
+│   │   ├── userRouter.ts
+│   │   └── workingHoursRouter.ts
+│   ├── services
+│   │   ├── authService.ts
+│   │   ├── departmentService.ts
+│   │   ├── employeeService.ts
+│   │   ├── leaveService.ts
+│   │   ├── notificationService.ts
+│   │   ├── payrollService.ts
+│   │   ├── positionService.ts
+│   │   ├── roleService.ts
+│   │   ├── timekeepingService.ts
+│   │   ├── userService.ts
+│   │   └── workingHoursService.ts
+│   ├── types
+│   │   └── express
+│   │       └── index.d.ts
+│   └── utils
+│       ├── autoRejectJob.ts
+│       ├── commonUtils.ts
+│       └── joi_schema.ts
+├── tqree.txt
+├── tree-server.txt
+├── tree.txt
+└── tsconfig.json
+
+10 directories, 64 files
