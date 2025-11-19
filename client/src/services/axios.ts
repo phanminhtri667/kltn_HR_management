@@ -3,10 +3,10 @@ import store from '../redux/store';
 import { showToast } from '../redux/features/toastSlice';
 
 const isProd = process.env.NODE_ENV === 'production';
-const baseURL = isProd
-  ? '/api'
-  : process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
 
+const baseURL = isProd
+  ? '/api'  // chạy trên Kubernetes → luôn đi qua Ingress
+  : (process.env.REACT_APP_API_URL || 'http://localhost:8080/api');
 
 const AxiosInstance = axios.create({
   baseURL,
