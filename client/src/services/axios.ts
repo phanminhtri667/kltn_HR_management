@@ -2,8 +2,14 @@ import axios, { AxiosError } from 'axios';
 import store from '../redux/store';
 import { showToast } from '../redux/features/toastSlice';
 
+const isProd = process.env.NODE_ENV === 'production';
+const baseURL = isProd
+  ? '/api'
+  : process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
+
+
 const AxiosInstance = axios.create({
-  baseURL: process.env.REACT_APP_API_URL,
+  baseURL,
   timeout: 20000,
   headers: {
     'Content-Type': 'application/json',
