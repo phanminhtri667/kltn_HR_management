@@ -3,7 +3,7 @@ import store from '../redux/store';
 import { showToast } from '../redux/features/toastSlice';
 
 const AxiosInstance = axios.create({
-  baseURL: 'http://localhost:3000/',
+  baseURL: process.env.REACT_APP_API_URL,
   timeout: 20000,
   headers: {
     'Content-Type': 'application/json',
@@ -12,36 +12,17 @@ const AxiosInstance = axios.create({
   withCredentials: false,
 });
 
-//const token = localStorage.getItem('token');
 
-// Tạo hàm để lấy token từ localStorage và gán vào header Authorization
-// const setAuthHeader = () => {
-//   const token = localStorage.getItem('token');
-//   if (token) {
-//     AxiosInstance.defaults.headers['Authorization'] = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
-//   } else {
-//     // Nếu không có token, xóa header Authorization
-//     delete AxiosInstance.defaults.headers['Authorization'];
-//   }
-// };
-// // Gọi hàm setAuthHeader khi khởi tạo AxiosInstance và mỗi khi token thay đổi
-// setAuthHeader();
 const setAuthHeader = () => {
   const token = localStorage.getItem('token');
   if (token) {
     AxiosInstance.defaults.headers['Authorization'] = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
   } else {
-    // Nếu không có token, xóa header Authorization
+    
     delete AxiosInstance.defaults.headers['Authorization'];
   }
 };
-// Gọi setAuthHeader mỗi lần AxiosInstance được sử dụng
 setAuthHeader();
-
-
-// if (token) {
-//   AxiosInstance.defaults.headers['Authorization'] = `Bearer ${token}`;
-// }
 
 const handleBadRequest = (error: AxiosError) => {
   const errorMessage =
