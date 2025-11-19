@@ -1,5 +1,8 @@
-const api = "";
+const isProd = process.env.NODE_ENV === 'production';
 
+const api = isProd 
+  ? "/api" 
+  : "http://localhost:3000/api";
 
 const apiUrl = {
   notification: {
