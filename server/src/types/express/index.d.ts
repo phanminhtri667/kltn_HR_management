@@ -1,9 +1,2 @@
-import { UserAttributes } from "../../models/user";
-
-declare global {
-  namespace Express {
-    interface Request {
-      user?: UserAttributes;
-    }
-  }
-}
+import type { ReqUser } from "../../utils/Authz";
+declare module "express-serve-static-core" { interface Request { user?: ReqUser } }

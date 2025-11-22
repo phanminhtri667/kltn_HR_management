@@ -4,18 +4,27 @@ import TimekeepingService from "../services/timekeepingService";
 
 class TimekeepingController {
   public getAll = async (req: Request, res: Response) => {
-    try {
-      const user = (req as any).user; // từ verifyToken
-      const { date_from, date_to, employee_id, department_id } = req.query as any;
-      const result = await TimekeepingService.getAllTimekeeping(
-        { email: user.email, role_code: user.role_code, department_id: user.department_id },
-        { date_from, date_to, employee_id, department_id: department_id ? Number(department_id) : undefined }
-      );
-      return res.status(200).json(result);
-    } catch (e) {
-      return res.status(500).json({ err: 1, mes: "Internal server error" });
-    }
-  };
+  try {
+    const { date_from, date_to, employee_id, department_id } = req.query;
+    const filters: { date_from?: string; date_to?: string; employee_id?: string; department_id?: number } = {};
+
+    if (typeof date_from === "string") filters.date_from = date_from;
+    if (typeof date_to === "string") filters.date_to = date_to;
+    if (typeof employee_id === "string" && employee_id.trim()) filters.employee_id = employee_id.trim();
+    if (typeof department_id === "string" && department_id.trim()) filters.department_id = Number(department_id);
+
+    // ⚠️ Không cần set department_id hoặc employee_id ở đây nữa,
+    // vì service đã xử lý quyền dựa trên role_code và department_id
+    const result = await TimekeepingService.getAllTimekeeping((req as any).user, filters);
+
+    const status = result.err === 0 ? 200 : result.mes === "Forbidden" ? 403 : 404;
+    return res.status(status).json(result);
+  } catch (e) {
+    console.error("getAll error:", e);
+    return res.status(500).json({ err: 1, mes: "Internal server error" });
+  }
+};
+
 
   public getMine = async (req: Request, res: Response) => {
     try {

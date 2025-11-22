@@ -11,7 +11,6 @@ module.exports = {
     logging: false,
     timezone: "+07:00",
 
-    // 🔥 Thêm phần này
     dialectOptions: {
       ssl: process.env.DB_SSL === "true"
         ? { require: true, rejectUnauthorized: false }
@@ -27,7 +26,6 @@ module.exports = {
     port: process.env.DB_PORT,
     dialect: "mysql",
 
-    // 🔥 Thêm phần này
     dialectOptions: {
       ssl: process.env.DB_SSL === "true"
         ? { require: true, rejectUnauthorized: false }

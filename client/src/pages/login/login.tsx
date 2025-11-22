@@ -5,10 +5,11 @@ import Button from '../../components/forms/button/Button';
 import {Formik, Form} from "formik";
 import {ChangeEvent, useState} from 'react';
 import * as yup from 'yup';
-import AxiosInstance from '../../services/axios';
 import {useDispatch} from 'react-redux';
 import {login} from '../../redux/features/authSlice';
 import {useNavigate} from 'react-router-dom';
+import AxiosInstance, { refreshAuthHeader } from '../../services/axios';
+
 
 interface LoginModel {
     email: string,
@@ -28,44 +29,16 @@ const Login = () => {
         email: yup.string().email('Invalid email').required('is a required field'),
         password: yup.string().required('is a required field'),
     });
-    // code cũ
-    // const handleSignin = async(values: LoginModel) => {
-    //     const result = await AxiosInstance.post('api/auth/login',values)
-    //     const token = result.data.access_token
-    //     if(token){
-    //         dispatch(login(token));  // code cũ
-    //         //dispatch(loginSuccess(token));
-    //         localStorage.setItem('token', token);
-    //         navigate('/')
-    //     }else{
-    //         setErrorMessage(result.data.mes)
-    //     }
-    //     console.log(result.data)
-    // };
-    // code cũ
     const handleSignin = async (values: LoginModel) => {
         try {
-          const result = await AxiosInstance.post('api/auth/login', values);
+          const result = await AxiosInstance.post('auth/login', values);
           console.log("🔥 Response từ server:", result.data);
           const { access_token, user, err, mes } = result.data;
-          
-        //   if (err === 0 && access_token && data) {
-        //     console.log("✅ Token:", access_token);
-        //     console.log("👤 User:", );
-        //     console.log("📛 Role code:", data?.role?.role_code);
-
-        //     dispatch(login({ token: access_token, user }));
-        //     localStorage.setItem('token', access_token);
-        //     localStorage.setItem('user', JSON.stringify(data));
-        //     navigate('/');
-        //   } else {
-        //     console.warn("❌ Đăng nhập thất bại:", mes);
-        //     setErrorMessage(mes || 'Login failed');
-        //   }
           if (err === 0 && access_token && user) {
             dispatch(login({ token: access_token, user }));
             localStorage.setItem('token', access_token);
             localStorage.setItem('user', JSON.stringify(user));
+            refreshAuthHeader();
             navigate('/');
           } else {
             console.warn("❌ Đăng nhập thất bại:", mes);

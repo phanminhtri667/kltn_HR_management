@@ -13,9 +13,11 @@
 ├── README.md
 ├── src
 │   ├── api
+│   │   ├── contractsApi.ts
 │   │   ├── employeeApi.ts
 │   │   ├── leaveApi.ts
 │   │   ├── payrollApi.ts
+│   │   ├── payrollChangeApi.ts
 │   │   ├── timekeepingApi.ts
 │   │   └── workingHoursApi.ts
 │   ├── App.scss
@@ -87,6 +89,14 @@
 │   ├── pages
 │   │   ├── approve-leave
 │   │   │   └── ApproveLeave.tsx
+│   │   ├── contracts
+│   │   │   ├── contractCreate.tsx
+│   │   │   ├── contractDetail.tsx
+│   │   │   ├── ContractSignButton.tsx
+│   │   │   ├── contractSign.tsx
+│   │   │   ├── contractsList.tsx
+│   │   │   ├── contracts.scss
+│   │   │   └── contracts.tsx
 │   │   ├── dashBoard
 │   │   │   ├── DashBoard.scss
 │   │   │   ├── DashBoard.tsx
@@ -145,8 +155,7 @@
 │   │   └── axios.ts
 │   └── validation
 │       └── employee.ts
-├── tqree.txt
-├── tree-client.txt
+├── tree1.txt
 └── tsconfig.json
 
-43 directories, 106 files
+44 directories, 114 files

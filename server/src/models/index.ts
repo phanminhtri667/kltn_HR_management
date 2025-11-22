@@ -1,11 +1,22 @@
 "use strict";
 
-const fs = require("fs");
-const path = require("path");
-const Sequelize = require("sequelize");
+import fs from "fs";
+import path from "path";
+import SequelizePkg from "sequelize";
+
+const { Sequelize, DataTypes } = SequelizePkg as any;
+
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || "development";
-const config = require(__dirname + "/../config/databaseConfig")[env];
+
+//const config = require(__dirname + "/../config/databaseConfig")[env];
+
+// ✅ Không fix đuôi .ts: chạy được ở cả ts-node (dev) và dist .js (prod)
+const configPath = path.join(__dirname, "..", "config", "databaseConfig");
+let configModule = require(configPath);
+configModule = configModule.default ?? configModule;
+const config = configModule[env];
+
 const db: any = {};
 
 let sequelize: any;
@@ -20,22 +31,32 @@ if (config.use_env_variable) {
   );
 }
 
+// ✅ Hỗ trợ .ts & .js, bỏ qua .d.ts
+const validExts = new Set([".ts", ".js"]);
 fs.readdirSync(__dirname)
   .filter((file: string) => {
+    const ext = path.extname(file);
     return (
-      file.indexOf(".") !== 0 && file !== basename && file.slice(-3) === ".ts"
+      file.indexOf(".") !== 0 && // bỏ file ẩn
+      file !== basename &&       // bỏ chính index.ts
+      validExts.has(ext) &&
+      !file.endsWith(".d.ts")    // bỏ khai báo type
     );
   })
-  .forEach((file: any) => {
-    const model = require(path.join(__dirname, file))(
-      sequelize,
-      Sequelize.DataTypes
-    );
+  .forEach((file: string) => {
+    const fullPath = path.join(__dirname, file);
+    let mod = require(fullPath);
+    const factory = mod.default ?? mod; // hỗ trợ default export & module.exports
+    if (typeof factory !== "function") return;
+
+    // Một số model định nghĩa (sequelize) hoặc (sequelize, DataTypes)
+    const model = factory(sequelize, DataTypes);
     db[model.name] = model;
   });
 
+// Gọi associate sau khi load hết models
 Object.keys(db).forEach((modelName) => {
-  if (db[modelName].associate) {
+  if (typeof db[modelName].associate === "function") {
     db[modelName].associate(db);
   }
 });

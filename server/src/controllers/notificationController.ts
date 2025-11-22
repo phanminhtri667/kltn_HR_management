@@ -2,9 +2,10 @@ import NotificationService from "../services/notificationService";
 import { Request, Response } from "express";
 
 class NotificationController {
-  public getNotification = async (req: Request, res: Response) => {
+  public getNotifications = async (req: Request, res: Response) => {
     try {
-      const response = await NotificationService.getNotification();
+      const reqUser = (req as any).user; // ✅ lấy thông tin user từ middleware auth
+      const response = await NotificationService.getNotifications(reqUser, 20);
       return res.status(200).json(response);
     } catch (error) {
       console.error(error);

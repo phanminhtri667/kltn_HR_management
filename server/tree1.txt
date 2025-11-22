@@ -9,28 +9,48 @@
 │   │   └── databaseConfig.ts
 │   ├── controllers
 │   │   ├── authController.ts
+│   │   ├── contractController.ts
 │   │   ├── departmentController.ts
 │   │   ├── employeeController.ts
 │   │   ├── leaveRequestController.ts
+│   │   ├── legalEntityController.ts
 │   │   ├── notificationController.ts
+│   │   ├── payrollChangeController.ts
 │   │   ├── payrollController.ts
 │   │   ├── positionController.ts
 │   │   ├── roleController.ts
 │   │   ├── timekeepingController.ts
 │   │   ├── userController.ts
 │   │   └── workingHoursController.ts
+│   ├── cronJobs
+│   │   └── payrollJob.ts
 │   ├── middlewares
+│   │   ├── ensurePayrollDay1.ts
 │   │   ├── handle_error.ts
 │   │   └── verify_token.ts
 │   ├── models
 │   │   ├── allowance.ts
+│   │   ├── contractAllowance.ts
+│   │   ├── contractAmendment.ts
+│   │   ├── contractAttachment.ts
+│   │   ├── contractAudit.ts
+│   │   ├── contractDeduction.ts
+│   │   ├── contractOvertimePolicy.ts
+│   │   ├── contractSignature.ts
+│   │   ├── contractTemplate.ts
+│   │   ├── contractVersion.ts
+│   │   ├── contractWorkingHours.ts
+│   │   ├── deduction.ts
 │   │   ├── department.ts
 │   │   ├── employee.ts
+│   │   ├── employmentContract.ts
 │   │   ├── index.ts
 │   │   ├── leave_request.ts
 │   │   ├── leave_type.ts
+│   │   ├── legalEntity.ts
 │   │   ├── notification.ts
 │   │   ├── overtime_policies.ts
+│   │   ├── payrollChange.ts
 │   │   ├── payroll.ts
 │   │   ├── position.ts
 │   │   ├── public_holiday.ts
@@ -40,10 +60,13 @@
 │   │   └── working_hours.ts
 │   ├── routers
 │   │   ├── authRouter.ts
+│   │   ├── contractsRouter.ts
 │   │   ├── departmentRouter.ts
 │   │   ├── employeeRouter.ts
 │   │   ├── leaveRequestRouter.ts
+│   │   ├── legalEntityRouter.ts
 │   │   ├── notificationRouter.ts
+│   │   ├── payrollChangeRouter.ts
 │   │   ├── payrollRouter.ts
 │   │   ├── positionRouter.ts
 │   │   ├── roleRouter.ts
@@ -52,10 +75,20 @@
 │   │   └── workingHoursRouter.ts
 │   ├── services
 │   │   ├── authService.ts
+│   │   ├── contractAmendmentService.ts
+│   │   ├── contractAttachmentService.ts
+│   │   ├── contractAuditService.ts
+│   │   ├── contractCronService.ts
+│   │   ├── contractSignatureService.ts
+│   │   ├── contractTemplateService.ts
+│   │   ├── contractVersionService.ts
 │   │   ├── departmentService.ts
 │   │   ├── employeeService.ts
+│   │   ├── employmentContractService.ts
 │   │   ├── leaveService.ts
+│   │   ├── legalEntityService.ts
 │   │   ├── notificationService.ts
+│   │   ├── payrollChangeService.ts
 │   │   ├── payrollService.ts
 │   │   ├── positionService.ts
 │   │   ├── roleService.ts
@@ -66,12 +99,12 @@
 │   │   └── express
 │   │       └── index.d.ts
 │   └── utils
+│       ├── Authz.ts
 │       ├── autoRejectJob.ts
 │       ├── commonUtils.ts
-│       └── joi_schema.ts
-├── tqree.txt
-├── tree-server.txt
-├── tree.txt
+│       ├── joi_schema.ts
+│       └── templateRenderer.ts
+├── tree1.txt
 └── tsconfig.json
 
-10 directories, 64 files
+11 directories, 96 files

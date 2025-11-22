@@ -34,184 +34,121 @@ class TimekeepingService {
 
     return "On time";
   }
+  // test
+    // ==========================
+  // GET ALL TIMEKEEPING (BẢN CHUẨN)
+  // ==========================
+  public async getAllTimekeeping(
+    reqUser: { email: string; role_code: string; department_id?: number | null },
+    filters: { date_from?: string; date_to?: string; employee_id?: string; department_id?: number }
+  ) {
+    const where: any = {};
 
-  /**
-   * API lọc theo employee_id / department_id / date range
-   * GET /api/timekeeping?employee_id=AD00&department_id=1&date_from=YYYY-MM-DD&date_to=YYYY-MM-DD
-   */
-  // Lấy chấm công của tất cả nhân viên hoặc theo các tham số lọc
-  // public getAllTimekeeping = async (
-  //   reqUser: { email: string; role_code: string; department_id?: number | null },
-  //   filters: { date_from?: string; date_to?: string; employee_id?: string; department_id?: number }
-  // ) => {
-  //   const where: any = {};
-  
-  //   // Lọc theo employee_id nếu có
-  //   if (filters.employee_id) where.employee_id = filters.employee_id;
-  
-  //   // Lọc theo department_id (dành cho role_2 và role_1)
-  //   if (filters.department_id) where.department_id = filters.department_id;
-  
-  //   // Lọc theo date_from và date_to
-  //   if (filters.date_from) where.work_date = { [Op.gte]: filters.date_from };
-  //   if (filters.date_to) where.work_date = { [Op.lte]: filters.date_to };
-  
-  //   // Admin (role_1) có thể xem tất cả dữ liệu
-  //   if (reqUser.role_code === "role_1") {
-  //     const rows = await db.Timekeeping.findAll({
-  //       where,
-  //       include: [{
-  //         model: db.Employee,
-  //         as: "employee",
-  //         attributes: ["employee_id", "full_name", "department_id"],
-  //         include: [
-  //           { model: db.Department, as: "department", attributes: ["value"] },
-  //           { model: db.Position, as: "position", attributes: ["value"] },
-  //         ],
-  //       }],
-  //       order: [["employee_id", "ASC"]],
-  //     });
-  
-  //     return { err: 0, data: rows };
-  //   }
-  
-  //   // Quản lý (role_2) chỉ có thể xem dữ liệu trong phòng ban của mình
-  //   if (reqUser.role_code === "role_2") {
-  //     const emp = await db.Employee.findOne({
-  //       where: { email: reqUser.email },
-  //       attributes: ["employee_id", "department_id"],
-  //     });
-  
-  //     if (!emp) return { err: 0, data: [] };
-  
-  //     where.department_id = emp.department_id; // Lọc theo phòng ban của quản lý
-  //     const rows = await db.Timekeeping.findAll({
-  //       where,
-  //       include: [{
-  //         model: db.Employee,
-  //         as: "employee",
-  //         attributes: ["employee_id", "full_name", "department_id"],
-  //         include: [
-  //           { model: db.Department, as: "department", attributes: ["value"] },
-  //           { model: db.Position, as: "position", attributes: ["value"] },
-  //         ],
-  //       }],
-  //       order: [["employee_id", "ASC"]],
-  //     });
-  
-  //     return { err: 0, data: rows };
-  //   }
-  
-  //   // Nhân viên (role_3) chỉ có thể xem dữ liệu của chính mình
-  //   if (reqUser.role_code === "role_3") {
-  //     const emp = await db.Employee.findOne({
-  //       where: { email: reqUser.email },
-  //       attributes: ["employee_id"],
-  //     });
-  
-  //     if (!emp) return { err: 0, data: [] };
-  
-  //     where.employee_id = emp.employee_id; // Lọc theo employee_id của nhân viên
-  //     const rows = await db.Timekeeping.findAll({
-  //       where,
-  //       include: [{
-  //         model: db.Employee,
-  //         as: "employee",
-  //         attributes: ["employee_id", "full_name", "department_id"],
-  //         include: [
-  //           { model: db.Department, as: "department", attributes: ["value"] },
-  //           { model: db.Position, as: "position", attributes: ["value"] },
-  //         ],
-  //       }],
-  //       order: [["employee_id", "ASC"]],
-  //     });
-  
-  //     return { err: 0, data: rows };
-  //   }
-  
-  //   return { err: 1, mes: "Forbidden" };
-  // };
-    /** GET all / filter (role-aware) */
-    public async getAllTimekeeping(
-      reqUser: { email: string; role_code: string; department_id?: number | null },
-      filters: { date_from?: string; date_to?: string; employee_id?: string; department_id?: number }
-    ) {
-      const where: any = {};
-  
-      if (filters.employee_id) where.employee_id = filters.employee_id;
-      if (filters.department_id) where.department_id = filters.department_id;
-  
-      if (filters.date_from && filters.date_to) {
-        where.work_date = { [Op.between]: [filters.date_from, filters.date_to] };
-      } else if (filters.date_from) {
-        where.work_date = { [Op.gte]: filters.date_from };
-      } else if (filters.date_to) {
-        where.work_date = { [Op.lte]: filters.date_to };
-      }
-  
-      // role_1: xem tất cả
-      if (reqUser.role_code === "role_1") {
-        const rows = await db.Timekeeping.findAll({
-          where,
-          include: [{
-            model: db.Employee,
-            as: "employee",
-            attributes: ["employee_id", "full_name", "department_id"],
-            include: [
-              { model: db.Department, as: "department", attributes: ["value"] },
-              { model: db.Position, as: "position", attributes: ["value"] },
-            ],
-          }],
-          order: [["work_date", "DESC"], ["employee_id", "ASC"]],
-        });
-        return { err: 0, data: rows };
-      }
-  
-      // role_2: chỉ phòng ban mình quản lý
-      if (reqUser.role_code === "role_2") {
-        const emp = await db.Employee.findOne({ where: { email: reqUser.email }, attributes: ["department_id"] });
-        if (!emp) return { err: 0, data: [] };
-        where.department_id = emp.department_id;
-        const rows = await db.Timekeeping.findAll({
-          where,
-          include: [{
-            model: db.Employee,
-            as: "employee",
-            attributes: ["employee_id", "full_name", "department_id"],
-            include: [{ model: db.Department, as: "department", attributes: ["value"] }],
-          }],
-          order: [["work_date", "DESC"], ["employee_id", "ASC"]],
-        });
-        return { err: 0, data: rows };
-      }
-  
-      // role_3: chỉ của chính mình
-      if (reqUser.role_code === "role_3") {
-        const emp = await db.Employee.findOne({ where: { email: reqUser.email }, attributes: ["employee_id"] });
-        if (!emp) return { err: 0, data: [] };
-        where.employee_id = emp.employee_id;
-        const rows = await db.Timekeeping.findAll({
-          where,
-          include: [{
-            model: db.Employee,
-            as: "employee",
-            attributes: ["employee_id", "full_name", "department_id"],
-            include: [{ model: db.Department, as: "department", attributes: ["value"] }],
-          }],
-          order: [["work_date", "DESC"]],
-        });
-        return { err: 0, data: rows };
-      }
-  
-      return { err: 1, mes: "Forbidden" };
+    if (filters.employee_id) where.employee_id = filters.employee_id;
+    if (filters.department_id) where.department_id = filters.department_id;
+
+    if (filters.date_from && filters.date_to) {
+      where.work_date = { [Op.between]: [filters.date_from, filters.date_to] };
+    } else if (filters.date_from) {
+      where.work_date = { [Op.gte]: filters.date_from };
+    } else if (filters.date_to) {
+      where.work_date = { [Op.lte]: filters.date_to };
     }
-  
 
-  
-    public async getByDepartment(reqUser: { role_code: string }, departmentId: number) {
-      if (reqUser.role_code !== "role_1" && reqUser.role_code !== "role_2") {
-        return { err: 1, mes: "Access Forbidden" };
-      }
+    // role_1: xem tất cả
+    if (reqUser.role_code === "role_1") {
+      const rows = await db.Timekeeping.findAll({
+        where,
+        include: [{
+          model: db.Employee,
+          as: "employee",
+          attributes: ["employee_id", "full_name", "department_id"],
+          include: [
+            { model: db.Department, as: "department", attributes: ["value"] },
+            { model: db.Position, as: "position", attributes: ["value"] },
+          ],
+        }],
+        order: [["work_date", "DESC"], ["employee_id", "ASC"]],
+      });
+      return { err: 0, data: rows };
+    }
+
+    // role_2
+    if (reqUser.role_code === "role_2") {
+      const emp = await db.Employee.findOne({ where: { email: reqUser.email }, attributes: ["department_id"] });
+      if (!emp) return { err: 0, data: [] };
+
+      where.department_id = emp.department_id;
+
+      const rows = await db.Timekeeping.findAll({
+        where,
+        include: [{
+          model: db.Employee,
+          as: "employee",
+          attributes: ["employee_id", "full_name", "department_id"],
+          include: [{ model: db.Department, as: "department", attributes: ["value"] }],
+        }],
+        order: [["work_date", "DESC"], ["employee_id", "ASC"]],
+      });
+      return { err: 0, data: rows };
+    }
+
+    // role_3
+    if (reqUser.role_code === "role_3") {
+      const emp = await db.Employee.findOne({
+        where: { email: reqUser.email },
+        attributes: ["employee_id"],
+      });
+      if (!emp) return { err: 0, data: [] };
+
+      where.employee_id = emp.employee_id;
+
+      const rows = await db.Timekeeping.findAll({
+        where,
+        include: [{
+          model: db.Employee,
+          as: "employee",
+          attributes: ["employee_id", "full_name", "department_id"],
+          include: [{ model: db.Department, as: "department", attributes: ["value"] }],
+        }],
+        order: [["work_date", "DESC"]],
+      });
+
+      return { err: 0, data: rows };
+    }
+
+    return { err: 1, mes: "Forbidden" };
+  }
+
+
+  // ==========================
+  // GET BY DEPARTMENT (HÀM MỚI – GIỮ LẠI)
+  // ==========================
+  public async getByDepartment(reqUser: { role_code: string }, departmentId: number) {
+    if (reqUser.role_code !== "role_1" && reqUser.role_code !== "role_2") {
+      return { err: 1, mes: "Access Forbidden" };
+    }
+
+    const rows = await db.Timekeeping.findAll({
+      where: { department_id: departmentId },
+      include: [{
+        model: db.Employee,
+        as: "employee",
+        attributes: ["employee_id", "full_name", "department_id"],
+        include: [{ model: db.Department, as: "department", attributes: ["value"] }],
+      }],
+      order: [["work_date", "DESC"], ["employee_id", "ASC"]],
+    });
+
+    return { err: 0, data: rows };
+  }
+
+
+  // ==========================
+  // GET BY DEPARTMENT (HÀM CŨ – LƯU LẠI DƯỚI TÊN MỚI)
+  // ==========================
+  public getByDepartmentOld = async (departmentId: number) => {
+    try {
       const rows = await db.Timekeeping.findAll({
         attributes: [
           "id",
@@ -232,12 +169,18 @@ class TimekeepingService {
         }],
         order: [["work_date", "DESC"]],
       });
-      return { err: 0, mes: "Get timekeeping by department successfully", data: rows };
-    }  
 
-  /**
-   * Tạo mới bản ghi check-in
-   */
+      return { err: 0, mes: "Get timekeeping by department successfully", data: rows };
+
+    } catch (error) {
+      console.error(error);
+      return { err: 1, mes: "Internal server error" };
+    }
+  };
+
+  // tesst
+  
+
   private pad(n: number) { return String(n).padStart(2, "0"); }
   private nowDate(): string {
     const d = new Date();
@@ -287,11 +230,6 @@ class TimekeepingService {
     return { err: 0, mes: "Check-in successfully", data: row };
   }
   
-  
-
-  /**
-   * Update checkout + tính giờ + status
-   */
   private diffHours(startHHMMSS: string, endHHMMSS: string): number {
     let diff = this.minutesFromHHMMSS(endHHMMSS) - this.minutesFromHHMMSS(startHHMMSS);
     if (diff < 0) diff = 0; // không xử lý qua ngày ở scope hiện tại

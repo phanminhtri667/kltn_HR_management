@@ -11,7 +11,6 @@ import { RootState } from "../../../redux/store";
 import axios from "../../../services/axios";
 import { employeeSchema } from "../../../validation/employee";
 
-
 // Chuẩn hoá ngày về YYYY-MM-DD
 const toYMD = (input: string | Date) => {
   if (!input) return "";
@@ -44,6 +43,7 @@ const EmployeeFormUpdate = ({ data, closeModal, getEmployee }: Props) => {
     department_id: Number(data?.department?.id ?? data?.department_id ?? ""),
     position_id: Number(data?.position?.id ?? data?.position_id ?? ""),
     gender: data.gender || "",
+    basic_salary: data.basic_salary || "", // Thêm dòng này
   };
 
   const validationSchema = yup.object().shape({
@@ -64,6 +64,7 @@ const EmployeeFormUpdate = ({ data, closeModal, getEmployee }: Props) => {
       if (values.phone) body.phone = values.phone.trim();
       if (values.gender) body.gender = values.gender;
       if (values.dayOfBirth) body.dayOfBirth = toYMD(values.dayOfBirth);
+      if (values.basic_salary) body.basic_salary = values.basic_salary; // Thêm dòng này
 
       if (values.department_id !== "" && values.department_id !== undefined)
         body.department_id = Number(values.department_id);
@@ -71,7 +72,6 @@ const EmployeeFormUpdate = ({ data, closeModal, getEmployee }: Props) => {
         body.position_id = Number(values.position_id);
 
       await axios.patch(`${apiUrl.employee.update}${values.employee_id}`, body);
-
       toast.current?.show({
         severity: "success",
         summary: "Confirmed",
@@ -109,9 +109,31 @@ const EmployeeFormUpdate = ({ data, closeModal, getEmployee }: Props) => {
                     type="text"
                     name="Employee name"
                     placeholder="Enter employee name"
+                    readOnly
                     value={values.full_name}
-                    errorMessage={errors?.full_name && touched.full_name ? (errors.full_name as string) : ""}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setFieldValue("full_name", e.target.value)}
+                    errorMessage={
+                      errors?.full_name && touched.full_name ? (errors.full_name as string) : ""
+                    }
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      setFieldValue("full_name", e.target.value)
+                    }
+                  />
+                </div>
+
+                <div className="form-item">
+                  <InputField
+                    type="number"
+                    name="basic_salary"
+                    placeholder="Enter basic salary"
+                    value={values.basic_salary}
+                    errorMessage={
+                      errors?.basic_salary && touched.basic_salary
+                        ? (errors.basic_salary as string)
+                        : ""
+                    }
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      setFieldValue("basic_salary", e.target.value)
+                    }
                   />
                 </div>
 
@@ -120,10 +142,11 @@ const EmployeeFormUpdate = ({ data, closeModal, getEmployee }: Props) => {
                     type="text"
                     name="Email"
                     placeholder="Enter Email"
-                    readOnly
                     value={values.email}
                     errorMessage={errors?.email && touched.email ? (errors.email as string) : ""}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setFieldValue("email", e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      setFieldValue("email", e.target.value)
+                    }
                   />
                 </div>
 
@@ -133,8 +156,12 @@ const EmployeeFormUpdate = ({ data, closeModal, getEmployee }: Props) => {
                     name="Day of birth"
                     placeholder="Enter day of birth"
                     value={values.dayOfBirth}
-                    errorMessage={errors?.dayOfBirth && touched.dayOfBirth ? (errors.dayOfBirth as string) : ""}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setFieldValue("dayOfBirth", e.target.value)}
+                    errorMessage={
+                      errors?.dayOfBirth && touched.dayOfBirth ? (errors.dayOfBirth as string) : ""
+                    }
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      setFieldValue("dayOfBirth", e.target.value)
+                    }
                   />
                 </div>
 
@@ -145,7 +172,9 @@ const EmployeeFormUpdate = ({ data, closeModal, getEmployee }: Props) => {
                     placeholder="Enter phone number"
                     value={values.phone}
                     errorMessage={errors?.phone && touched.phone ? (errors.phone as string) : ""}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setFieldValue("phone", e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      setFieldValue("phone", e.target.value)
+                    }
                   />
                 </div>
 

@@ -72,10 +72,17 @@ const Timekeeping = () => {
       if (user?.role_code === "role_3") {
         // Nếu là nhân viên, lấy chỉ dữ liệu của chính họ
         res = await timekeepingApi.list({ employee_id: user.employee_id, ...params });
-      } else if (user?.role_code === "role_2") {
-        // Nếu là quản lý, lấy dữ liệu của phòng ban
-        res = await timekeepingApi.getByDepartment(user.department_id);
-      } else {
+      } 
+      else if (user?.role_code === "role_2") {
+        // Nếu là quản lý HR (phòng ban 1) → thấy toàn bộ
+        if (user.department_id === 1) {
+          res = await timekeepingApi.getAll();
+        } else {
+          // Các phòng khác chỉ thấy nhân viên trong phòng ban của mình
+          res = await timekeepingApi.getByDepartment(user.department_id);
+        }
+      }
+      else {
         // Admin (role_1), lấy tất cả chấm công
         res = await timekeepingApi.getAll();
       }
@@ -356,33 +363,7 @@ const handleSubmitLeave = async () => {
                 className="p-button-secondary"
                 onClick={() => setShowLeaveForm(false)} // Đóng form khi nhấn nút Cancel
               />
-              {/* <Button
-                label="Submit"
-                onClick={async () => {
-                  try {
-                    const payload = {
-                      employee_id: user.employee_id,
-                      department_id: user.department_id,
-                      type_id: 1, // tạm loại nghỉ Annual Leave
-                      start_date: leaveFormData.startDate,
-                      end_date: leaveFormData.endDate,
-                      reason: leaveFormData.reason,
-                    };
-                    console.log("📤 Payload gửi lên:", payload);
-                    const res = await AxiosInstance.post("/api/leaves", payload);
-                    toast.current?.show({
-                      severity: res.data.err === 0 ? "success" : "warn",
-                      summary: res.data.mes,
-                    });
-                    setShowLeaveForm(false);
-                  } catch (err) {
-                    toast.current?.show({
-                      severity: "error",
-                      summary: "Gửi đơn nghỉ thất bại",
-                    });
-                  }
-                }}
-              /> */}
+              
               <Button
                 label="Submit"
                 onClick={handleSubmitLeave} // ✅ Gọi hàm bạn đã viết

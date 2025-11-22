@@ -3,9 +3,14 @@
 import { Model } from "sequelize";
 
 interface NotificationAttributes {
-  id: string;
+  id: number;
   message: string;
   is_read: boolean;
+  employee_id?: string | null;
+  user_id?: number | null;
+  type?: string | null;
+  link?: string | null;
+  deleted?: boolean;
 }
 
 module.exports = (sequelize: any, DataTypes: any) => {
@@ -13,16 +18,33 @@ module.exports = (sequelize: any, DataTypes: any) => {
     extends Model<NotificationAttributes>
     implements NotificationAttributes
   {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
-    id!: string;
+    id!: number;
     message!: string;
     is_read!: boolean;
-    static associate(models: any) {}
+    employee_id!: string | null;
+    user_id!: number | null;
+    type!: string | null;
+    link!: string | null;
+    deleted!: boolean;
+
+    static associate(models: any) {
+      // 🔗 Mỗi thông báo có thể thuộc về 1 user (ví dụ admin / manager)
+      Notification.belongsTo(models.User, {
+        foreignKey: "user_id",
+        onDelete: "SET NULL",
+        onUpdate: "CASCADE",
+      });
+
+      // 🔗 Mỗi thông báo có thể thuộc về 1 nhân viên (employee)
+      Notification.belongsTo(models.Employee, {
+        foreignKey: "employee_id",
+        targetKey: "employee_id", // vì cột employee_id không phải là khóa số tự tăng
+        onDelete: "SET NULL",
+        onUpdate: "CASCADE",
+      });
+    }
   }
+
   Notification.init(
     {
       id: {
@@ -31,11 +53,32 @@ module.exports = (sequelize: any, DataTypes: any) => {
         primaryKey: true,
         autoIncrement: true,
       },
+      employee_id: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
+      },
+      user_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
       message: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: false,
       },
+      type: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
+      },
+      link: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+      },
       is_read: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
+      deleted: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false,
@@ -44,7 +87,10 @@ module.exports = (sequelize: any, DataTypes: any) => {
     {
       sequelize,
       modelName: "Notification",
+      tableName: "notifications",
+      timestamps: true, // để có createdAt, updatedAt
     }
   );
+
   return Notification;
 };

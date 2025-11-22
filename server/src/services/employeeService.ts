@@ -59,31 +59,35 @@ public getAllEmployee = async () => {
 };
 
   public insertEmployee = async (data: any) => {
-    try {
-      const newEmployeeId = await this.generateEmployeeId();
-      const fullName = Utils.capitalizeFirstLetter(data.full_name);
-      const partsName = fullName.split(" ");
+  try {
+    const newEmployeeId = await this.generateEmployeeId();
+    const fullName = Utils.capitalizeFirstLetter(data.full_name);
+    const partsName = fullName.split(" ");
 
-      data.employee_id = newEmployeeId;
-      data.full_name = fullName;
-      data.first_name = partsName.pop();
+    data.employee_id = newEmployeeId;
+    data.full_name = fullName;
+    data.first_name = partsName.pop();
 
-      const response = await db.Employee.create(data);
+    const response = await db.Employee.create(data);
 
-      await NotificationService.createNotification(
-        `Created employee ${fullName} successfully`
-      );
+    // ✅ Gửi thông báo cho HR hoặc nhân viên mới
+    await NotificationService.createNotification({
+      message: `Created employee ${fullName} successfully`,
+      employee_id: newEmployeeId,
+      type: "employee_created",
+      link: `/employees/${newEmployeeId}`,
+    });
 
-      return {
-        err: 0,
-        mes: `Created employee ${fullName} successfully`,
-        data: response,
-      };
-    } catch (error) {
-      console.error("Error in insertEmployee:", error);
-      throw error;
-    }
-  };
+    return {
+      err: 0,
+      mes: `Created employee ${fullName} successfully`,
+      data: response,
+    };
+  } catch (error) {
+    console.error("Error in insertEmployee:", error);
+    throw error;
+  }
+};
 
   public updateEmployee = async (employeeId: string, updatedData: any) => {
   try {
@@ -117,21 +121,36 @@ public getAllEmployee = async () => {
   };
 
   // Lấy nhân viên theo phòng ban
-  public getEmployeesByDepartment = async (departmentId: number) => {
-    try {
-        const employees = await db.Employee.findAll({
-            where: { department_id: departmentId, deleted: "0" },
-            include: [
-                { model: db.Department, attributes: ["id", "code", "value"], as: "department" },
-                { model: db.Position, attributes: ["id", "code", "value"], as: "position" },
-            ],
-        });
-        return { err: 0, data: employees };
-    } catch (error) {
-        console.error(error);
-        return { err: -1, mes: "Internal server error" };
+  public getEmployeesByDepartment = async (reqUser: any) => {
+  try {
+    const whereClause: any = { deleted: "0" };
+
+    // ✅ Nếu là Admin hoặc role_2 phòng HR thì xem tất cả
+    if (reqUser.role_code === "role_1" || 
+        (reqUser.role_code === "role_2" && reqUser.department_id === 1)) {
+      // Không cần giới hạn phòng ban
+    } 
+    // ✅ Còn lại thì chỉ thấy nhân viên cùng phòng ban
+    else if (reqUser.department_id) {
+      whereClause.department_id = reqUser.department_id;
     }
+
+    const employees = await db.Employee.findAll({
+      where: whereClause,
+      include: [
+        { model: db.Department, attributes: ["id", "code", "value"], as: "department" },
+        { model: db.Position, attributes: ["id", "code", "value"], as: "position" },
+      ],
+      order: [["employee_id", "ASC"]],
+    });
+
+    return { err: 0, data: employees };
+  } catch (error) {
+    console.error("Error in getEmployeesByDepartment:", error);
+    return { err: -1, mes: "Internal server error" };
+  }
 };
+
 
 }
 

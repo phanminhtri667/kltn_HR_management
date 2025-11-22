@@ -55,6 +55,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
         sourceKey: "employee_id",
         as: "Timekeepings",
       });
+      Employee.hasMany(models.EmploymentContract, { foreignKey: 'employee_id', as: 'contracts' });
 
     }
   }
