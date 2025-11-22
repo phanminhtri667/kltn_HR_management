@@ -25,8 +25,8 @@ import contractsRouter from "./src/routers/contractsRouter";
 
 // Cron jobs
 import "./src/cronJobs/payrollJob";
-// (tuỳ chọn) nếu bạn có cron cho hợp đồng, import ở đây, ví dụ:
-// import "./src/cronJobs/contractJob";
+import "./src/cronJobs/contractExpirationReminderJob";
+
 
 import { notFound, errorHandler } from "./src/middlewares/handle_error";
 

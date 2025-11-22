@@ -147,7 +147,7 @@ export default class ContractController {
     }
   }*/
 
-  static async approve(req: Request, res: Response) {
+  /*static async approve(req: Request, res: Response) {
     try {
       const id = Number(req.params.id);
       if (Number.isNaN(id))
@@ -161,7 +161,7 @@ export default class ContractController {
         mes: e?.message || "Internal Server Error (approve)",
       });
     }
-  }
+  }*/
 
   static async sendForSigning(req: Request, res: Response) {
     try {

@@ -34,6 +34,100 @@ export type CreateContractInput = {
   ot_refs?: Array<{ code: string; day_types?: ("weekday" | "weekend" | "holiday")[] }>;
   placeholders?: Record<string, any>;
 };
+export const sendContractExpirationReminder = async () => {
+  try {
+    const today = moment();
+    const next30Days = moment().add(30, "days");
+
+    // 🧩 Lấy tất cả hợp đồng có end_date là chính xác 30 ngày sau
+    const contracts = await db.EmploymentContract.findAll({
+      where: {
+        status: 'active',  // Chỉ lấy hợp đồng còn hiệu lực
+        end_date: {
+          [Op.eq]: next30Days.toDate(), // end_date phải bằng ngày 30 ngày sau
+        },
+      },
+    });
+
+    if (!contracts.length) {
+      console.log("✅ Không có hợp đồng nào sắp hết hạn đúng 30 ngày tới.");
+      return;
+    }
+
+    // Lặp qua các hợp đồng và gửi thông báo
+    for (const contract of contracts) {
+      const msg = `Hợp đồng ${contract.contract_code} của bạn sẽ hết hạn vào ngày ${moment(contract.end_date).format("DD/MM/YYYY")}.`;
+
+      // 1️⃣ Gửi thông báo cho nhân viên
+      await NotificationService.createNotification({
+        employee_id: contract.employee_id,
+        message: `📅 Hợp đồng ${contract.contract_code} của bạn sẽ hết hạn vào ngày ${moment(contract.end_date).format("DD/MM/YYYY")}.`,
+        type: "contract_expiration_reminder",
+        link: `/contracts/${contract.id}`,
+      });
+
+      // 2️⃣ Gửi thông báo cho người tạo hợp đồng
+      if (contract.created_by) {
+        await NotificationService.createNotification({
+          user_id: contract.created_by,
+          message: `📢 Hợp đồng ${contract.contract_code} bạn tạo sẽ hết hạn vào ngày ${moment(contract.end_date).format("DD/MM/YYYY")}.`,
+          type: "contract_expiration_reminder",
+          link: `/contracts/${contract.id}`,
+        });
+      }
+
+      // 3️⃣ Gửi thông báo cho người quản lý (role_2) trong cùng phòng ban với nhân viên
+if (contract.employee_id) {
+  // Lấy thông tin nhân viên từ bảng employees để có department_id
+  const employee = await db.Employee.findOne({
+    where: {
+      employee_id: contract.employee_id, // Tìm nhân viên theo employee_id trong hợp đồng
+    },
+  });
+
+  if (employee && employee.department_id) {
+    // Tìm tất cả người có role_2 và department_id trùng với nhân viên
+    const managers = await db.Employee.findAll({
+      where: {
+        role_code: 'role_2', // Chỉ chọn người có role_2
+        department_id: employee.department_id, // Phòng ban phải trùng với nhân viên trong hợp đồng
+      },
+    });
+console.log("Managers found: ", managers); // Xem danh sách các quản lý được tìm thấy
+
+    // Lặp qua các quản lý và gửi thông báo
+for (const manager of managers) {
+  await NotificationService.createNotification({
+    employee_id: manager.employee_id, // Lưu đúng employee_id của người quản lý
+    message: `⚠️ Hợp đồng ${contract.contract_code} của nhân viên ${contract.employee_id} sẽ hết hạn vào ngày ${moment(contract.end_date).format("DD/MM/YYYY")}.`,
+    type: "contract_expiration_reminder",
+    link: `/contracts/${contract.id}`,
+  });
+}
+  }
+}
+
+
+      // 4️⃣ Gửi thông báo cho người đại diện công ty (legal entity)
+      if (contract.legal_entity_id) {
+        const legalEntity = await db.LegalEntity.findByPk(contract.legal_entity_id);
+        if (legalEntity?.representative_user_id) {
+          await NotificationService.createNotification({
+            user_id: legalEntity.representative_user_id,
+            message: `🧾 Hợp đồng ${contract.contract_code} của nhân viên ${contract.employee_id} sẽ hết hạn vào ngày ${moment(contract.end_date).format("DD/MM/YYYY")}.`,
+            type: "contract_expiration_reminder",
+            link: `/contracts/${contract.id}`,
+          });
+        }
+      }
+    }
+
+    console.log(`📬 Đã gửi thông báo hết hạn cho ${contracts.length} hợp đồng.`);
+  } catch (error) {
+    console.error("❌ Lỗi khi gửi thông báo hết hạn hợp đồng:", error);
+  }
+};
+
 
 export type ListFilter = {
   status?: string;
@@ -776,12 +870,7 @@ if (filter?.employee_id) {
 
 
   /* ================== STATE TRANSITIONS ================== */
-  /*public async submitApproval(reqUser: ReqUser, id: number) {
-    if (!isManager(reqUser) && !isAdmin(reqUser)) return { err: 1, mes: "Forbidden" };
-    return this._setStatus(id, "draft", "pending_approval", "submit_approval", (reqUser as any)?.id);
-  }
-  */
-  public async approve(reqUser: ReqUser, id: number) {
+  /*public async approve(reqUser: ReqUser, id: number) {
     if (reqUser.role_code !== 'role_1')
       return { err: 1, mes: "Forbidden" };
 
@@ -793,7 +882,7 @@ if (filter?.employee_id) {
     }
 
     return result;
-  }
+  }*/
   public async sendForSigning(reqUser: ReqUser, id: number) {
     const isAdmin = reqUser.role_code === 'role_1';
     const isManagerDept1 = reqUser.role_code === 'role_2' && reqUser.department_id === 1;
@@ -803,7 +892,7 @@ if (filter?.employee_id) {
     const c = await db.ContractSignature.count({ where: { contract_id: id } });
     if (c === 0) return { err: 1, mes: "No signers configured" };
 
-    const result = await this._setStatus(id, "approved", "sent_for_signing", "sent_for_signing", (reqUser as any)?.id);
+    const result = await this._setStatus(id, "draft", "sent_for_signing", "sent_for_signing", (reqUser as any)?.id);
 
     // 🧩 Gửi thông báo
     if (!result.err) {
@@ -840,21 +929,24 @@ if (filter?.employee_id) {
   }*/
 
   public async terminate(reqUser: ReqUser, id: number, reason?: string) {
-    if (reqUser.role_code !== 'role_1')
-      return { err: 1, mes: "Forbidden" };
+  if (reqUser.role_code !== 'role_1')
+    return { err: 1, mes: "Forbidden" };
 
-    const result = await this._setStatus(id, "active", "terminated", "terminate", (reqUser as any)?.id, {
-      terminated_at: moment.tz(TZ).toDate(),
-      terminated_reason: reason ?? null,
-    });
+  // Thực hiện thay đổi trạng thái hợp đồng thành "terminated"
+  const result = await this._setStatus(id, "active", "terminated", "terminate", reqUser.id, {
+    terminated_at: moment.tz(TZ).toDate(),
+    terminated_reason: reason ?? null,
+  });
 
-    // 🧩 Gửi thông báo khi chấm dứt hợp đồng
-    if (!result.err) {
-      await NotificationService.notifyContractTermination(result.data);
-    }
-
-    return result;
+  // 🧩 Gửi thông báo khi chấm dứt hợp đồng cho cả nhân viên và người quản lý (người thực hiện hành động hủy)
+  if (!result.err) {
+    // Gửi thông báo cho nhân viên và người quản lý
+    await NotificationService.notifyContractTermination(result.data, reqUser);
   }
+
+  return result;
+}
+  
 
   public async updateDraft(reqUser: ReqUser, id: number, patch: any) {
     if (!isManager(reqUser) && !isAdmin(reqUser)) return { err: 1, mes: "Forbidden" };

@@ -239,24 +239,18 @@ const ContractsList: React.FC<ContractsListProps> = ({ data, onView, reload }) =
                 <td>{c.id}</td>
                 <td>{c.contract_code || c.name || "-"}</td>
                 <td>
-                  <select
-                    title="Contract status"
-                    value={c.status}
-                    className="select-status"
+                  <span
                     style={{
-                      padding: "4px 8px",
-                      borderRadius: 6,
-                      border: "1px solid #ccc",
-                      background: "#f8f9fa",
+                      padding: "4px 10px",
+                      background: "#eef2f7",
+                      borderRadius: "6px",
+                      border: "1px solid #d0d7de",
+                      fontWeight: 500,
+                      textTransform: "capitalize",
                     }}
-                    onChange={(e) => handleStatusChange(c.id, e.target.value)}
                   >
-                    {statusOptionsList.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
+                    {statusOptionsList.find(opt => opt.value === c.status)?.label || c.status}
+                  </span>
                 </td>
                 <td>
                   <button

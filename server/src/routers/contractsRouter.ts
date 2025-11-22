@@ -15,7 +15,7 @@ r.get("/:id", ContractController.detail);
 r.put("/:id/draft", ContractController.updateDraft);
 
 
-r.post("/:id/approve", ContractController.approve);
+//r.post("/:id/approve", ContractController.approve);
 r.post("/:id/send-for-signing", ContractController.sendForSigning);
 /*r.post("/:id/activate", ContractController.activate);
 r.post("/:id/submit-approval", ContractController.submitApproval);*/

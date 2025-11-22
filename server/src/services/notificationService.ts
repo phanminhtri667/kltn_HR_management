@@ -2,6 +2,8 @@
 
 import db from "../models";
 import { Op } from "sequelize";
+import { ReqUser, isAdmin, isManager, isEmployee } from "../utils/Authz";
+
 
 /**
  * 🧭 NotificationService
@@ -211,14 +213,27 @@ public async getNotifications(reqUser: any, limit: number = 20) {
   // =====================
   // 🔹 Gửi thông báo khi hợp đồng bị chấm dứt
   // =====================
-  public async notifyContractTermination(contract: any) {
-    const msg = `Hợp đồng ${contract.contract_code} của bạn đã bị chấm dứt.`;
+  public async notifyContractTermination(contract: any, reqUser?: ReqUser) {
+  // Thông báo cho nhân viên về việc hợp đồng bị chấm dứt
+  const employeeMsg = `Hợp đồng ${contract.contract_code} của bạn đã bị chấm dứt.`;
+  await db.Notification.create({
+    employee_id: contract.employee_id,  // Gửi thông báo cho nhân viên (employee_id là VARCHAR)
+    message: employeeMsg,
+    type: "contract_terminate",
+    link: `/contracts/${contract.id}`,
+  });
+
+  // Thông báo cho người thực hiện hành động hủy hợp đồng (nếu có thông tin người thực hiện)
+  if (reqUser) {
+    const adminMsg = `Bạn đã hủy hợp đồng ${contract.contract_code} của nhân viên ${contract.employee_id}.`;
     await db.Notification.create({
-      employee_id: contract.employee_id,
-      message: msg,
-      type: "contract_terminate",
+      user_id: reqUser.id,  // Gửi thông báo cho người quản lý (user_id là INT)
+      message: adminMsg,
+      type: "contract_terminate_admin",
       link: `/contracts/${contract.id}`,
     });
   }
+}
+
 }
 export default new NotificationService();
