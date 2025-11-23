@@ -110,15 +110,17 @@ class AuthService {
         // 5) Ký token
         const token = jwt.sign(
           {
-            id: isEmployee ? (account.employee_id as string) : (account.id as number),
-            email: account.email as string,
-            role_code: account.role_code as string,
-            department_id: account.department_id ?? null,
-            type: (isEmployee ? 'employee' : 'user') as 'employee' | 'user',
+            id: isEmployee ? account.employee_id : account.id,
+            employee_id: isEmployee ? account.employee_id : null,
+            email: account.email,
+            role_code: account.role_code,
+            department_id: account.department_id,
+            type: isEmployee ? "employee" : "user"
           },
           process.env.JWT_SECRET!,
           { expiresIn: '365d' }
         );
+        
 
         // 6) Trả về
         resolve({
@@ -127,6 +129,7 @@ class AuthService {
           access_token: `Bearer ${token}`,
           user: {
             id: isEmployee ? account.employee_id : account.id,
+            employee_id: isEmployee ? account.employee_id : null,   
             name: isEmployee ? account.full_name : account.name,
             email: account.email,
             role_code: account.role_code,

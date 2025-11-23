@@ -32,12 +32,6 @@ class AuthController {
     try {
       const email = normalizeEmail(req.body?.email);
       const password = String(req.body?.password ?? "");
-
-      // if (response.err === 0) {
-      //   console.log("login thành công");
-      //   return res.status(200).json(response); // OK
-      // } else {
-      //   return res.status(401).json(response); // Unauthorized (sai pass / email chưa đăng ký)
       if (!email || !password) {
         return res.status(400).json({ err: 1, mes: "Email và mật khẩu là bắt buộc" });
       }
