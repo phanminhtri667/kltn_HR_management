@@ -49,7 +49,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
         primaryKey: true,
       },
       employee_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: false,
       },
       department_id:{
