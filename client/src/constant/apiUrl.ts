@@ -26,18 +26,18 @@ const apiUrl = {
     checkIn: `${api}/timekeeping`,               
     checkOut: `${api}/timekeeping/checkout`,  
     getAll: `${api}/timekeeping`,
-     
+    summary: `${api}/timekeeping/summary`,
   },
   payroll: { 
     index: `${api}/payroll`,       
      mine:  `${api}/payroll/me`,  
   },
   leave: {
-    create: "/api/leaves",
-    my: "/api/leaves/my",
-    getAll: "/api/leaves",
-    approve: "/api/leaves",
-    reject: "/api/leaves",
+    create: `${api}/leaves`,
+    my: `${api}/leaves/my`,
+    getAll: `${api}/leaves`,
+    approve: `${api}/leaves`,
+    reject: `${api}/leaves`,
   },
   payroll_changes: {
     index: `${api}/payroll-changes`,          // GET danh sách change logs (có thể truyền ?month=&employee_id=&department_id=)

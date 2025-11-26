@@ -39,7 +39,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
       paid: { type: DataTypes.BOOLEAN, defaultValue: true },
       allow_half_day: { type: DataTypes.BOOLEAN, defaultValue: true },
       requires_document: { type: DataTypes.BOOLEAN, defaultValue: false },
-      max_days_per_request: { type: DataTypes.DECIMAL(5, 2), allowNull: true },
+      max_days_per_request: { type: DataTypes.DECIMAL(4, 2), allowNull: true },
     },
     {
       sequelize,

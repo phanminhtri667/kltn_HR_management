@@ -88,7 +88,23 @@ class TimekeepingController {
     }
   };
   
-  
+  public getSummary = async (req: Request, res: Response) => {
+    try {
+      const user = (req as any).user;
+      const { month } = req.query as any; // dạng 'YYYY-MM', có thể không truyền
+
+      const result = await TimekeepingService.getMonthlySummary(
+        { email: user.email, role_code: user.role_code, department_id: user.department_id },
+        typeof month === "string" && month ? month : undefined
+      );
+
+      return res.status(200).json(result);
+    } catch (e) {
+      console.error("getSummary error:", e);
+      return res.status(500).json({ err: 1, mes: "Internal server error" });
+    }
+  };
+
 }
 
 export default new TimekeepingController();

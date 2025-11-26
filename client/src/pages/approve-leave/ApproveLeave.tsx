@@ -11,9 +11,24 @@ const ApproveLeave = () => {
   const { user } = useSelector((state: RootState) => state.auth);
   const [leaves, setLeaves] = useState<any[]>([]);
 
+  
   useEffect(() => {
+    // nếu không có quyền thì chỉ báo, không load list
+    if (!user) return;
+
+    const isAdmin = user.role_code === "role_1";
+    const isHRLeader = user.role_code === "role_2" && Number(user.department_id) === 1;
+
+    if (!isAdmin && !isHRLeader) {
+      toast.current?.show({
+        severity: "warn",
+        summary: "Bạn không có quyền truy cập trang này",
+      });
+      return;
+    }
+
     loadLeaves();
-  }, []);
+  }, [user]);
 
   const loadLeaves = async () => {
     try {
@@ -26,17 +41,31 @@ const ApproveLeave = () => {
 
   const handleAction = async (id: number, action: "approve" | "reject") => {
     try {
-      if (!user?.employee_id) return;
+      const approverId = user?.employee_id || String(user?.id || "");
+
+      if (!approverId) {
+        toast.current?.show({
+          severity: "error",
+          summary: "Không xác định được người duyệt",
+        });
+        return;
+      }
+
       if (action === "approve") {
-        await leaveApi.approve(id, user.employee_id);
+        await leaveApi.approve(id, approverId);
       } else {
         const reason = prompt("Nhập lý do từ chối:");
-        await leaveApi.reject(id, user.employee_id, reason || "Không có lý do");
+        await leaveApi.reject(id, approverId, reason || "Không có lý do");
       }
+
       toast.current?.show({ severity: "success", summary: "Cập nhật thành công" });
       loadLeaves();
-    } catch (err) {
-      toast.current?.show({ severity: "error", summary: "Lỗi khi cập nhật" });
+    } catch (err: any) {
+      console.error(err);
+      toast.current?.show({
+        severity: "error",
+        summary: err?.response?.data?.mes || "Lỗi khi cập nhật",
+      });
     }
   };
 

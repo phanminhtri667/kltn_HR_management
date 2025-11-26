@@ -39,7 +39,8 @@ const Timekeeping = () => {
 
   useEffect(() => {
     load(); 
-    getDepartments(); 
+    getDepartments();
+    loadSummary();  
   }, []);
 
   
@@ -184,7 +185,8 @@ const Timekeeping = () => {
       });
   
       setIsCheckedIn(!isCheckedIn);
-      load(); // reload bảng
+      load();        
+      loadSummary(); 
     } catch (err: any) {
       console.error(err);
       toast.current?.show({
@@ -195,6 +197,31 @@ const Timekeeping = () => {
     }
   };
   
+  const getCurrentMonth = () => {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    return `${y}-${m}`; // ví dụ: '2025-11'
+  };
+
+  const loadSummary = async () => {
+    try {
+      const month = getCurrentMonth();
+      const res = await timekeepingApi.getSummary(month);
+      const data = res?.data?.data || {};
+
+      setSummary({
+        totalHours: data.totalHours || 0,
+        ot: data.ot || 0,
+        lateMinutes: data.lateMinutes || 0,
+        leave: data.leave || 0,
+      });
+    } catch (err) {
+      console.error("Load summary error:", err);
+      // có thể show toast nhẹ nếu muốn
+    }
+  };
+
 // popup xin nghỉ phép
 // Thêm state cho popup form xin nghỉ phép
 const [showLeaveForm, setShowLeaveForm] = useState(false);
@@ -249,7 +276,6 @@ const handleSubmitLeave = async () => {
       return;
     }
 
-    // Nếu hợp lệ → gửi API
     const payload = {
       employee_id: user.employee_id,
       department_id: user.department_id,
@@ -258,18 +284,29 @@ const handleSubmitLeave = async () => {
       end_date: leaveFormData.endDate,
       reason: leaveFormData.reason,
     };
+
     const res = await AxiosInstance.post(apiUrl.leave.create, payload);
 
     toast.current?.show({
-      severity: res.data.err === 0 ? "success" : "warn",
-      summary: res.data.mes,
+      severity: "success",
+      summary: res.data.mes || "Tạo đơn nghỉ thành công",
     });
 
     setShowLeaveForm(false);
-  } catch (err) {
+  } catch (err: any) {
     console.error("❌ Submit error:", err);
+    const message =
+      err?.response?.data?.mes ||
+      err?.message ||
+      "Gửi đơn nghỉ thất bại";
+
+    toast.current?.show({
+      severity: "error",
+      summary: message,
+    });
   }
 };
+
 
 
 
@@ -289,16 +326,20 @@ const handleSubmitLeave = async () => {
           <div className="date-display">{new Date().toLocaleDateString()}</div>
 
           <div className="btn-group">
-            <Button
+            {(user?.role_code === "role_2" || user?.role_code === "role_3") && (
+              <Button
               label={isCheckedIn ? "Check Out" : "Check In"}
               className={`btn-check ${isCheckedIn ? "check-out" : "check-in"}`}
               onClick={handleCheck}
-            />
-            <Button
-              label="Xin Nghỉ"
-              className="btn-leave"
-              onClick={() => setShowLeaveForm(true)} // Hiển thị form khi nhấn nút
-            />
+              />
+            )}
+            {(user?.role_code === "role_2" || user?.role_code === "role_3") && (
+              <Button
+                label="Xin Nghỉ"
+                className="btn-leave"
+                onClick={() => setShowLeaveForm(true)}
+              />
+            )}
           </div>
         </Card>
         <Dialog
@@ -389,11 +430,7 @@ const handleSubmitLeave = async () => {
             <div className="label">Vắng/Phép:</div>
             <div className="value">{summary.leave}</div>
           </div>
-          <Button
-            label="Xuất file CSV"
-            className="btn-export"
-            onClick={() => console.log("Export CSV")}
-          />
+          
         </Card>
       </div>
 

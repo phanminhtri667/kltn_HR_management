@@ -308,7 +308,82 @@ class TimekeepingService {
     }
     return { weekday: Math.round(overtimeHours * 100) / 100, weekend: 0, holiday: 0 };
   }
-  
+  public async getMonthlySummary(
+    reqUser: { email: string; role_code: string; department_id?: number | null },
+    month?: string // format 'YYYY-MM', nếu không truyền sẽ lấy tháng hiện tại
+  ) {
+    // ==== Xác định khoảng ngày của tháng cần tính ====
+    const now = new Date();
+    const year = month ? Number(month.slice(0, 4)) : now.getFullYear();
+    const monthIndex = month ? Number(month.slice(5, 7)) - 1 : now.getMonth(); // 0-11
+
+    const start = new Date(year, monthIndex, 1);
+    const end = new Date(year, monthIndex + 1, 0); // ngày cuối tháng
+
+    const startStr = start.toISOString().slice(0, 10);
+    const endStr = end.toISOString().slice(0, 10);
+
+    const where: any = {
+      work_date: { [Op.between]: [startStr, endStr] },
+    };
+
+    // ==== Quyền: admin tổng tất cả, các role khác chỉ của chính họ ====
+    if (reqUser.role_code !== "role_1") {
+      const emp = await db.Employee.findOne({
+        where: { email: reqUser.email },
+        attributes: ["employee_id"],
+      });
+
+      if (!emp) {
+        return {
+          err: 0,
+          data: { totalHours: 0, ot: 0, lateMinutes: 0, leave: 0 },
+        };
+      }
+
+      where.employee_id = emp.employee_id;
+    }
+
+    // ==== Lấy dữ liệu chấm công ====
+    const rows: any[] = await db.Timekeeping.findAll({ where });
+
+    // Lấy config giờ làm + grace
+    const cfg = await this.getWorkingHoursConfig();
+    const startLimit = this.minutesFromHHMMSS(cfg.start_time) + Number(cfg.grace_period || 0);
+
+    let totalHours = 0;
+    let ot = 0;
+    let lateMinutes = 0;
+    let leave = 0;
+
+    for (const r of rows) {
+      totalHours += Number(r.total_hours || 0);
+
+      ot +=
+        Number(r.ot_weekday_hours || 0) +
+        Number(r.ot_weekend_hours || 0) +
+        Number(r.ot_holiday_hours || 0);
+
+      // tính tổng phút đi muộn
+      if (r.check_in) {
+        const arrive = this.minutesFromHHMMSS(r.check_in);
+        if (arrive > startLimit) {
+          lateMinutes += arrive - startLimit;
+        }
+      }
+
+      // tính số ngày nghỉ / vắng
+      if (r.status === "Absent" || r.status === "Leave") {
+        leave += 1;
+      }
+    }
+
+    return {
+      err: 0,
+      data: { totalHours, ot, lateMinutes, leave },
+    };
+  }
+
   
 }
 

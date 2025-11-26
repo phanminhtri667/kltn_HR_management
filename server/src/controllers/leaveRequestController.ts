@@ -2,10 +2,21 @@ import { Request, Response } from "express";
 import LeaveService from "../services/leaveService";
 
 class LeaveRequestController {
+  private isLeaveApprover(user: any) {
+    return (
+      user.role_code === "role_1" ||
+      (user.role_code === "role_2" && Number(user.department_id) === 1)
+    );
+  }
   // ===== Tạo đơn xin nghỉ =====
   public createLeave = async (req: Request, res: Response) => {
     console.log("==> BODY CLIENT:", req.body);
     try {
+      const user = (req as any).user; // verify_token middleware gắn vào
+      if (user.role_code !== "role_2" && user.role_code !== "role_3") {
+        return res.status(403).json({ err: 1, mes: "Chỉ nhân viên và leader mới được xin nghỉ" });
+      }
+  
       const data = req.body;
       const response = await LeaveService.createLeaveRequest(data);
       return res.status(response.err === 0 ? 200 : 400).json(response);
@@ -14,6 +25,7 @@ class LeaveRequestController {
       return res.status(500).json({ err: -1, mes: "Internal server error" });
     }
   };
+  
 
   // ===== Lấy đơn của chính nhân viên =====
   public getMyLeaves = async (req: Request, res: Response) => {
@@ -30,6 +42,12 @@ class LeaveRequestController {
   // ===== Lấy tất cả đơn nghỉ (Leader/Admin) =====
   public getAllLeaves = async (req: Request, res: Response) => {
     try {
+      const user = (req as any).user;
+
+      if (!this.isLeaveApprover(user)) {
+        return res.status(403).json({ err: 1, mes: "Forbidden" });
+      }
+
       const filters = req.query;
       const response = await LeaveService.getAllLeaves(filters);
       return res.status(200).json(response);
@@ -39,9 +57,15 @@ class LeaveRequestController {
     }
   };
 
+
   // ===== Duyệt đơn =====
   public approveLeave = async (req: Request, res: Response) => {
     try {
+      const user = (req as any).user;
+      if (!this.isLeaveApprover(user)) {
+        return res.status(403).json({ err: 1, mes: "Forbidden" });
+      }
+
       const id = Number(req.params.id);
       const { approver_id } = req.body;
       const response = await LeaveService.approveLeave(id, approver_id);
@@ -52,9 +76,15 @@ class LeaveRequestController {
     }
   };
 
+
   // ===== Từ chối đơn =====
   public rejectLeave = async (req: Request, res: Response) => {
     try {
+      const user = (req as any).user;
+      if (!this.isLeaveApprover(user)) {
+        return res.status(403).json({ err: 1, mes: "Forbidden" });
+      }
+
       const id = Number(req.params.id);
       const { approver_id, reject_reason } = req.body;
       const response = await LeaveService.rejectLeave(id, approver_id, reject_reason);
@@ -68,6 +98,12 @@ class LeaveRequestController {
   // ===== Huỷ đơn =====
   public cancelLeave = async (req: Request, res: Response) => {
     try {
+      const user = (req as any).user;
+      // VD: cho admin + HR leader + sau này bạn có thể kiểm tra owner ở service
+      if (!this.isLeaveApprover(user)) {
+        return res.status(403).json({ err: 1, mes: "Forbidden" });
+      }
+
       const id = Number(req.params.id);
       const response = await LeaveService.cancelLeave(id);
       return res.status(response.err === 0 ? 200 : 400).json(response);
@@ -76,6 +112,7 @@ class LeaveRequestController {
       return res.status(500).json({ err: -1, mes: "Internal server error" });
     }
   };
+
 }
 
 export default new LeaveRequestController();

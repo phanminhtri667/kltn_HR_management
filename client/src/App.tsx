@@ -76,7 +76,7 @@ const AppRoutes = () => {
       { 
         path: "/approve-leave",
         element: (
-          <PrivateRoute allowedRoles={['role_1']}>
+          <PrivateRoute allowedRoles={['role_1', 'role_2']}>
             <ApproveLeave />
           </PrivateRoute>
         ),

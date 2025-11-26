@@ -34,13 +34,17 @@ const menus = [
     { id: 2, name: "Department", path: "/department" },
     { id: 3, name: "Employee", path: "/employee" },
     { id: 4, name: "Timekeeping", path: "/timekeeping" },
-    { id: 5, name: "Payroll", path: "/payroll" },
-    { id: 6, name: "Contracts", path: "/contracts" },
+    { id: 5, name: "Approve Leave", path: "/approve-leave" },
+    { id: 6, name: "Payroll", path: "/payroll" },
+    { id: 7, name: "Contracts", path: "/contracts" },
     
 ];
 const Sidebar = () => {
     // const
-    const userRole = useSelector((state: any) => state.auth.user?.role_code);
+    const user = useSelector((state: any) => state.auth.user);
+    const userRole = user?.role_code;
+    const userDeptId = user?.department_id;
+    //const userRole = useSelector((state: any) => state.auth.user?.role_code);
     console.log("ROLE CODE:", userRole);  // 👈 kiểm tra đã lấy được chưa
 
     const location = useLocation();
@@ -97,13 +101,23 @@ const Sidebar = () => {
                             let isVisible = false;
 
                             if (userRole === "role_1") {
-                              isVisible = true; // admin thấy tất cả
+                              // Admin thấy tất cả, trong đó có Approve Leave
+                              isVisible = true;
                             } else if (userRole === "role_2") {
-                              isVisible = item.name !== "Department"; // leader không thấy Department
+                              // Leader
+                              if (item.name === "Department") {
+                                isVisible = false; // leader không thấy Department
+                              } else if (item.name === "Approve Leave") {
+                                // Chỉ leader phòng Nhân sự (department_id = 1) mới thấy menu này
+                                isVisible = Number(userDeptId) === 1;
+                              } else {
+                                isVisible = true;
+                              }
                             } else if (userRole === "role_3") {
-                              isVisible = !["Department", "Employee"].includes(item.name); // member không thấy cả hai
+                              // Nhân viên: không thấy Department & Employee & Approve Leave
+                              isVisible = !["Department", "Employee", "Approve Leave"].includes(item.name);
                             }
-                          
+                            
                             if (!isVisible) return null;
                           
                             return (

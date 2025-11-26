@@ -24,6 +24,8 @@ const timekeepingApi = {
 
   // 🔚 Nhân viên check-out (cập nhật giờ check-out + tính tổng giờ làm)
   checkout: (data: any) => axios.patch(`${apiUrl.timekeeping.checkOut}`, data),
+
+  getSummary: (month?: string) => axios.get(apiUrl.timekeeping.summary, { params: { month } }),
 };
 
 export default timekeepingApi;

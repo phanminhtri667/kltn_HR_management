@@ -24,5 +24,7 @@ router.post("/", verifyToken, timekeepingController.createCheckIn);
 // 5. Route để nhân viên check-out (cập nhật checkout + status)
 router.patch("/checkout", verifyToken, timekeepingController.checkout);  
 // Cần verifyToken để cập nhật checkout
+router.get("/summary", timekeepingController.getSummary);
+
 
 export default router;

@@ -87,7 +87,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
     {
       sequelize,
       modelName: "Notification",
-      tableName: "Notifications",
+      tableName: "notifications",
       timestamps: true, // để có createdAt, updatedAt
     }
   );
