@@ -201,22 +201,21 @@ class TimekeepingService {
     const check_in: string = body.check_in
       ? body.check_in.length === 8 ? body.check_in : this.toTimeStr(new Date(body.check_in))
       : this.nowTime();
-
-    // lấy department_id từ Employee để lưu vào bản ghi
+  
     const emp = await db.Employee.findOne({
       where: { employee_id },
       attributes: ["employee_id", "department_id"],
     });
     if (!emp) return { err: 1, mes: "Employee not found" };
-
+  
     const existed = await db.Timekeeping.findOne({ where: { employee_id, work_date } });
     if (existed) return { err: 1, mes: "Already checked in today" };
-
+  
     const status = await this.calculateStatus(check_in, null);
-
+  
     const row = await db.Timekeeping.create({
       employee_id,
-      department_id: emp.department_id ?? null, // ✅
+      department_id: emp.department_id ?? null,
       work_date,
       check_in,
       check_out: null,
@@ -226,9 +225,11 @@ class TimekeepingService {
       ot_weekend_hours: 0,
       ot_holiday_hours: 0,
     });
-
+  
     return { err: 0, mes: "Check-in successfully", data: row };
   }
+  
+  
   
   private diffHours(startHHMMSS: string, endHHMMSS: string): number {
     let diff = this.minutesFromHHMMSS(endHHMMSS) - this.minutesFromHHMMSS(startHHMMSS);
@@ -236,55 +237,45 @@ class TimekeepingService {
     return Math.round((diff / 60) * 100) / 100;
   }
   public async updateCheckout(employee_id: string, work_date: string, check_out_input?: Date | string) {
-    try {
-      const workDate = (work_date || new Date().toISOString().slice(0, 10));
+    const workDate = (work_date || new Date().toISOString().slice(0, 10));
   
-      // ✅ Chuẩn hóa check_out về dạng HH:mm:ss
-      let checkOutStr: string;
+    let checkOutStr: string;
   
-      if (check_out_input instanceof Date) {
-        checkOutStr = check_out_input.toTimeString().split(" ")[0];
-      } else if (typeof check_out_input === "string") {
-        // Nếu chỉ gửi "14:31:08" thì giữ nguyên
-        checkOutStr = check_out_input.length === 8
-          ? check_out_input
-          : new Date(check_out_input).toTimeString().split(" ")[0];
-      } else {
-        // Nếu không có input, dùng giờ hiện tại
-        checkOutStr = new Date().toTimeString().split(" ")[0];
-      }
-  
-      // ✅ Tìm bản ghi
-      const record = await db.Timekeeping.findOne({ where: { employee_id, work_date: workDate } });
-      if (!record) return { err: 1, mes: "Timekeeping record not found" };
-      if (!record.check_in) return { err: 1, mes: "No check-in recorded" };
-      if (record.check_out) return { err: 1, mes: "Already checked out" };
-  
-      // ✅ Tính tổng giờ làm
-      const checkInDate = new Date(`${workDate}T${record.check_in}`);
-      const checkOutDate = new Date(`${workDate}T${checkOutStr}`);
-      const totalHours = (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60);
-  
-      // ✅ Tính status & OT
-      const status = await this.calculateStatus(record.check_in, checkOutStr);
-      const ot = await this.calculateOT(workDate, checkOutStr);
-  
-      // ✅ Update vào DB
-      const updated = await record.update({
-        check_out: checkOutStr,
-        total_hours: Number(totalHours.toFixed(2)),
-        status,
-        ot_weekday_hours: ot.weekday,
-        ot_weekend_hours: ot.weekend,
-        ot_holiday_hours: ot.holiday,
-      });
-  
-      return { err: 0, mes: "Checkout updated successfully", data: updated };
-    } catch (error) {
-      console.error("Error while updating checkout:", error);
-      return { err: 1, mes: "Internal server error" };
+    if (check_out_input instanceof Date) {
+      checkOutStr = check_out_input.toTimeString().split(" ")[0];
+    } else if (typeof check_out_input === "string") {
+      checkOutStr = check_out_input.length === 8
+        ? check_out_input
+        : new Date(check_out_input).toTimeString().split(" ")[0];
+    } else {
+      checkOutStr = new Date().toTimeString().split(" ")[0];
     }
+  
+    const record = await db.Timekeeping.findOne({ where: { employee_id, work_date: workDate } });
+    if (!record) return { err: 1, mes: "Timekeeping record not found" };
+    if (!record.check_in) return { err: 1, mes: "No check-in recorded" };
+    if (record.check_out) return { err: 1, mes: "Already checked out" };
+  
+    const checkInDate = new Date(`${workDate}T${record.check_in}`);
+    const checkOutDate = new Date(`${workDate}T${checkOutStr}`);
+    const totalHours = (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60);
+  
+    const status = await this.calculateStatus(record.check_in, checkOutStr);
+    const ot = await this.calculateOT(workDate, checkOutStr);
+  
+    const updated = await record.update({
+      check_out: checkOutStr,
+      total_hours: Number(totalHours.toFixed(2)),
+      status,
+      ot_weekday_hours: ot.weekday,
+      ot_weekend_hours: ot.weekend,
+      ot_holiday_hours: ot.holiday,
+    });
+  
+    return { err: 0, mes: "Checkout updated successfully", data: updated };
   }
+  
+  
   
   
   

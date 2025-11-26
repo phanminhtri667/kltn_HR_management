@@ -168,20 +168,21 @@ const Timekeeping = () => {
         toast.current?.show({ severity: "warn", summary: "Không có employee_id trong token" });
         return;
       }
+  
       const payload = {
         employee_id: user.employee_id,
         work_date: nowDate(),
         ...(isCheckedIn ? { check_out: nowTime() } : { check_in: nowTime() }),
       };
-
+  
       const endpoint = isCheckedIn ? apiUrl.timekeeping.checkOut : apiUrl.timekeeping.checkIn;
       await AxiosInstance[isCheckedIn ? "patch" : "post"](endpoint, payload);
-
+  
       toast.current?.show({
         severity: "success",
         summary: isCheckedIn ? "Check Out thành công" : "Check In thành công",
       });
-
+  
       setIsCheckedIn(!isCheckedIn);
       load(); // reload bảng
     } catch (err: any) {
@@ -193,7 +194,7 @@ const Timekeeping = () => {
       });
     }
   };
-
+  
 // popup xin nghỉ phép
 // Thêm state cho popup form xin nghỉ phép
 const [showLeaveForm, setShowLeaveForm] = useState(false);
@@ -257,8 +258,6 @@ const handleSubmitLeave = async () => {
       end_date: leaveFormData.endDate,
       reason: leaveFormData.reason,
     };
-
-    console.log("📤 Payload gửi lên:", payload);
     const res = await AxiosInstance.post(apiUrl.leave.create, payload);
 
     toast.current?.show({
