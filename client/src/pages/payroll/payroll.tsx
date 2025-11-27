@@ -24,7 +24,7 @@ type ChangeRow = {
   new_data?: Record<string, any> | null;
 };
 
-const CHANGE_API = "/api/payroll-changes";
+const CHANGE_API = "/payroll-changes";
 
 const Payroll = () => {
   const navigate = useNavigate();
