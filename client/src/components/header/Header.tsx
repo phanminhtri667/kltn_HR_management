@@ -20,9 +20,11 @@ const Header = () => {
   const dispatch = useDispatch();
   console.log("dataNotifiCation", dataNotifiCation);
 
+  const socketUrl = process.env.REACT_APP_SOCKET_URL || "http://localhost:3000";
+
   useEffect(() => {
     getNotification();
-    const socket = io("http://localhost:3000");
+    const socket = io(socketUrl);
     socket.on("employee_created", (data) => {
       console.log("employee_created", data);
       if (data) {
