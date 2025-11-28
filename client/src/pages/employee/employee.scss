@@ -1,0 +1,65 @@
+@import '../../assets/css/variables.scss';
+
+.employee-header{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-column-gap: 14px ;
+    .p-card{
+        &:hover{
+            background-color: $color-grey-200;
+        }
+      }
+}
+
+.card-body{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    &-content{
+        color: $color-purple;
+        margin-top: 8px;
+    }
+    
+}
+
+.employee-table{
+    margin-top: 30px;
+}
+
+.form{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: 35px;
+    grid-gap:30px;
+    &-footer{
+        padding-top: 40px;
+    }
+}
+/* Card tìm kiếm mini */
+.search-card.p-card {
+  margin: 8px 0 10px;            /* Sát với các Card trên */
+  padding: 6px 10px;             /* Padding nhẹ */
+}
+.search-card .p-card-body {
+  padding: 6px 10px !important;  /* Điều chỉnh padding Card */
+}
+.search-card .p-card-content {
+  padding: 0 !important;         /* Xóa padding thừa trong content */
+}
+
+/* Hàng chứa input + nút Clear */
+.search-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Đặt khoảng cách giữa ô nhập và nút Clear */
+  gap: 8px;
+}
+
+
+/* Nút Clear sát bên phải, nhỏ gọn */
+.clear-button {
+  height: 32px;                  /* Đảm bảo nút có chiều cao giống ô nhập */
+  padding: 0 10px;
+  line-height: 32px;             /* Canh giữa text */
+  margin-left: 10px;             /* Tạo khoảng cách giữa ô nhập và nút */
+}

@@ -1,0 +1,25 @@
+
+@import '../../assets/css/variables.scss';
+
+.breadcrumb {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    &-item {
+      &.active {
+        color: $color-purple;
+      }
+  
+    
+    }
+  }
+
+  a {
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
+    }
+  }

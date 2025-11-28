@@ -1,0 +1,45 @@
+.layout-container{
+    width: 100%;
+    display: grid;
+    grid-template-areas:
+     'sidebar header'
+     'sidebar content'
+     'sidebar footer'
+     ;
+    grid-template-columns: 280px 1fr;
+    grid-template-rows: 80px 1fr 50px;
+}
+
+.sidebar{
+    position: sticky; 
+    height: 100%;
+    width: 280px;
+    top:0
+}
+
+.header{
+    padding: 0 40px;
+    grid-area: header;
+    box-sizing: border-box;
+}
+
+.content{
+    padding: 30px 40px;
+    width: 100%;
+    grid-area: content;
+    box-sizing: border-box;
+    min-height: calc(100vh - 80px - 30px - 20px );
+    .breadcrums{
+        position: relative;
+        top: -20px;
+    }
+}
+
+.footer{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 40px;
+    grid-area: footer;
+    box-sizing: border-box;
+}

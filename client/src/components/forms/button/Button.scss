@@ -1,0 +1,20 @@
+@import '../../../assets/css/variables.scss';
+
+.btn {
+    background-color: $color-purple-500;
+    color: #fff;
+    padding: 0.5rem 0.75rem;
+    outline: none;
+    border: none;
+    border-radius: $radius-300;
+    font-size: $font-size-m;
+    cursor: pointer;
+
+    &-cancel {
+        background-color: $color-grey-250;
+    }
+
+    &:disabled {
+        opacity: 0.25;
+    }
+}
