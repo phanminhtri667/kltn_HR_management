@@ -1,4 +1,3 @@
-
 import DefaultLayout from "../../layouts/DefaultLayout";
 import "./DashBoard.scss";
 import { Card } from "primereact/card";

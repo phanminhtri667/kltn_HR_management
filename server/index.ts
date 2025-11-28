@@ -20,23 +20,18 @@ import workingHoursRouter from "./src/routers/workingHoursRouter";
 import payrollRouter from "./src/routers/payrollRouter";
 import payrollChangeRouter from "./src/routers/payrollChangeRouter";
 import legalEntityRouter from "./src/routers/legalEntityRouter";
-
 // ✅ Thêm router Hợp đồng
 import contractsRouter from "./src/routers/contractsRouter";
-
-
 // Cron jobs
 import "./src/cronJobs/payrollJob";
-// (tuỳ chọn) nếu bạn có cron cho hợp đồng, import ở đây, ví dụ:
 // import "./src/cronJobs/contractJob";
-
 import { notFound, errorHandler } from "./src/middlewares/handle_error";
 
 const app = express();
 const server = http.createServer(app);
 
 // Socket.IO
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001', 'http://35.238.114.53', 'http://34.170.254.33' ];
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001', "http://localhost:4001", 'http://35.238.114.53', 'http://34.170.254.33' ];
 
 const io = new SocketIOServer(server, {
   cors: {
@@ -75,6 +70,7 @@ app.use("/api/payroll", payrollRouter);
 app.use("/api/payroll-changes", payrollChangeRouter);
 app.use("/api/legal-entities", legalEntityRouter);
 
+
 import verifyToken from "./src/middlewares/verify_token";
 app.use("/api/contracts", verifyToken, contractsRouter);
 
@@ -94,11 +90,41 @@ io.on("connection", (socket) => {
     console.log("❌ User disconnected");
   });
 });
+app.use((req, res, next) => {
+  const origin = req.headers.origin as string;
 
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization"
+  );
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+
+  next();
+});
 // Start server
 const port = process.env.PORT || 3000;
 server.listen(port, () => {
   console.log(`✅ Server is running on port ${port}`);
 });
 
+
 export { app, server, io };
+
+
+
+
+
+
+

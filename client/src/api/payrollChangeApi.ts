@@ -1,4 +1,5 @@
 import AxiosInstance from "../services/axios";
+import apiUrl from "../constant/apiUrl";
 
 export type PayrollChangeItem = {
   id: number;
@@ -8,7 +9,6 @@ export type PayrollChangeItem = {
   new_data: Record<string, any>;
   description: string;
   changed_at: string;
-  // enrich từ join
   employee_id?: string | null;
   employee_name?: string | null;
   department_id?: number | null;
@@ -16,12 +16,14 @@ export type PayrollChangeItem = {
 };
 
 export const fetchPayrollChanges = (params?: {
-  month?: string;          // "YYYY-MM"
-  employee_id?: string;    // "AD0001"
-  department_id?: number;  // 1,2,3...
+  month?: string;
+  employee_id?: string;
+  department_id?: number;
   limit?: number;
 }) =>
-  AxiosInstance.get("/api/payroll-changes", { params });
+  AxiosInstance.get(apiUrl.payroll_changes.index, { params });
 
 export const fetchPayrollChangesByPayroll = (payroll_id: number) =>
-  AxiosInstance.get("/api/payroll-changes/by-payroll", { params: { payroll_id } });
+  AxiosInstance.get(`${apiUrl.payroll_changes.index}/by-payroll`, {
+    params: { payroll_id },
+  });

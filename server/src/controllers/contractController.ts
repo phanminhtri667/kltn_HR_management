@@ -62,39 +62,34 @@ export default class ContractController {
     }
   }
   static async list(req: Request, res: Response) {
-  try {
-    const user = req.user as ReqUser;
+    try {
+      const user = req.user as ReqUser;
 
-    // 🧩 Lấy params từ query
-    const filters = {
-      status: req.query.status ? String(req.query.status) : undefined,
-      employee_id: req.query.employee_id ? String(req.query.employee_id) : undefined,
-      dept_id: req.query.dept_id ? Number(req.query.dept_id) : undefined,
-      created_at: req.query.created_at ? String(req.query.created_at) : undefined,
-    };
+      const filters = {
+        status: req.query.status ? String(req.query.status) : undefined,
+        employee_id: req.query.employee_id ? String(req.query.employee_id) : undefined,
+        dept_id: req.query.dept_id ? Number(req.query.dept_id) : undefined,
+        created_at: req.query.created_at ? String(req.query.created_at) : undefined,
+        expiring: req.query.expiring === "true" ? true : undefined,
+      };
 
-    // Chuyển đổi created_at từ query (đảm bảo ngày đúng múi giờ)
-    if (filters.created_at) {
-      const createdDate = new Date(filters.created_at); // Chuyển thành Date
-      // Đảm bảo rằng múi giờ là chính xác (lấy theo múi giờ địa phương)
-      filters.created_at = createdDate.toLocaleDateString('en-CA'); // Chuyển sang định dạng YYYY-MM-DD
+      // Convert date
+      if (filters.created_at) {
+        const createdDate = new Date(filters.created_at);
+        filters.created_at = createdDate.toLocaleDateString("en-CA");
+      }
+
+      const out = await EmploymentContractService.list(user, filters);
+
+      return res.status(out.err ? 400 : 200).json(out);
+    } catch (e: any) {
+      console.error("ContractController.list error:", e);
+      return res.status(500).json({
+        err: 1,
+        mes: e?.message || "Internal Server Error (list)",
+      });
     }
-
-    // ⚙️ Gọi service
-    const out = await EmploymentContractService.list(user, filters);
-
-    // ✅ Trả về kết quả
-    return res.status(out.err ? 400 : 200).json(out);
-  } catch (e: any) {
-    console.error("ContractController.list error:", e);
-    return res.status(500).json({
-      err: 1,
-      mes: e?.message || "Internal Server Error (list)",
-    });
   }
-}
-
-
 
   static async detail(req: Request, res: Response) {
     try {
@@ -131,38 +126,7 @@ export default class ContractController {
   /* ============================================================
    * 3️⃣ QUY TRÌNH PHÊ DUYỆT / KÝ / TRẠNG THÁI
    * ============================================================ 
-  static async submitApproval(req: Request, res: Response) {
-    try {
-      const id = Number(req.params.id);
-      if (Number.isNaN(id))
-        return res.status(400).json({ err: 1, mes: "Invalid id" });
-      const user = req.user as ReqUser;
-      const out = await EmploymentContractService.submitApproval(user, id);
-      return res.status(out.err ? 400 : 200).json(out);
-    } catch (e: any) {
-      return res.status(500).json({
-        err: 1,
-        mes: e?.message || "Internal Server Error (submitApproval)",
-      });
-    }
-  }*/
-
-  static async approve(req: Request, res: Response) {
-    try {
-      const id = Number(req.params.id);
-      if (Number.isNaN(id))
-        return res.status(400).json({ err: 1, mes: "Invalid id" });
-      const user = req.user as ReqUser;
-      const out = await EmploymentContractService.approve(user, id);
-      return res.status(out.err ? 400 : 200).json(out);
-    } catch (e: any) {
-      return res.status(500).json({
-        err: 1,
-        mes: e?.message || "Internal Server Error (approve)",
-      });
-    }
-  }
-
+  */
   static async sendForSigning(req: Request, res: Response) {
     try {
       const id = Number(req.params.id);
@@ -206,23 +170,6 @@ export default class ContractController {
   }
 }
 
-
-  /*static async activate(req: Request, res: Response) {
-    try {
-      const id = Number(req.params.id);
-      if (Number.isNaN(id))
-        return res.status(400).json({ err: 1, mes: "Invalid id" });
-      const user = req.user as ReqUser;
-      const out = await EmploymentContractService.activate(user, id);
-      return res.status(out.err ? 400 : 200).json(out);
-    } catch (e: any) {
-      return res.status(500).json({
-        err: 1,
-        mes: e?.message || "Internal Server Error (activate)",
-      });
-    }
-  }*/
-
   static async terminate(req: Request, res: Response) {
     try {
       const id = Number(req.params.id);
@@ -238,6 +185,63 @@ export default class ContractController {
       });
     }
   }
+  static async cancel(req: Request, res: Response) {
+    try {
+      const id = Number(req.params.id);
+      if (Number.isNaN(id))
+        return res.status(400).json({ err: 1, mes: "Invalid id" });
+
+      const user = req.user as ReqUser;
+      const out = await EmploymentContractService.cancel(
+        user,
+        id,
+        req.body?.reason   // 🔥 Thêm dòng này
+      );
+
+      return res.status(out.err ? 400 : 200).json(out);
+    } catch (e: any) {
+      return res.status(500).json({
+        err: 1,
+        mes: e?.message || "Internal Server Error (cancel)",
+      });
+    }
+  }
+
+static async amend(req: Request, res: Response) {
+  try {
+    const id = Number(req.params.id);
+    if (Number.isNaN(id))
+      return res.status(400).json({ err: 1, mes: "Invalid id" });
+
+    const user = req.user as ReqUser;
+    const out = await EmploymentContractService.amend(user, id);
+
+    return res.status(out.err ? 400 : 200).json(out);
+  } catch (e: any) {
+    return res.status(500).json({
+      err: 1,
+      mes: e?.message || "Internal Server Error (amend)",
+    });
+  }
+}
+
+static async finalize(req: Request, res: Response) {
+  try {
+    const id = Number(req.params.id);
+    if (Number.isNaN(id))
+      return res.status(400).json({ err: 1, mes: "Invalid id" });
+
+    const user = req.user as ReqUser;
+    const out = await EmploymentContractService.finalize(user, id);
+
+    return res.status(out.err ? 400 : 200).json(out);
+  } catch (e: any) {
+    return res.status(500).json({
+      err: 1,
+      mes: e?.message || "Internal Server Error (finalize)",
+    });
+  }
+}
 
   /* ============================================================
    * 4️⃣ PHỤ LỤC / ĐÍNH KÈM / AUDIT

@@ -1,3 +1,7 @@
+// ===============================
+// PAYROLL PAGE (FULL FIXED FILE)
+// ===============================
+
 import "./payroll.scss";
 import DefaultLayout from "../../layouts/DefaultLayout";
 import { Card } from "primereact/card";
@@ -7,9 +11,14 @@ import apiUrl from "../../constant/apiUrl";
 import { Toast } from "primereact/toast";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
+import { Dialog } from "primereact/dialog";
+import { Dropdown } from "primereact/dropdown";
 import { useNavigate } from "react-router-dom";
 import { TabView, TabPanel } from "primereact/tabview";
 
+// ================================
+// TYPES
+// ================================
 type ChangeRow = {
   id: number;
   payroll_id: number;
@@ -24,7 +33,13 @@ type ChangeRow = {
   new_data?: Record<string, any> | null;
 };
 
-const CHANGE_API = "/payroll-changes";
+type SettingRow = {
+  setting_key: string;
+  setting_value: string;
+};
+
+// ================================
+const CHANGE_API = apiUrl.payroll_changes.index;
 
 const Payroll = () => {
   const navigate = useNavigate();
@@ -35,6 +50,9 @@ const Payroll = () => {
   const isHR = user?.role_code === "role_2" && user?.department_id === 1;
   const isSelf = user?.role_code === "role_2" || user?.role_code === "role_3";
 
+  // =====================================
+  // STATE — PAYROLL + FILTERS
+  // =====================================
   const [payrollData, setPayrollData] = useState<any[]>([]);
   const [filtered, setFiltered] = useState<any[]>([]);
   const [q, setQ] = useState<string>("");
@@ -42,10 +60,29 @@ const Payroll = () => {
   const [departments, setDepartments] = useState<any[]>([]);
   const [departmentFilter, setDepartmentFilter] = useState<string>("");
 
+  // =====================================
+  // STATE — CHANGES
+  // =====================================
   const [changes, setChanges] = useState<ChangeRow[]>([]);
   const [filteredChanges, setFilteredChanges] = useState<ChangeRow[]>([]);
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
 
+  // =====================================
+  // STATE — SETTINGS
+  // =====================================
+  const [settings, setSettings] = useState<SettingRow[]>([]);
+  const [editDialog, setEditDialog] = useState(false);
+  const [currentSetting, setCurrentSetting] = useState<SettingRow | null>(null);
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
+
+  const dayOptions = Array.from({ length: 28 }, (_, i) => ({
+    label: `Day ${i + 1}`,
+    value: i + 1,
+  }));
+
+  // ================================
+  // INIT
+  // ================================
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) navigate("/login", { replace: true });
@@ -54,8 +91,12 @@ const Payroll = () => {
   useEffect(() => {
     if (isRole1 || isHR) getDepartments();
     fetchPayrolls();
+    if (isRole1) fetchSettings();
   }, []);
 
+  // =====================================
+  // API — DEPARTMENTS
+  // =====================================
   const getDepartments = async () => {
     try {
       const res = await AxiosInstance.get(apiUrl.department.index);
@@ -65,6 +106,9 @@ const Payroll = () => {
     }
   };
 
+  // =====================================
+  // API — PAYROLL
+  // =====================================
   const fetchPayrolls = async () => {
     try {
       let url = apiUrl.payroll.index;
@@ -88,14 +132,16 @@ const Payroll = () => {
     }
   };
 
+  // =====================================
+  // API — CHANGES
+  // =====================================
   const fetchChanges = async () => {
     try {
       const res = await AxiosInstance.get(CHANGE_API);
       const data = res?.data?.data || [];
       setChanges(data);
       setFilteredChanges(data);
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
       toast.current?.show({
         severity: "error",
         summary: "Error",
@@ -104,39 +150,104 @@ const Payroll = () => {
     }
   };
 
+  // =====================================
+  // API — SETTINGS (FIXED HERE)
+  // =====================================
+  const fetchSettings = async () => {
+    try {
+      const res = await AxiosInstance.get(apiUrl.payroll.settings.list);
+
+      // 🔥 FIX: backend trả res.data.data, KHÔNG phải res.data.settings
+      setSettings(res?.data?.data || []);
+    } catch (err) {
+      console.error("Load settings error:", err);
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Failed to load settings",
+      });
+    }
+  };
+
+  // =====================================
+  // UPDATE SETTING
+  // =====================================
+  const saveSetting = async () => {
+    if (!currentSetting || !selectedDay) return;
+
+    try {
+      await AxiosInstance.put(
+        apiUrl.payroll.settings.update(currentSetting.setting_key),
+        { value: String(selectedDay) }
+      );
+
+      toast.current?.show({
+        severity: "success",
+        summary: "Updated",
+        detail: "Setting updated successfully",
+      });
+
+      setEditDialog(false);
+      setCurrentSetting(null);
+      setSelectedDay(null);
+      await fetchSettings();
+    } catch (err) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Failed",
+        detail: "Could not update setting",
+      });
+    }
+  };
+
+  // =====================================
+  // FILTER PAYROLL
+  // =====================================
   useEffect(() => {
     const t = setTimeout(() => {
       const keyword = q.trim().toLowerCase();
       let data = [...payrollData];
-      if (monthFilter) data = data.filter(p => p.month === monthFilter);
+
+      if (monthFilter) data = data.filter((p) => p.month === monthFilter);
       if ((isRole1 || isHR) && departmentFilter) {
-        data = data.filter(p => Number(p.employee?.department_id) === Number(departmentFilter));
+        data = data.filter(
+          (p) => Number(p.employee?.department_id) === Number(departmentFilter)
+        );
       }
       if (keyword && (isRole1 || isHR)) {
-        data = data.filter(p =>
-          String(p.employee?.employee_id || "").toLowerCase().includes(keyword)
+        data = data.filter((p) =>
+          String(p.employee?.employee_id || "")
+            .toLowerCase()
+            .includes(keyword)
         );
       }
       setFiltered(data);
     }, 250);
     return () => clearTimeout(t);
-  }, [q, monthFilter, departmentFilter, payrollData, isRole1, isHR]);
+  }, [q, monthFilter, departmentFilter, payrollData]);
 
+  // =====================================
+  // FILTER CHANGES
+  // =====================================
   useEffect(() => {
     const t = setTimeout(() => {
       let data = [...changes];
-      if (monthFilter) data = data.filter(c => c.month === monthFilter);
+      if (monthFilter) data = data.filter((c) => c.month === monthFilter);
       if ((isRole1 || isHR) && departmentFilter) {
-        data = data.filter(c => Number(c.department_id) === Number(departmentFilter));
+        data = data.filter(
+          (c) => Number(c.department_id) === Number(departmentFilter)
+        );
       }
-      if ((isRole1 || isHR) && q.trim()) {
+      if (q.trim()) {
         const kw = q.trim().toLowerCase();
-        data = data.filter(c => String(c.employee_id || "").toLowerCase().includes(kw));
+        data = data.filter((c) =>
+          String(c.employee_id || "").toLowerCase().includes(kw)
+        );
       }
       setFilteredChanges(data);
     }, 250);
     return () => clearTimeout(t);
-  }, [changes, monthFilter, departmentFilter, q, isRole1, isHR]);
+  }, [changes, monthFilter, departmentFilter, q]);
 
   const clearSearch = async () => {
     setQ("");
@@ -146,26 +257,32 @@ const Payroll = () => {
     await fetchPayrolls();
   };
 
-  const sortKeys = (obj?: Record<string, any> | null) => {
-    if (!obj || typeof obj !== "object") return obj ?? {};
-    const keys = Object.keys(obj).sort((a, b) => a.localeCompare(b));
-    const out: Record<string, any> = {};
-    keys.forEach(k => (out[k] = obj[k]));
-    return out;
-  };
-  const prettyJSON = (obj?: Record<string, any> | null) =>
-    JSON.stringify(sortKeys(obj), null, 2);
   const toggleExpand = (id: number) =>
-    setExpanded(prev => ({ ...prev, [id]: !prev[id] }));
+    setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
 
+  const prettyJSON = (obj?: Record<string, any> | null) =>
+    JSON.stringify(obj || {}, null, 2);
+
+  // =====================================
+  // RENDER
+  // =====================================
   return (
     <DefaultLayout>
       <Toast ref={toast} />
+
       <TabView>
-        {/* TAB 1: PAYROLL */}
+        {/* ============================
+            TAB 1 — PAYROLL
+        ============================ */}
         <TabPanel header="Payroll">
           <Card style={{ marginBottom: 12, padding: 16 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 12 }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr 1fr 1fr",
+                gap: 12,
+              }}
+            >
               {(isRole1 || isHR) && (
                 <InputText
                   value={q}
@@ -173,32 +290,46 @@ const Payroll = () => {
                   placeholder="Search by Employee ID (e.g., AD0001)"
                 />
               )}
+
               {(isRole1 || isHR) ? (
                 <select
-                  value={departmentFilter}
-                  onChange={(e) => setDepartmentFilter(e.target.value)}
-                  style={{ padding: 8, borderRadius: 6, border: "1px solid #ddd" }}
-                >
+  aria-label="Select Department"
+  className="department-select"
+  value={departmentFilter}
+  onChange={(e) => setDepartmentFilter(e.target.value)}
+>
+
                   <option value="">All departments</option>
                   {departments.map((d: any) => (
-                    <option key={d.id} value={d.id}>{d.value}</option>
+                    <option key={d.id} value={d.id}>
+                      {d.value}
+                    </option>
                   ))}
                 </select>
-              ) : <div />}
+              ) : (
+                <div />
+              )}
+
               <InputText
                 type="month"
                 value={monthFilter}
                 onChange={(e) => setMonthFilter(e.target.value)}
               />
+
               <div style={{ display: "flex", gap: 8 }}>
-                <Button label="Clear" className="p-button-secondary" onClick={clearSearch} />
+                <Button
+                  label="Clear"
+                  className="p-button-secondary"
+                  onClick={clearSearch}
+                />
               </div>
             </div>
           </Card>
 
-          {/* Payroll table */}
+          {/* Payroll Table */}
           <Card>
             <h3 style={{ margin: 0, marginBottom: 8 }}>Payroll</h3>
+
             <table className="table">
               <thead>
                 <tr>
@@ -211,22 +342,23 @@ const Payroll = () => {
                   <th>Total Work Hours</th>
                   <th>Absent Days</th>
                   <th>Actual Salary</th>
-                  <th>OT Weekday Hours</th>
-                  <th>OT Weekend Hours</th>
-                  <th>OT Holiday Hours</th>
+                  <th>OT Weekday</th>
+                  <th>OT Weekend</th>
+                  <th>OT Holiday</th>
                   <th>Overtime Amount</th>
                   <th>Allowance</th>
-                  <th>Total Amount</th>
+                  <th>Total</th>
                   <th>Deduction</th>
-                  <th>Received Salary</th>
+                  <th>Received</th>
                   <th>Month</th>
                   <th>Status</th>
                 </tr>
               </thead>
+
               <tbody>
                 {filtered.length ? (
                   filtered.map((item, index) => (
-                    <tr key={`${item.id}-${index}`}>
+                    <tr key={item.id}>
                       <td>{index + 1}</td>
                       <td>{item.employee?.employee_id}</td>
                       <td>{item.employee?.full_name}</td>
@@ -246,39 +378,61 @@ const Payroll = () => {
                       <td>{item.received_salary}</td>
                       <td>{item.month}</td>
                       <td>
-                        <span className={`badge ${item.status === "approved" ? "badge--ok" : "badge--draft"}`}>
-                          {item.status ?? "draft"}
+                        <span
+                          className={`badge ${
+                            item.status === "approved"
+                              ? "badge--ok"
+                              : "badge--draft"
+                          }`}
+                        >
+                          {item.status}
                         </span>
                       </td>
                     </tr>
                   ))
                 ) : (
-                  <tr><td colSpan={19} style={{ textAlign: "center" }}>No data</td></tr>
+                  <tr>
+                    <td colSpan={19} style={{ textAlign: "center" }}>
+                      No data
+                    </td>
+                  </tr>
                 )}
               </tbody>
             </table>
           </Card>
         </TabPanel>
 
-        {/* TAB 2: PAYROLL CHANGES */}
+        {/* ============================
+            TAB 2 — CHANGES
+        ============================ */}
         {(isRole1 || isHR) && (
           <TabPanel header="Payroll Changes">
-            {/* Giữ khung tìm kiếm giống Payroll */}
             <Card style={{ marginBottom: 12, padding: 16 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 12 }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr 1fr 1fr",
+                  gap: 12,
+                }}
+              >
                 <InputText
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
-                  placeholder="Search by Employee ID (e.g., AD0001)"
+                  placeholder="Search by Employee ID"
                 />
+
                 <select
+                  aria-label="Department filter"
+                  className="department-select"
                   value={departmentFilter}
                   onChange={(e) => setDepartmentFilter(e.target.value)}
-                  style={{ padding: 8, borderRadius: 6, border: "1px solid #ddd" }}
                 >
                   <option value="">All departments</option>
+
                   {departments.map((d: any) => (
-                    <option key={d.id} value={d.id}>{d.value}</option>
+                    <option key={d.id} value={d.id}>
+                      {d.value}
+                    </option>
                   ))}
                 </select>
                 <InputText
@@ -286,15 +440,21 @@ const Payroll = () => {
                   value={monthFilter}
                   onChange={(e) => setMonthFilter(e.target.value)}
                 />
+
                 <div style={{ display: "flex", gap: 8 }}>
-                  <Button label="Clear" className="p-button-secondary" onClick={clearSearch} />
+                  <Button
+                    label="Clear"
+                    className="p-button-secondary"
+                    onClick={clearSearch}
+                  />
                 </div>
               </div>
             </Card>
 
-            {/* Bảng Payroll Changes */}
+            {/* Changes Table */}
             <Card>
-              <h3 style={{ margin: 0, marginBottom: 8 }}>Payroll Changes</h3>
+              <h3 style={{ marginBottom: 8 }}>Payroll Changes</h3>
+
               <table className="table">
                 <thead>
                   <tr>
@@ -302,11 +462,12 @@ const Payroll = () => {
                     <th>Employee ID</th>
                     <th>Payroll ID</th>
                     <th>Month</th>
-                    <th>Change Type</th>
+                    <th>Type</th>
                     <th>Description</th>
                     <th>Detail</th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {filteredChanges.length ? (
                     filteredChanges.map((c, idx) => (
@@ -317,7 +478,9 @@ const Payroll = () => {
                           <td>{c.payroll_id}</td>
                           <td>{c.month ?? "-"}</td>
                           <td>{c.change_type}</td>
-                          <td style={{ whiteSpace: "pre-wrap" }}>{c.description}</td>
+                          <td style={{ whiteSpace: "pre-wrap" }}>
+                            {c.description}
+                          </td>
                           <td>
                             <Button
                               label={expanded[c.id] ? "Hide" : "Details"}
@@ -326,18 +489,19 @@ const Payroll = () => {
                             />
                           </td>
                         </tr>
+
                         {expanded[c.id] && (
                           <>
-                            <tr key={`old-${c.id}`}>
+                            <tr>
                               <td colSpan={7}>
-                                <strong>Old data</strong>
-                                <pre style={{ marginTop: 6 }}>{prettyJSON(c.old_data)}</pre>
+                                <strong>Old</strong>
+                                <pre>{prettyJSON(c.old_data)}</pre>
                               </td>
                             </tr>
-                            <tr key={`new-${c.id}`}>
+                            <tr>
                               <td colSpan={7}>
-                                <strong>New data</strong>
-                                <pre style={{ marginTop: 6 }}>{prettyJSON(c.new_data)}</pre>
+                                <strong>New</strong>
+                                <pre>{prettyJSON(c.new_data)}</pre>
                               </td>
                             </tr>
                           </>
@@ -345,7 +509,60 @@ const Payroll = () => {
                       </Fragment>
                     ))
                   ) : (
-                    <tr><td colSpan={7} style={{ textAlign: "center" }}>No change logs</td></tr>
+                    <tr>
+                      <td colSpan={7} style={{ textAlign: "center" }}>
+                        No logs
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </Card>
+          </TabPanel>
+        )}
+
+        {/* ============================
+            TAB 3 — SETTINGS
+        ============================ */}
+        {isRole1 && (
+          <TabPanel header="Settings">
+            <Card>
+              <h3>Payroll Cron Settings</h3>
+
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Setting Key</th>
+                    <th>Value</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {settings.length ? (
+                    settings.map((s) => (
+                      <tr key={s.setting_key}>
+                        <td>{s.setting_key}</td>
+                        <td>{s.setting_value}</td>
+                        <td>
+                          <Button
+                            label="Edit"
+                            className="p-button-sm"
+                            onClick={() => {
+                              setCurrentSetting(s);
+                              setSelectedDay(Number(s.setting_value));
+                              setEditDialog(true);
+                            }}
+                          />
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={3} style={{ textAlign: "center" }}>
+                        No settings
+                      </td>
+                    </tr>
                   )}
                 </tbody>
               </table>
@@ -353,6 +570,34 @@ const Payroll = () => {
           </TabPanel>
         )}
       </TabView>
+
+      {/* ============================
+          POPUP EDIT
+      ============================ */}
+      <Dialog
+        header="Edit Setting"
+        visible={editDialog}
+        onHide={() => setEditDialog(false)}
+        style={{ width: "450px" }}
+      >
+        <div>
+          <p><strong>{currentSetting?.setting_key}</strong></p>
+
+          <Dropdown
+            value={selectedDay}
+            options={dayOptions}
+            onChange={(e) => setSelectedDay(e.value)}
+            placeholder="Select Day"
+            style={{ width: "100%", marginBottom: 20 }}
+          />
+
+          <Button
+            label="Save"
+            className="p-button-success"
+            onClick={saveSetting}
+          />
+        </div>
+      </Dialog>
     </DefaultLayout>
   );
 };

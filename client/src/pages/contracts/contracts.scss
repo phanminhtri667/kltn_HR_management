@@ -16,17 +16,18 @@
   border-radius: 8px;
   padding: 2rem;
 }
+
 .select-status {
   padding: 4px 8px;
   border-radius: 6px;
   border: 1px solid #ccc;
   background: #f8f9fa;
 }
-/* ===============================
-   Fix MultiSelect & Dropdown nằm ngang (PrimeReact)
-   =============================== */
 
-/* 1️⃣ Dropdown và MultiSelect hiển thị dọc */
+/* ===============================
+   Fix PrimeReact Panel Styles
+=============================== */
+
 .p-dropdown-panel .p-dropdown-items,
 .p-multiselect-panel .p-multiselect-items {
   display: flex !important;
@@ -34,7 +35,6 @@
   flex-wrap: nowrap !important;
 }
 
-/* 2️⃣ Mỗi item chiếm full chiều ngang */
 .p-dropdown-item,
 .p-multiselect-item {
   display: block !important;
@@ -44,24 +44,22 @@
   word-break: break-word !important;
 }
 
-/* 3️⃣ Căn chỉnh checkbox và text */
 .p-multiselect-item .p-checkbox {
   flex-shrink: 0 !important;
   margin-right: 0.5rem !important;
 }
+
 .p-multiselect-item label {
   display: inline-block !important;
   vertical-align: middle !important;
   width: calc(100% - 30px) !important;
 }
 
-/* 4️⃣ Giới hạn chiều cao, tránh tràn màn hình */
 .p-multiselect-panel .p-multiselect-items {
   max-height: 300px !important;
   overflow-y: auto !important;
 }
 
-/* 5️⃣ Màu hover, highlight đồng bộ */
 .p-dropdown-item.p-highlight,
 .p-dropdown-item:hover,
 .p-multiselect-item.p-highlight,
@@ -70,7 +68,6 @@
   color: #4f46e5 !important;
 }
 
-/* 6️⃣ Bo góc, đổ bóng nhẹ */
 .p-dropdown-panel,
 .p-multiselect-panel {
   border-radius: 10px !important;
@@ -78,7 +75,6 @@
   animation: fadeInDropdown 0.2s ease-in-out;
 }
 
-/* 7️⃣ Hiệu ứng mở mềm */
 @keyframes fadeInDropdown {
   from {
     opacity: 0;
@@ -89,7 +85,7 @@
     transform: translateY(0);
   }
 }
-/* Hiển thị chữ 'Tất cả' cạnh checkbox select-all */
+
 .p-multiselect-header .p-multiselect-select-all {
   display: flex !important;
   align-items: center !important;
@@ -97,9 +93,85 @@
   font-weight: 500;
 }
 
-/* Thêm chữ “Tất cả” kế bên checkbox */
 .p-multiselect-header .p-multiselect-select-all::after {
   content: "Tất cả";
   font-size: 14px;
-  color: #4b5563; /* xám đậm vừa phải */
+  color: #4b5563;
+}
+
+/* ============================================================
+   CONTRACT DETAIL – ACTION BUTTONS
+============================================================= */
+
+.contract-actions-container-bottom {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 20px;
+  margin-top: 40px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.contract-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Nút cơ bản */
+.contract-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ===============================
+   🔵 BLUE BUTTON ( luôn hiện màu )
+================================ */
+.contract-btn.blue {
+  background-color: #2563EB !important;
+  color: #fff !important;
+}
+.contract-btn.blue:hover {
+  background-color: #1E40AF !important;
+}
+
+/* ===============================
+   🔴 RED BUTTON ( luôn hiện màu )
+================================ */
+.contract-btn.red {
+  background-color: #DC2626 !important;
+  color: #fff !important;
+}
+.contract-btn.red:hover {
+  background-color: #B91C1C !important;
+}
+
+/* ===============================
+   🟢 GREEN BUTTON (STATUS)
+   luôn xanh – không hover đổi màu
+================================ */
+.contract-btn.green {
+  background-color: #16A34A !important;
+  color: white !important;
+  cursor: default !important;
+}
+.contract-btn.green:hover {
+  background-color: #16A34A !important;
+}
+
+/* ===============================
+   DISABLED STATE (luôn rõ ràng)
+================================ */
+.contract-btn.disabled,
+.contract-btn:disabled {
+  opacity: 0.9 !important;
+  cursor: not-allowed !important;
 }
