@@ -41,7 +41,7 @@ jobs:
         run: |
           SAFE_REPO=$(echo "$REPO_NAME" | tr '[:upper:]' '[:lower:]' | tr '_' '-')
           IMAGE_NAME="$GHCR/$SAFE_REPO-frontend:${IMAGE_TAG}"
-          docker build --build-arg REACT_APP_API_URL=http://kltn-backend:8080/api \
+          docker build --build-arg REACT_APP_API_URL=http://34.170.254.33:8080/api \
             -t "$IMAGE_NAME" ./client
           docker push "$IMAGE_NAME"
 

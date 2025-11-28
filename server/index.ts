@@ -36,7 +36,7 @@ const app = express();
 const server = http.createServer(app);
 
 // Socket.IO
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001', 'http://35.238.114.53' ];
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001', 'http://35.238.114.53', 'http://34.170.254.33' ];
 
 const io = new SocketIOServer(server, {
   cors: {
