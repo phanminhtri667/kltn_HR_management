@@ -1,5 +1,6 @@
 .
 ├── Dockerfile
+├── nginx.conf
 ├── package.json
 ├── package-lock.json
 ├── public
@@ -24,61 +25,16 @@
 │   ├── App.tsx
 │   ├── assets
 │   │   ├── css
-│   │   │   └── variables.scss
 │   │   ├── fonts
-│   │   │   ├── Montserrat-Bold.ttf
-│   │   │   ├── Montserrat-Italic.ttf
-│   │   │   ├── Montserrat-Medium.ttf
-│   │   │   └── static
-│   │   │       ├── Montserrat-BlackItalic.ttf
-│   │   │       ├── Montserrat-Black.ttf
-│   │   │       ├── Montserrat-BoldItalic.ttf
-│   │   │       ├── Montserrat-ExtraBoldItalic.ttf
-│   │   │       ├── Montserrat-ExtraBold.ttf
-│   │   │       ├── Montserrat-ExtraLightItalic.ttf
-│   │   │       ├── Montserrat-ExtraLight.ttf
-│   │   │       ├── Montserrat-LightItalic.ttf
-│   │   │       ├── Montserrat-Light.ttf
-│   │   │       ├── Montserrat-MediumItalic.ttf
-│   │   │       ├── Montserrat-Medium.ttf
-│   │   │       ├── Montserrat-Regular.ttf
-│   │   │       ├── Montserrat-SemiBoldItalic.ttf
-│   │   │       ├── Montserrat-SemiBold.ttf
-│   │   │       ├── Montserrat-ThinItalic.ttf
-│   │   │       └── Montserrat-Thin.ttf
 │   │   └── images
-│   │       └── icons8-logo.svg
 │   ├── components
 │   │   ├── breadcrumb
-│   │   │   ├── Breadcrumb.scss
-│   │   │   └── Breadcrumb.tsx
 │   │   ├── Charts
-│   │   │   ├── BarChartBasic.tsx
-│   │   │   ├── BarChart.tsx
-│   │   │   ├── DoughnutChart.tsx
-│   │   │   ├── LineChart.tsx
-│   │   │   ├── PieChart.tsx
-│   │   │   └── RadarChart.tsx
 │   │   ├── footer
-│   │   │   ├── Footer.scss
-│   │   │   └── Footer.tsx
 │   │   ├── forms
-│   │   │   ├── button
-│   │   │   │   ├── Button.scss
-│   │   │   │   └── Button.tsx
-│   │   │   ├── input
-│   │   │   │   ├── InputField.scss
-│   │   │   │   └── InputField.tsx
-│   │   │   └── select
-│   │   │       ├── selectField.scss
-│   │   │       └── selectField.tsx
 │   │   ├── header
-│   │   │   ├── Header.scss
-│   │   │   └── Header.tsx
 │   │   ├── PrivateRoute.tsx
 │   │   └── sidebar
-│   │       ├── Sidebar.scss
-│   │       └── Sidebar.tsx
 │   ├── constant
 │   │   └── apiUrl.ts
 │   ├── index.scss
@@ -88,67 +44,21 @@
 │   │   └── DefaultLayout.tsx
 │   ├── pages
 │   │   ├── approve-leave
-│   │   │   └── ApproveLeave.tsx
 │   │   ├── contracts
-│   │   │   ├── contractCreate.tsx
-│   │   │   ├── contractDetail.tsx
-│   │   │   ├── ContractSignButton.tsx
-│   │   │   ├── contractSign.tsx
-│   │   │   ├── contractsList.tsx
-│   │   │   ├── contracts.scss
-│   │   │   └── contracts.tsx
 │   │   ├── dashBoard
-│   │   │   ├── DashBoard.scss
-│   │   │   ├── DashBoard.tsx
-│   │   │   └── table
-│   │   │       ├── DashBoardTable.scss
-│   │   │       └── DashBoardTable.tsx
 │   │   ├── department
-│   │   │   ├── department.scss
-│   │   │   ├── department.tsx
-│   │   │   ├── form
-│   │   │   │   ├── departmentCreate.tsx
-│   │   │   │   └── departmentUpdate.tsx
-│   │   │   └── table
-│   │   │       └── departmentTable.tsx
 │   │   ├── employee
-│   │   │   ├── detail
-│   │   │   │   ├── EmployeeDetail.scss
-│   │   │   │   └── EmployeeDetail.tsx
-│   │   │   ├── employee.scss
-│   │   │   ├── employee.tsx
-│   │   │   ├── form
-│   │   │   │   ├── employeeCreate.tsx
-│   │   │   │   └── employeeUpdate.tsx
-│   │   │   └── table
-│   │   │       └── EmployeeTable.tsx
 │   │   ├── emty
-│   │   │   └── emty.tsx
 │   │   ├── leave
-│   │   │   └── index.tsx
 │   │   ├── login
-│   │   │   ├── login.scss
-│   │   │   └── login.tsx
 │   │   ├── payroll
-│   │   │   ├── payroll.scss
-│   │   │   └── payroll.tsx
 │   │   ├── profile
-│   │   │   └── Profile.tsx
 │   │   ├── test
-│   │   │   └── Test.tsx
 │   │   ├── timekeeping
-│   │   │   ├── index.tsx
-│   │   │   ├── timekeeping.scss
-│   │   │   └── Timekeeping.tsx
 │   │   └── unauthorized
-│   │       └── Unauthorized.tsx
 │   ├── react-app-env.d.ts
 │   ├── redux
 │   │   ├── features
-│   │   │   ├── authSlice.ts
-│   │   │   ├── departmentSlice.ts
-│   │   │   ├── positionSlice.ts
-│   │   │   └── toastSlice.ts
 │   │   └── store.ts
 │   ├── reportWebVitals.ts
 │   ├── services
@@ -158,4 +68,4 @@
 ├── tree1.txt
 └── tsconfig.json
 
-44 directories, 114 files
+34 directories, 34 files
