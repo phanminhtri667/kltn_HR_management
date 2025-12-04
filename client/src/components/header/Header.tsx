@@ -20,6 +20,10 @@ const Header = () => {
   const dispatch = useDispatch();
   console.log("dataNotifiCation", dataNotifiCation);
 
+  const defaultSocketUrl =
+  process.env.NODE_ENV === "production"
+    ? window.location.origin // mặc định dùng chính origin FE
+    : "http://localhost:3000";
   const socketUrl = process.env.REACT_APP_SOCKET_URL || "http://localhost:3000";
 
   useEffect(() => {
