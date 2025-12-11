@@ -415,7 +415,7 @@ const handleSubmitLeave = async () => {
 
 
         {/* Card Tổng Quan */}
-        <Card className="card-summary" style={{ flex: 1 }}>
+        {/* <Card className="card-summary" style={{ flex: 1 }}>
           <h3>Tổng Quan</h3>
           <div className="summary-list">
             <div className="label">Tổng Giờ :</div>
@@ -431,7 +431,7 @@ const handleSubmitLeave = async () => {
             <div className="value">{summary.leave}</div>
           </div>
           
-        </Card>
+        </Card> */}
       </div>
 
 
