@@ -41,6 +41,8 @@ module.exports = (sequelize: any, DataTypes: any) => {
     {
       sequelize,
       modelName: "Role",
+      tableName: "roles",       // <<< BẮT BUỘC PHẢI CÓ
+      freezeTableName: true, 
     }
   );
   return Role;
