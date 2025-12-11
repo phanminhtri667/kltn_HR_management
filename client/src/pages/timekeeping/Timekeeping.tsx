@@ -40,7 +40,6 @@ const Timekeeping = () => {
   useEffect(() => {
     load(); 
     getDepartments();
-    loadSummary();  
   }, []);
 
   
@@ -186,7 +185,6 @@ const Timekeeping = () => {
   
       setIsCheckedIn(!isCheckedIn);
       load();        
-      loadSummary(); 
     } catch (err: any) {
       console.error(err);
       toast.current?.show({
@@ -204,23 +202,7 @@ const Timekeeping = () => {
     return `${y}-${m}`; // ví dụ: '2025-11'
   };
 
-  const loadSummary = async () => {
-    try {
-      const month = getCurrentMonth();
-      const res = await timekeepingApi.getSummary(month);
-      const data = res?.data?.data || {};
 
-      setSummary({
-        totalHours: data.totalHours || 0,
-        ot: data.ot || 0,
-        lateMinutes: data.lateMinutes || 0,
-        leave: data.leave || 0,
-      });
-    } catch (err) {
-      console.error("Load summary error:", err);
-      // có thể show toast nhẹ nếu muốn
-    }
-  };
 
 // popup xin nghỉ phép
 // Thêm state cho popup form xin nghỉ phép
