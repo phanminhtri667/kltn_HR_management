@@ -251,7 +251,7 @@ const ContractsList: React.FC<ContractsListProps> = ({ data, onView }) => {
             <th style={{ width: 60 }}>ID</th>
             <th>Contract Code / Name</th>
             <th>Status</th>
-            <th>Status Date At</th> {/* ⭐ NEW COLUMN */}
+            <th>Status Date At</th>
             <th style={{ width: 180 }}>Actions</th>
           </tr>
         </thead>

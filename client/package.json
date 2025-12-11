@@ -77,6 +77,8 @@
     "@types/lodash": "^4.17.1",
     "@types/moment": "^2.13.0",
     "@types/socket.io-client": "^3.0.0",
+    "eslint": "^8.57.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
     "prettier": "^3.2.5"
   }
 }
