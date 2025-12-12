@@ -36,58 +36,84 @@ class EmployeeService {
     throw error;
   }
 };
-public getAllEmployee = async () => {
-  try {
+public async getAllEmployee(reqUser: any, filter?: { department_id?: number }) {
+    try {
+      const where: any = { deleted: "0" };
+
+      // Admin hoặc HR phòng ban 1 (role_1 hoặc role_2 và department_id = 1) có thể xem tất cả
+      if (reqUser.role_code === "role_1" || (reqUser.role_code === "role_2" && reqUser.department_id === 1)) {
+        // Không cần thêm điều kiện phân quyền
+      } 
+      
+      // HR của phòng ban khác ngoài phòng HR (department_id !== 1) chỉ có thể xem nhân viên trong phòng ban của mình
+      else if (reqUser.role_code === "role_2" && reqUser.department_id !== 1) {
+        where.department_id = reqUser.department_id;
+      } 
+      
+      // Nhân viên (role_3) chỉ có thể xem chính mình
+      else if (reqUser.role_code === "role_3") {
+        const me = await db.Employee.findOne({
+          where: { email: reqUser.email },
+          attributes: ["employee_id"],
+        });
+        if (!me) return { err: 1, mes: "Unauthorized" };
+        where.employee_id = me.employee_id;
+      }
+
       const response = await db.Employee.findAll({
-          where: { deleted: "0" },
-          order: [["employee_id"]],
-          include: [
-              { model: db.Department, attributes: ["id", "code", "value"], as: "department" },
-              { model: db.Position, attributes: ["id", "code", "value"], as: "position" },
-          ],
+        where,
+        order: [["employee_id"]],
+        include: [
+          { model: db.Department, attributes: ["id", "code", "value"], as: "department" },
+          { model: db.Position, attributes: ["id", "code", "value"], as: "position" },
+        ],
       });
 
       return {
-          err: response.length > 0 ? 0 : 1,
-          mes: response.length > 0 ? "Get employees successfully" : "No employees found",
-          data: response,
+        err: response.length > 0 ? 0 : 1,
+        mes: response.length > 0 ? "Get employees successfully" : "No employees found",
+        data: response,
       };
-  } catch (error) {
+    } catch (error) {
       console.error("Error in getAllEmployee:", error);
       throw error;
+    }
   }
-};
+  public async insertEmployee(reqUser: any, data: any) {
+    try {
+      // Kiểm tra quyền truy cập trong service
+      if (reqUser.role_code !== "role_1" && !(reqUser.role_code === "role_2" && reqUser.department_id === 1)) {
+        return { err: 1, mes: "Permission denied: Only Admin or HR of department 1 can add employees." };
+      }
 
-  public insertEmployee = async (data: any) => {
-  try {
-    const newEmployeeId = await this.generateEmployeeId();
-    const fullName = Utils.capitalizeFirstLetter(data.full_name);
-    const partsName = fullName.split(" ");
+      const newEmployeeId = await this.generateEmployeeId();
+      const fullName = Utils.capitalizeFirstLetter(data.full_name);
+      const partsName = fullName.split(" ");
 
-    data.employee_id = newEmployeeId;
-    data.full_name = fullName;
-    data.first_name = partsName.pop();
+      data.employee_id = newEmployeeId;
+      data.full_name = fullName;
+      data.first_name = partsName.pop();
 
-    const response = await db.Employee.create(data);
+      const response = await db.Employee.create(data);
 
-    // ✅ Gửi thông báo cho HR hoặc nhân viên mới
-    await NotificationService.createNotification({
-      message: `Created employee ${fullName} successfully`,
-      employee_id: newEmployeeId,
-      type: "employee_created",
-      link: `/employees/${newEmployeeId}`,
-    });
+      // ✅ Gửi thông báo cho HR hoặc nhân viên mới
+      await NotificationService.createNotification({
+        message: `Created employee ${fullName} successfully`,
+        employee_id: newEmployeeId,
+        type: "employee_created",
+        link: `/employees/${newEmployeeId}`,
+      });
 
-    return {
-      err: 0,
-      mes: `Created employee ${fullName} successfully`,
-      data: response,
-    };
-  } catch (error) {
-    console.error("Error in insertEmployee:", error);
-    throw error;
+      return {
+        err: 0,
+        mes: `Created employee ${fullName} successfully`,
+        data: response,
+      };
+    } catch (error) {
+      console.error("Error in insertEmployee:", error);
+      throw error;
+    }
   }
-};
 
   public updateEmployee = async (employeeId: string, updatedData: any) => {
   try {

@@ -9,26 +9,14 @@ import PayrollService from "../services/payrollService";
 class EmployeeController {
   public getAllEmployee = async (req: Request, res: Response) => {
     try {
-      const user = req.user; // const user = req.user as ReqUser;
+      const user = req.user; // lấy thông tin người dùng từ req.user
       if (!user) {
         return res.status(401).json({ message: "User not authenticated" });
       }
 
-      if (user.role_code === "role_1") {
-        // Admin: trả về tất cả nhân viên
-        const employees = await EmployeeService.getAllEmployee();
-        return res.status(200).json(employees);
-      }
+      const response = await EmployeeService.getAllEmployee(user);
 
-      // Leader (role_2) hoặc Member (role_3): cần department_id là số
-      if (user.department_id == null) {
-        return res
-          .status(400)
-          .json({ err: 1, mes: "department_id is required for this action" });
-      }
-
-      const employees = await EmployeeService.getEmployeesByDepartment(user.department_id!);
-      return res.status(200).json(employees);
+      return res.status(response.err === 0 ? 200 : 403).json(response);
     } catch (error) {
       console.error(error);
       return res.status(500).json({
@@ -38,6 +26,7 @@ class EmployeeController {
     }
   };
 
+
   public insertEmployee = async (req: Request, res: Response) => {
     try {
       const user = req.user; // const user = req.user as ReqUser;
@@ -45,19 +34,15 @@ class EmployeeController {
         return res.status(401).json({ message: "User not authenticated" });
       }
 
-      // Chỉ Admin (role_1) mới được thêm nhân viên
-      if (user.role_code !== "role_1") {
-        return res
-          .status(403)
-          .json({ message: "Permission denied: Only Admin can add employees." });
-      }
+      // Gọi hàm insertEmployee trong EmployeeService để kiểm tra quyền và tạo nhân viên
+      const response = await EmployeeService.insertEmployee(user, req.body);
 
-      const response = await EmployeeService.insertEmployee(req.body);
       if (response.err === 0) {
-        io.emit("employee_created", response.mes); // thông báo realtime nếu cần
+        io.emit("employee_created", response.mes); // Thông báo realtime nếu cần
       }
 
-      return res.status(200).json(response);
+      return res.status(response.err === 0 ? 200 : 403).json(response);
+
     } catch (error) {
       console.error(error);
       return res.status(500).json({

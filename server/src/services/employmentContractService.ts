@@ -747,7 +747,16 @@ public async list(reqUser: ReqUser, filter?: ListFilter) {
         {
           model: db.ContractSignature,
           as: "signatures",
-          attributes: ["signer_name","signer_role","sign_status","signed_at","sign_order"],
+          //attributes: ["signer_name","signer_role","sign_status","signed_at","sign_order"],
+          attributes: [
+            "signer_name",
+            "signer_role",
+            "sign_status",
+            "signed_at",
+            "sign_order",
+            "signer_employee_id",
+            "signer_user_id"
+          ],
           separate: true,
           order: [["sign_order","ASC"]],
         },
