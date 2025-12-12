@@ -179,35 +179,42 @@ const ContractDetail: React.FC<Props> = (props) => {
         {signers.length ? (
           <ul style={{ paddingLeft: 18 }}>
             {signers.map((s, idx) => {
-              const isSigned = !!s.signedAt;
+  const isSigned = !!s.signedAt;
 
-              const canSign =
-                c.status === "sent_for_signing" &&
-                s.sign_status === "pending" &&
-                !s.signedAt &&
-                (
-                  String(s.signer_employee_id || "") === String(loggedInUser.employee_id || "") ||
-                  String(s.signer_user_id || "") === String(loggedInUser.id || "")
-                );
+  const canSign =
+    c.status === "sent_for_signing" &&
+    s.sign_status === "pending" &&
+    !s.signedAt &&
+    (
+      String(s.signer_employee_id || "") === String(loggedInUser.employee_id || "") ||
+      String(s.signer_user_id || "") === String(loggedInUser.id || "")
+    );
 
-              return (
-                <li key={idx} className="flex items-center gap-3 mb-2">
-                  #{s.order} — {fmt(s.name)} ({fmt(s.role)})
+  const signLabel =
+    s.role === "Department_manager" || s.role === "HR_manager"
+      ? "Duyệt"
+      : "Ký hợp đồng";
 
-                  {isSigned ? (
-                    <span className="text-green-600 text-sm">• Đã ký lúc {s.signedAt}</span>
-                  ) : canSign ? (
-                    <ContractSignButton
-                      contractId={c.id}
-                      order={s.order}
-                      onSigned={() => window.location.reload()}
-                    />
-                  ) : (
-                    <span className="text-gray-500 text-sm">• Chờ ký</span>
-                  )}
-                </li>
-              );
-            })}
+  return (
+    <li key={idx} className="flex items-center gap-3 mb-2">
+      #{s.order} — {fmt(s.name)} ({fmt(s.role)})
+
+      {isSigned ? (
+        <span className="text-green-600 text-sm">• Đã ký lúc {s.signedAt}</span>
+      ) : canSign ? (
+        <ContractSignButton
+          contractId={c.id}
+          order={s.order}
+          label={signLabel}
+          onSigned={() => window.location.reload()}
+        />
+      ) : (
+        <span className="text-gray-500 text-sm">• Chờ ký</span>
+      )}
+    </li>
+  );
+})}
+
           </ul>
         ) : (
           <div>-</div>
