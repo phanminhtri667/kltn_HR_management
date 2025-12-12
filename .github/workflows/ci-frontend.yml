@@ -43,8 +43,8 @@ jobs:
           IMAGE_NAME="$GHCR/$SAFE_REPO-frontend:${IMAGE_TAG}"
 
           docker build \
-            --build-arg REACT_APP_API_URL=http://34.170.254.33:8080/api \
-            --build-arg REACT_APP_SOCKET_URL=http://34.170.254.33:8080 \
+            --build-arg REACT_APP_API_URL=/api \
+            --build-arg REACT_APP_SOCKET_URL=/socket.io \
             -t "$IMAGE_NAME" ./client
 
           docker push "$IMAGE_NAME"
