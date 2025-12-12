@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
 import contractsApi from "../../api/contractsApi";
@@ -6,6 +6,7 @@ import contractsApi from "../../api/contractsApi";
 type ContractSignButtonProps = {
   contractId: number;
   order: number;
+  label?: string;          // ✅ thêm label để phân biệt Ký / Duyệt
   disabled?: boolean;
   onSigned?: () => void;
 };
@@ -13,12 +14,13 @@ type ContractSignButtonProps = {
 const ContractSignButton: React.FC<ContractSignButtonProps> = ({
   contractId,
   order,
+  label = "Ký hợp đồng",   // ✅ mặc định
   disabled = false,
   onSigned,
 }) => {
   const [loading, setLoading] = useState(false);
   const [signed, setSigned] = useState(false);
-  const toast = React.useRef<Toast>(null);
+  const toast = useRef<Toast>(null);
 
   const handleSign = async () => {
     setLoading(true);
@@ -27,24 +29,26 @@ const ContractSignButton: React.FC<ContractSignButtonProps> = ({
       const evidence = { ip: "127.0.0.1", method: "digital" };
       const res = await contractsApi.sign(contractId, order, evidence);
 
-      if (res.data.err === 0) {
+      if (res?.data?.err === 0) {
         setSigned(true);
         toast.current?.show({
           severity: "success",
           summary: "Thành công",
-          detail: "Đã ký hợp đồng thành công 🎉",
+          detail:
+            label === "Duyệt"
+              ? "Đã duyệt hợp đồng thành công 🎉"
+              : "Đã ký hợp đồng thành công 🎉",
           life: 3000,
         });
 
-        // Reload lại danh sách chữ ký nhẹ nhàng
         setTimeout(() => {
-          if (onSigned) onSigned();
+          onSigned?.();
         }, 1200);
       } else {
         toast.current?.show({
           severity: "warn",
           summary: "Thông báo",
-          detail: res.data.mes || "Ký thất bại!",
+          detail: res?.data?.mes || "Thao tác thất bại!",
           life: 4000,
         });
       }
@@ -53,7 +57,7 @@ const ContractSignButton: React.FC<ContractSignButtonProps> = ({
       toast.current?.show({
         severity: "error",
         summary: "Lỗi",
-        detail: "Không thể ký hợp đồng!",
+        detail: "Không thể thực hiện thao tác!",
         life: 4000,
       });
     } finally {
@@ -66,12 +70,16 @@ const ContractSignButton: React.FC<ContractSignButtonProps> = ({
       <Toast ref={toast} position="top-center" />
 
       {signed ? (
-        <span className="text-green-600 text-sm">✅ Đã ký thành công</span>
+        <span className="text-green-600 text-sm">
+          ✅ {label === "Duyệt" ? "Đã duyệt" : "Đã ký"} thành công
+        </span>
       ) : (
         <Button
-          label={loading ? "Đang ký..." : "Ký hợp đồng"}
-          icon={loading ? "pi pi-spin pi-spinner" : "pi pi-pen"}
-          className="p-button-sm p-button-success"
+          label={loading ? "Đang xử lý..." : label}
+          icon={loading ? "pi pi-spin pi-spinner" : "pi pi-check"}
+          className={`p-button-sm ${
+            label === "Duyệt" ? "p-button-success" : "p-button-primary"
+          }`}
           disabled={disabled || loading}
           onClick={handleSign}
         />

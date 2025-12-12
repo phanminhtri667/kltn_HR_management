@@ -1083,6 +1083,7 @@ public async list(reqUser: ReqUser, filter?: ListFilter) {
         base_salary: row.base_salary,
         currency: row.currency,
         pay_frequency: row.pay_frequency,
+        sign_method: row.sign_method,
         bank: {
           account_name: (row as any).bank_account_name ?? null,
           account_number: (row as any).bank_account_number ?? null,

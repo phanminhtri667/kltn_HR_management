@@ -153,59 +153,59 @@ public async getNotifications(reqUser: any, limit: number = 20) {
   // 🔹 Tạo thông báo khi tạo hợp đồng mới
   // =====================
   public async notifyContractCreation(reqUser: any, contract: any, legalEntity: any, manager: any) {
+  const notifications: any[] = [];
 
-    const notifications: any[] = [];
+  // Nhân viên ký hợp đồng
+  notifications.push({
+    employee_id: contract.employee_id,
+    message: `📄 Bạn vừa được tạo hợp đồng mới: ${contract.contract_code}`,
+    type: "contract_create",
+    link: `/contracts/${contract.id}`,
+  });
 
-    // Nhân viên ký hợp đồng
+  // Đại diện công ty
+  if (legalEntity?.representative_user_id) {
     notifications.push({
-      employee_id: contract.employee_id,
-      message: `📄 Bạn vừa được tạo hợp đồng mới: ${contract.contract_code}`,
+      user_id: legalEntity.representative_user_id,
+      message: `🧾 Hợp đồng ${contract.contract_code} vừa được tạo cho nhân viên ${contract.employee_id}`,
       type: "contract_create",
       link: `/contracts/${contract.id}`,
     });
-
-    // Đại diện công ty
-    if (legalEntity?.representative_user_id) {
-      notifications.push({
-        user_id: legalEntity.representative_user_id,
-        message: `🧾 Hợp đồng ${contract.contract_code} vừa được tạo cho nhân viên ${contract.employee_id}`,
-        type: "contract_create",
-        link: `/contracts/${contract.id}`,
-      });
-    }
-
-    // Người tạo hợp đồng
-    if (reqUser.id) {
-      notifications.push({
-        user_id: reqUser.id,
-        message: `✅ Bạn đã tạo thành công hợp đồng ${contract.contract_code}`,
-        type: "contract_create",
-        link: `/contracts/${contract.id}`,
-      });
-    } else if (reqUser.employee_id) {
-      notifications.push({
-        employee_id: reqUser.employee_id,
-        message: `✅ Bạn đã tạo thành công hợp đồng ${contract.contract_code}`,
-        type: "contract_create",
-        link: `/contracts/${contract.id}`,
-      });
-    }
-
-    // ⭐ Department Manager — người ký thứ 3
-    if (manager?.employee_id) {
-      notifications.push({
-        employee_id: manager.employee_id,
-        message: `📄 Bạn có hợp đồng ${contract.contract_code} cần ký với vai trò Trưởng phòng.`,
-        type: "contract_sign_request",
-        link: `/contracts/${contract.id}`,
-      });
-    }
-
-
-    for (const n of notifications) {
-      await db.Notification.create(n);
-    }
   }
+
+  // Người tạo hợp đồng
+  if (reqUser.id) {
+    notifications.push({
+      user_id: reqUser.id,
+      message: `✅ Bạn đã tạo thành công hợp đồng ${contract.contract_code}`,
+      type: "contract_create",
+      link: `/contracts/${contract.id}`,
+    });
+  } else if (reqUser.employee_id) {
+    notifications.push({
+      employee_id: reqUser.employee_id,
+      message: `✅ Bạn đã tạo thành công hợp đồng ${contract.contract_code}`,
+      type: "contract_create",
+      link: `/contracts/${contract.id}`,
+    });
+  }
+
+  // ⭐ Department Manager — người ký thứ 3
+  if (manager?.employee_id) {
+    notifications.push({
+      employee_id: manager.employee_id,
+      message: `📄 Bạn có hợp đồng ${contract.contract_code} cần ký với vai trò Trưởng phòng.`,
+      type: "contract_sign_request",
+      link: `/contracts/${contract.id}`,
+    });
+  }
+
+  // Lưu tất cả
+  for (const n of notifications) {
+    await db.Notification.create(n);
+  }
+}
+
 
   // =====================
   // 🔹 Gửi thông báo khi hợp đồng thay đổi trạng thái
