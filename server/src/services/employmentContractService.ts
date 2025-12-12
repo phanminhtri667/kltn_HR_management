@@ -258,17 +258,19 @@ class EmploymentContractService {
   if (visibleSet.has("legal_entity_id"))
     setField("legal_entity_id", { widget: "select", options: comOpts });
   if (visibleSet.has("department_id"))
-    setField("department_id", {
-      widget: "select",
-      options: deptOpts,
-      default: employee?.department_id ?? null,
-    });
-  if (visibleSet.has("position_id"))
-    setField("position_id", {
-      widget: "select",
-      options: posOpts,
-      default: employee?.position_id ?? null,
-    });
+  setField("department_id", {
+    widget: "readonly",
+    default: employee?.department_id ?? null,
+    label: "Phòng ban",
+  });
+
+if (visibleSet.has("position_id"))
+  setField("position_id", {
+    widget: "readonly",
+    default: employee?.position_id ?? null,
+    label: "Vị trí",
+  });
+
   if (visibleSet.has("working_hours_ids"))
     setField("working_hours_ids", { widget: "multi", options: whOpts });
 
@@ -544,20 +546,7 @@ class EmploymentContractService {
         sign_order: 1,
         sign_status: "pending",
       });
-
-      // 2️⃣ Representative ký thứ 2
-      if (legalEntity?.representative_user_id) {
-        signatureList.push({
-          contract_id: ec.id,
-          signer_user_id: legalEntity.representative_user_id,
-          signer_name: legalEntity.representative_name,
-          signer_role: "Representative",
-          sign_order: 2,
-          sign_status: "pending",
-        });
-      }
-
-      // 3️⃣ Manager của department (role_2 + cùng department_id của employee)
+      // 2️⃣ Manager của department (role_2 + cùng department_id của employee)
       const manager = await db.Employee.findOne({
         where: {
           role_code: "role_2",
@@ -570,11 +559,21 @@ class EmploymentContractService {
           signer_employee_id: manager.employee_id,
           signer_name: manager.full_name,
           signer_role: "Department_manager",
+          sign_order: 2,
+          sign_status: "pending",
+        });
+      }
+      // 3️⃣ Representative ký thứ 3
+      if (legalEntity?.representative_user_id) {
+        signatureList.push({
+          contract_id: ec.id,
+          signer_user_id: legalEntity.representative_user_id,
+          signer_name: legalEntity.representative_name,
+          signer_role: "Representative",
           sign_order: 3,
           sign_status: "pending",
         });
       }
-
       // 4️⃣ Người tạo hợp đồng (creator)
       const creatorEmp = await db.Employee.findOne({
         where: { email: reqUser.email },
