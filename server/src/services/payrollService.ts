@@ -15,6 +15,7 @@ type GetAllFilters = { month?: string; department_id?: number; employee_id?: str
 class PayrollService {
   // ===================== READ =====================
   // Lấy bảng lương chi tiết của tất cả nhân viên theo tháng, phòng ban, hoặc nhân viên
+
   public getAllPayrolls = async (reqUser: ReqUser, filters: GetAllFilters) => {
   const { month, employee_id, department_id } = filters;
   const where: any = {};
@@ -60,7 +61,7 @@ class PayrollService {
     });
     if (!emp) return { err: 0, data: [] };
 
-    // HR (department_id = 1) → xem tất cả payroll
+    // HR (department_id = 1) → xem tất cả payrolls
     if (emp.department_id === 1) {
       const includeEmp: any = {
         model: db.Employee,
@@ -80,12 +81,12 @@ class PayrollService {
       return { err: 0, data: rows };
     }
 
-    // Manager phòng khác → chỉ xem nhân viên trong phòng ban mình
+    // Manager (department_id != 1) → chỉ xem nhân viên trong phòng ban của mình
     const includeEmp: any = {
       model: db.Employee,
       as: "employee",
       attributes: ["employee_id", "full_name", "basic_salary", "department_id"],
-      where: { department_id: emp.department_id },
+      where: { department_id: emp.department_id },  // Lọc theo phòng ban của HR
       required: true,
       include: [
         { model: db.Department, as: "department", attributes: ["value"] },
@@ -134,6 +135,7 @@ class PayrollService {
   // ------------------------------
   return { err: 1, mes: "Forbidden" };
 };
+
 
 
   // ===================== ENSURE (WRITE) =====================

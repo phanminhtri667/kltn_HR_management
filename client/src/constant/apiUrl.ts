@@ -28,9 +28,16 @@ const apiUrl = {
     getAll: `${api}/timekeeping`,
     summary: `${api}/timekeeping/summary`,
   },
-  payroll: { 
-    index: `${api}/payroll`,       
-     mine:  `${api}/payroll/me`,  
+  // 🧾 Payroll có thêm phần settings cho cron
+  payroll: {
+    index: `${api}/payroll`,
+    mine: `${api}/payroll/me`,
+
+    settings: {
+      list: `${api}/payroll/settings`,                         // GET /payroll/settings
+      get: (key: string): string => `${api}/payroll/settings/${key}`,      // GET /payroll/settings/:key
+      update: (key: string): string => `${api}/payroll/settings/${key}`,   // PUT /payroll/settings/:key
+    },
   },
   leave: {
     create: `${api}/leaves`,
@@ -47,19 +54,21 @@ const apiUrl = {
   contracts: {
     base: `${api}/contracts`,
     statuses: `${api}/contracts/statuses`,
-    detail: (id:number)=>`${api}/contracts/${id}`,
-    updateDraft: (id:number)=>`${api}/contracts/${id}/draft`,
-// submitApproval: (id: number) => `${api}/contracts/${id}/submit-approval`,
-    approve: (id:number)=>`${api}/contracts/${id}/approve`,
-    setSigners: (id:number)=>`${api}/contracts/${id}/signers`,
-    sendForSigning: (id:number)=>`${api}/contracts/${id}/send-for-signing`,
-    sign: (id:number, order:number)=>`${api}/contracts/${id}/sign/${order}`,
-// activate: (id: number) => `${api}/contracts/${id}/activate`,
-    terminate: (id:number)=>`${api}/contracts/${id}/terminate`,
-    amendments: (id:number)=>`${api}/contracts/${id}/amendments`,
-    attachments: (id:number)=>`${api}/contracts/${id}/attachments`,
-    audits: (id:number)=>`${api}/contracts/${id}/audits`,
-    // ⭐ NEW
+    detail: (id: number) => `${api}/contracts/${id}`,
+    updateDraft: (id: number) => `${api}/contracts/${id}/draft`,
+    approve: (id: number) => `${api}/contracts/${id}/approve`,
+    setSigners: (id: number) => `${api}/contracts/${id}/signers`,
+    sendForSigning: (id: number) => `${api}/contracts/${id}/send-for-signing`,
+    sign: (id: number, order: number) => `${api}/contracts/${id}/sign/${order}`,
+    terminate: (id: number) => `${api}/contracts/${id}/terminate`,
+
+    // 🆕 Giữ lại từ contract feature
+    cancel: (id: number) => `${api}/contracts/${id}/cancel`,
+    finalize: (id: number) => `${api}/contracts/${id}/finalize`,
+
+    amendments: (id: number) => `${api}/contracts/${id}/amendments`,
+    attachments: (id: number) => `${api}/contracts/${id}/attachments`,
+    audits: (id: number) => `${api}/contracts/${id}/audits`,
     createForm: `${api}/contracts/create-form`,
     templates: `${api}/contracts/templates`,
     legalEntity: { index: `${api}/legal-entities` },

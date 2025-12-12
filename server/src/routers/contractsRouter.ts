@@ -14,18 +14,17 @@ r.get("/statuses", ContractController.getStatusOptions);
 r.get("/:id", ContractController.detail);
 r.put("/:id/draft", ContractController.updateDraft);
 
-
-r.post("/:id/approve", ContractController.approve);
+// ===== State transitions
 r.post("/:id/send-for-signing", ContractController.sendForSigning);
-/*r.post("/:id/activate", ContractController.activate);
-r.post("/:id/submit-approval", ContractController.submitApproval);*/
 r.post("/:id/terminate", ContractController.terminate);
+r.post("/:id/cancel", ContractController.cancel);        //  ⬅️  ADD
+r.post("/:id/finalize", ContractController.finalize);    //  ⬅️  ADD
 
 // ===== Signatures
 r.post("/:id/signers", ContractController.setSigners);
 r.post("/:id/sign/:order", ContractController.sign);
 
-// ===== Amendments
+// ===== Amendments (KHÔNG đổi trạng thái)
 r.post("/:id/amendments", ContractController.addAmendment);
 
 // ===== Attachments

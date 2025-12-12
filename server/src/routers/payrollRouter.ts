@@ -1,13 +1,16 @@
 import express from "express";
 import payrollController from "../controllers/payrollController";
 import verifyToken from "../middlewares/verify_token";
-import ensurePayrollDay1 from "../middlewares/ensurePayrollDay1";
-
+import systemSettingRouter from "./systemSettingRoutes";
 
 const router = express.Router();
 
-// Lấy tất cả bảng lương của nhân viên
-router.get("/", verifyToken, payrollController.getAll);     // role_1
-router.get("/me", verifyToken, payrollController.getMine);  // role_3
-router.use(verifyToken, ensurePayrollDay1);
+// Payroll GET
+router.get("/", verifyToken, payrollController.getAll);
+router.get("/me", verifyToken, payrollController.getMine);
+
+// Payroll settings (FE chỉnh ngày cron)
+router.use("/settings", verifyToken, systemSettingRouter);
+
+
 export default router;

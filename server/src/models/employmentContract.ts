@@ -20,8 +20,16 @@ interface EmploymentContractAttrs {
   currency: string;
   pay_frequency: 'monthly' | 'biweekly' | 'weekly';
   sign_method?: 'digital' | 'wet' | 'none' | null;
-
-  status: 'draft' | 'pending_approval' | 'approved' | 'sent_for_signing' | 'signed' | 'active' | 'amended' | 'terminated' | 'expired';
+  status:
+  | 'draft'
+  | 'sent_for_signing'
+  | 'signed'
+  | 'active'
+  | 'amended'
+  | 'terminated'
+  | 'expired'
+  | 'cancel'
+  | 'finalized';
   signed_at?: Date | null;
   activated_at?: Date | null;
   terminated_at?: Date | null;
@@ -30,9 +38,9 @@ interface EmploymentContractAttrs {
   bank_account_name?: string | null;               // NEW
   bank_account_number?: string | null;             // NEW
   bank_name?: string | null;                       // NEW
-  approved_at?: Date | null;                       // NEW
+  status_at?: Date | null;                       // NEW
   sent_for_signing_at?: Date | null;               // NEW
-  terminated_reason?: string | null;               // NEW
+  status_reason?: string | null;               // NEW
 
   created_by?: number | null;
   updated_by?: number | null;
@@ -60,9 +68,9 @@ type EmploymentContractCreation = Optional<
   | 'bank_account_name'
   | 'bank_account_number'
   | 'bank_name'           
-  | 'approved_at'                       
+  | 'status_at'                       
   | 'sent_for_signing_at'      // NEW
-  | 'terminated_reason'        // NEW
+  | 'status_reason'        // NEW
   | 'created_by'
   | 'updated_by'
   | 'created_by_employee_id'   // NEW
@@ -104,9 +112,9 @@ module.exports = (sequelize: any) => {
     public bank_account_name!: string | null;           // NEW
     public bank_account_number!: string | null;         // NEW
     public bank_name!: string | null;                   // NEW
-    public approved_at!: Date | null;                   // NEW
+    public status_at!: Date | null;                   // NEW
     public sent_for_signing_at!: Date | null;           // NEW
-    public terminated_reason!: string | null;           // NEW
+    public status_reason!: string | null;           // NEW
 
     public created_by!: number | null;
     public updated_by!: number | null;
@@ -158,8 +166,21 @@ module.exports = (sequelize: any) => {
       currency:          { type: DataTypes.STRING(10), allowNull: false, defaultValue: 'VND' },
       pay_frequency:     { type: DataTypes.ENUM('monthly','biweekly','weekly'), allowNull: false, defaultValue: 'monthly' },
       sign_method:       { type: DataTypes.ENUM('digital','wet','none'), allowNull: true, defaultValue: 'none' },
-
-      status:            { type: DataTypes.ENUM('draft','pending_approval','approved','sent_for_signing','signed','active','amended','terminated','expired'), allowNull: false, defaultValue: 'draft' },
+      status: {
+        type: DataTypes.ENUM(
+          'draft',
+          'sent_for_signing',
+          'signed',
+          'active',
+          'amended',
+          'terminated',
+          'expired',
+          'cancel',
+          'finalized'
+        ),
+        allowNull: false,
+        defaultValue: 'draft'
+      },
       signed_at:         { type: DataTypes.DATE, allowNull: true },
       activated_at:      { type: DataTypes.DATE, allowNull: true },
       terminated_at:     { type: DataTypes.DATE, allowNull: true },
@@ -167,9 +188,9 @@ module.exports = (sequelize: any) => {
       bank_account_name:   { type: DataTypes.STRING(100), allowNull: true }, // NEW
       bank_account_number: { type: DataTypes.STRING(50),  allowNull: true }, // NEW
       bank_name:           { type: DataTypes.STRING(100), allowNull: true }, // NEW
-      approved_at:         { type: DataTypes.DATE, allowNull: true },        // NEW
+      status_at:         { type: DataTypes.DATE, allowNull: true },        // NEW
       sent_for_signing_at: { type: DataTypes.DATE, allowNull: true },        // NEW
-      terminated_reason:   { type: DataTypes.STRING(500), allowNull: true }, // NEW
+      status_reason:   { type: DataTypes.STRING(500), allowNull: true }, // NEW
 
       created_by:        { type: DataTypes.INTEGER, allowNull: true },
       updated_by:        { type: DataTypes.INTEGER, allowNull: true },

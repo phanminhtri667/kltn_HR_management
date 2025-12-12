@@ -13,27 +13,42 @@ interface ContractsListProps {
   reload?: () => void;
 }
 
-const ContractsList: React.FC<ContractsListProps> = ({ data, onView, reload }) => {
+type Filters = {
+  employee_id: string;
+  dept_id: string;
+  status: string;
+  created_at: Date | null;
+  expiring: boolean;
+};
+
+const ContractsList: React.FC<ContractsListProps> = ({ data, onView }) => {
   const [contracts, setContracts] = useState(data);
-  const [filters, setFilters] = useState({
+
+  // ============================
+  // FILTER STATE
+  // ============================
+  const [filters, setFilters] = useState<Filters>({
     employee_id: "",
     dept_id: "",
     status: "",
-    created_at: null as Date | null,
+    created_at: null,
+    expiring: false,
   });
+
   const [statusOptionsList, setStatusOptionsList] = useState<any[]>([]);
   const [departmentOptions, setDepartmentOptions] = useState<any[]>([]);
   const toast = useRef<Toast>(null);
 
-  // Lấy thông tin người dùng từ localStorage
   const user = JSON.parse(localStorage.getItem("user") || "null");
   const isRole1 = user?.role_code === "role_1";
   const isHR = user?.role_code === "role_2" && user?.department_id === 1;
-  const isSelf = user?.role_code === "role_2" || user?.role_code === "role_3";
+  const isDeptManager = user?.role_code === "role_2" && user?.department_id !== 1;
 
   useEffect(() => setContracts(data), [data]);
 
-  // ✅ Lấy danh sách phòng ban và trạng thái
+  // ============================
+  // LOAD FILTER OPTIONS
+  // ============================
   useEffect(() => {
     const fetchOptions = async () => {
       try {
@@ -49,7 +64,6 @@ const ContractsList: React.FC<ContractsListProps> = ({ data, onView, reload }) =
           })),
         ]);
       } catch (err) {
-        console.error("Lỗi khi lấy trạng thái hợp đồng và phòng ban:", err);
         toast.current?.show({
           severity: "error",
           summary: "Lỗi",
@@ -61,203 +75,214 @@ const ContractsList: React.FC<ContractsListProps> = ({ data, onView, reload }) =
     fetchOptions();
   }, []);
 
-  const showToast = (
-    severity: "success" | "error" | "warn" | "info",
-    summary: string,
-    detail: string
-  ) => toast.current?.show({ severity, summary, detail, life: 3000 });
+  const showToast = (severity: any, summary: string, detail: string) =>
+    toast.current?.show({ severity, summary, detail, life: 3000 });
 
-  // ✅ Tự động lọc hợp đồng khi thay đổi bộ lọc
+  // ============================
+  // API FILTERING
+  // ============================
   useEffect(() => {
     const handleSearch = async () => {
       try {
         const params: any = {};
+
         if (filters.employee_id) params.employee_id = filters.employee_id;
-        if (filters.dept_id) params.dept_id = filters.dept_id;
         if (filters.status) params.status = filters.status;
+
         if (filters.created_at) {
           params.created_at = moment(filters.created_at).format("YYYY-MM-DD");
         }
 
+        if (filters.expiring) params.expiring = true;
+
+        if (filters.dept_id && (isRole1 || isHR)) params.dept_id = filters.dept_id;
+        if (isDeptManager) params.dept_id = user.department_id;
+
         const res = await contractsApi.list(params);
         setContracts(res.data?.data || []);
       } catch (err) {
-        console.error("❌ Lỗi khi lọc hợp đồng:", err);
         showToast("error", "Lỗi", "Không thể tải danh sách hợp đồng!");
       }
     };
 
-    // ⏳ debounce 300ms tránh gọi API liên tục khi nhập nhanh
     const delay = setTimeout(handleSearch, 300);
     return () => clearTimeout(delay);
   }, [filters]);
 
-  // ✅ Hàm clear tất cả bộ lọc và tải lại dữ liệu gốc
+  // ============================
+  // CLEAR FILTERS
+  // ============================
   const handleClear = async () => {
     setFilters({
       employee_id: "",
       dept_id: "",
       status: "",
       created_at: null,
+      expiring: false,
     });
+
     try {
       const res = await contractsApi.list({});
       setContracts(res.data?.data || []);
     } catch (err) {
-      console.error("❌ Lỗi khi tải lại dữ liệu:", err);
+      console.error("Clear error:", err);
     }
   };
 
-  // ✅ Đổi trạng thái hợp đồng
-  const handleStatusChange = async (contractId: number, newStatus: string) => {
-    if (!contractId) {
-      showToast("error", "Lỗi", "Contract ID không hợp lệ!");
-      return;
-    }
+  // ============================
+  // ⭐ MAP STATUS → NGÀY
+  // ============================
+  const getStatusTime = (c: any) => {
+    switch (c.status) {
+      case "draft":
+        return c.created_at;
 
-    try {
-      let message = "";
-      if (newStatus === "approved") {
-        await contractsApi.approve(contractId);
-        message = "✅ Hợp đồng đã được phê duyệt.";
-      } else if (newStatus === "sent_for_signing") {
-        await contractsApi.sendForSigning(contractId);
-        message = "📩 Hợp đồng đã được gửi để ký.";
-      } else if (newStatus === "terminated") {
-        const reason = prompt("Nhập lý do chấm dứt hợp đồng:");
-        await contractsApi.terminate(contractId, reason || "Terminated manually");
-        message = "⛔ Hợp đồng đã bị chấm dứt.";
-      } else {
-        showToast("info", "Thông báo", "Không thể đổi trạng thái này thủ công!");
-        return;
-      }
+      case "sent_for_signing":
+        return c.sent_for_signing_at;
 
-      setContracts(prev =>
-        prev.map(item => (item.id === contractId ? { ...item, status: newStatus } : item))
-      );
+      case "signed":
+        return c.signed_at;
 
-      showToast("success", "Thành công", message);
-      reload?.();
-    } catch (err: any) {
-      console.error("❌ Lỗi cập nhật trạng thái:", err);
-      let msg =
-        err?.response?.data?.mes ||
-        err?.response?.statusText ||
-        err?.message ||
-        "Lỗi không xác định!";
-      if (msg.includes("No signers configured"))
-        msg = "❗ Chưa cấu hình người ký.";
-      if (msg.includes("Forbidden"))
-        msg = "🚫 Bạn không có quyền thực hiện hành động này.";
-      if (msg.includes("Invalid current status"))
-        msg = "⚠️ Trạng thái hiện tại của hợp đồng không hợp lệ.";
-      showToast("error", "Lỗi khi cập nhật", msg);
+      case "active":
+        return c.activated_at;
+
+      case "terminated":
+        return c.terminated_at;
+
+      // ⭐ Bổ sung amended + others dùng chung status_at
+      case "expired":
+      case "cancel":
+      case "amended":
+      case "finalized":
+        return c.status_at;
+
+      default:
+        return null;
     }
   };
 
+  // ============================
+  // RENDER
+  // ============================
   return (
     <div className="overflow-auto" style={{ position: "relative" }}>
       <Toast ref={toast} />
 
-      {/* 🔎 Bộ lọc tìm kiếm */}
+      {/* ============================
+          FILTER UI
+      ============================ */}
       <div
-        className="p-3 mb-3"
-        style={{
-          background: "#f8f9fa",
-          borderRadius: 8,
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 12,
-          alignItems: "center",
-        }}
-      >
-        {/* Hiển thị Mã nhân viên chỉ cho role_1 hoặc role_2 (HR) */}
-        {(isRole1 || isHR) && (
-          <InputText
-            placeholder="Mã nhân viên"
-            value={filters.employee_id}
-            onChange={(e) =>
-              setFilters((prev) => ({
-                ...prev,
-                employee_id: e.target.value.toLowerCase(),
-              }))
-            }
-          />
-        )}
+  className="p-3 mb-3"
+  style={{
+    background: "#f8f9fa",
+    borderRadius: 8,
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 12,
+    alignItems: "center",
+  }}
+>
+  {(isRole1 || isHR || isDeptManager) && (  // Hiển thị ô mã nhân viên cho cả role_2 khác phòng ban 1
+    <InputText
+      placeholder="Mã nhân viên"
+      value={filters.employee_id}
+      onChange={(e) =>
+        setFilters((prev) => ({ ...prev, employee_id: e.target.value }))
+      }
+    />
+  )}
 
-        {/* Hiển thị Phòng ban chỉ cho role_1 hoặc role_2 (HR) */}
-        {(isRole1 || isHR) && (
-          <Dropdown
-            value={filters.dept_id}
-            options={departmentOptions}
-            onChange={(e) => setFilters((prev) => ({ ...prev, dept_id: e.value }))}
-            placeholder="Phòng ban"
-          />
-        )}
+  {(isRole1 || isHR) && (
+    <Dropdown
+      value={filters.dept_id}
+      options={departmentOptions}
+      onChange={(e) => setFilters((prev) => ({ ...prev, dept_id: e.value }))}
+      placeholder="Phòng ban"
+    />
+  )}
 
-        {/* Dropdown trạng thái luôn hiển thị */}
-        <Dropdown
-          value={filters.status}
-          options={statusOptionsList}
-          onChange={(e) => setFilters((prev) => ({ ...prev, status: e.value }))}
-          placeholder="Trạng thái"
-        />
+  <Dropdown
+    value={filters.status}
+    options={statusOptionsList}
+    onChange={(e) => setFilters((prev) => ({ ...prev, status: e.value }))}
+    placeholder="Trạng thái"
+  />
 
-        {/* Calendar chọn ngày tạo luôn hiển thị */}
-        <Calendar
-          value={filters.created_at}
-          onChange={(e) =>
-            setFilters((prev) => ({ ...prev, created_at: e.value || null }))
-          }
-          placeholder="Ngày tạo"
-          dateFormat="yy-mm-dd"
-        />
+  <Calendar
+    value={filters.created_at}
+    onChange={(e) =>
+      setFilters((prev) => ({
+        ...prev,
+        created_at: e.value ? (e.value as Date) : null,
+      }))
+    }
+    placeholder="Ngày tạo"
+    dateFormat="yy-mm-dd"
+  />
 
-        {/* Nút Clear */}
-        <Button
-          label="Clear"
-          icon="pi pi-refresh"
-          className="p-button-secondary"
-          onClick={handleClear}
-        />
-      </div>
+  <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
+    <input
+      type="checkbox"
+      checked={filters.expiring}
+      onChange={(e) =>
+        setFilters((prev) => ({
+          ...prev,
+          expiring: e.target.checked,
+        }))
+      }
+    />
+    Sắp hết hạn (30 ngày)
+  </label>
 
-      {/* 📋 Bảng danh sách hợp đồng */}
-      <table className="table" style={{ minWidth: 700 }}>
+  <Button
+    label="Clear"
+    icon="pi pi-refresh"
+    className="p-button-secondary"
+    onClick={handleClear}
+  />
+</div>
+
+      {/* ============================
+          TABLE
+      ============================ */}
+      <table className="table" style={{ minWidth: 800 }}>
         <thead>
           <tr>
             <th style={{ width: 60 }}>ID</th>
             <th>Contract Code / Name</th>
             <th>Status</th>
+            <th>Status Date At</th>
             <th style={{ width: 180 }}>Actions</th>
           </tr>
         </thead>
+
         <tbody>
           {contracts.length ? (
             contracts.map((c: any) => (
               <tr key={c.id}>
                 <td>{c.id}</td>
-                <td>{c.contract_code || c.name || "-"}</td>
+                <td>{c.contract_code || "-"}</td>
+
                 <td>
-                  <select
-                    title="Contract status"
-                    value={c.status}
-                    className="select-status"
+                  <span
                     style={{
-                      padding: "4px 8px",
+                      padding: "4px 10px",
+                      background: "#e9ecef",
                       borderRadius: 6,
-                      border: "1px solid #ccc",
-                      background: "#f8f9fa",
+                      fontSize: 13,
                     }}
-                    onChange={(e) => handleStatusChange(c.id, e.target.value)}
                   >
-                    {statusOptionsList.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
+                    {c.status}
+                  </span>
                 </td>
+
+                {/* ⭐ SHOW STATUS DATE */}
+                <td>
+                  {getStatusTime(c)
+                    ? moment(getStatusTime(c)).format("YYYY-MM-DD HH:mm")
+                    : "-"}
+                </td>
+
                 <td>
                   <button
                     className="p-button p-button-sm p-button-rounded p-button-info"
@@ -270,7 +295,7 @@ const ContractsList: React.FC<ContractsListProps> = ({ data, onView, reload }) =
             ))
           ) : (
             <tr>
-              <td colSpan={4} style={{ textAlign: "center" }}>
+              <td colSpan={5} style={{ textAlign: "center" }}>
                 No data
               </td>
             </tr>

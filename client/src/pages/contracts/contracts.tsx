@@ -73,7 +73,7 @@ const handleView = async (id: number) => {
         </TabPanel>
         {user &&
         (
-          (user.role_code !== "role_3" && user.role_code !== "role_2") ||
+          (user.role_code !== "role_3" && user.role_code !== "role_2"&& user.role_code !== "role_1") ||
           (user.role_code === "role_2" && user.department_id === 1)
         ) && (
           <TabPanel header="Add Contract">

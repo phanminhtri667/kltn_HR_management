@@ -152,7 +152,8 @@ public async getNotifications(reqUser: any, limit: number = 20) {
   }
   // 🔹 Tạo thông báo khi tạo hợp đồng mới
   // =====================
-  public async notifyContractCreation(reqUser: any, contract: any, legalEntity: any) {
+  public async notifyContractCreation(reqUser: any, contract: any, legalEntity: any, manager: any) {
+
     const notifications: any[] = [];
 
     // Nhân viên ký hợp đồng
@@ -189,6 +190,17 @@ public async getNotifications(reqUser: any, limit: number = 20) {
         link: `/contracts/${contract.id}`,
       });
     }
+
+    // ⭐ Department Manager — người ký thứ 3
+    if (manager?.employee_id) {
+      notifications.push({
+        employee_id: manager.employee_id,
+        message: `📄 Bạn có hợp đồng ${contract.contract_code} cần ký với vai trò Trưởng phòng.`,
+        type: "contract_sign_request",
+        link: `/contracts/${contract.id}`,
+      });
+    }
+
 
     for (const n of notifications) {
       await db.Notification.create(n);

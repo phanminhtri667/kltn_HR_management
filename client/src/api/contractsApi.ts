@@ -51,10 +51,11 @@ const contractsApi = {
   updateDraft: (id: number, data: any) =>
     axios.put(apiUrl.contracts.updateDraft(id), data),
 
-  //submitApproval: (id: number) =>axios.post(apiUrl.contracts.submitApproval(id)),
+  cancel: (id: number, reason: string) =>
+    axios.post(apiUrl.contracts.cancel(id), { reason }),
 
-  approve: (id: number) =>
-    axios.post(apiUrl.contracts.approve(id)),
+  finalize: (id: number) =>
+    axios.post(apiUrl.contracts.finalize(id)),
 
   setSigners: (id: number, signers: SignerInput[]) =>
     axios.post(apiUrl.contracts.setSigners(id), { signers }),
