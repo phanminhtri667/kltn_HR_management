@@ -2,6 +2,8 @@ import db from "../models";
 import Utils from "../utils/commonUtils";
 import NotificationService from "./notificationService";
 import { Op } from "sequelize";
+import bcrypt from "bcryptjs";
+
 
 class EmployeeService {
   public generateEmployeeId = async () => {
@@ -80,40 +82,57 @@ public async getAllEmployee(reqUser: any, filter?: { department_id?: number }) {
     }
   }
   public async insertEmployee(reqUser: any, data: any) {
-    try {
-      // Kiểm tra quyền truy cập trong service
-      if (reqUser.role_code !== "role_1" && !(reqUser.role_code === "role_2" && reqUser.department_id === 1)) {
-        return { err: 1, mes: "Permission denied: Only Admin or HR of department 1 can add employees." };
-      }
-
-      const newEmployeeId = await this.generateEmployeeId();
-      const fullName = Utils.capitalizeFirstLetter(data.full_name);
-      const partsName = fullName.split(" ");
-
-      data.employee_id = newEmployeeId;
-      data.full_name = fullName;
-      data.first_name = partsName.pop();
-
-      const response = await db.Employee.create(data);
-
-      // ✅ Gửi thông báo cho HR hoặc nhân viên mới
-      await NotificationService.createNotification({
-        message: `Created employee ${fullName} successfully`,
-        employee_id: newEmployeeId,
-        type: "employee_created",
-        link: `/employees/${newEmployeeId}`,
-      });
-
-      return {
-        err: 0,
-        mes: `Created employee ${fullName} successfully`,
-        data: response,
-      };
-    } catch (error) {
-      console.error("Error in insertEmployee:", error);
-      throw error;
+  try {
+    // 1. Check quyền
+    if (
+      reqUser.role_code !== "role_1" &&
+      !(reqUser.role_code === "role_2" && reqUser.department_id === 1)
+    ) {
+      return { err: 1, mes: "Permission denied" };
     }
+
+    // 2. Validate password
+    if (!data.password || data.password.length < 6) {
+      return { err: 1, mes: "Password must be at least 6 characters" };
+    }
+
+    // 3. Sinh employee_id
+    const newEmployeeId = await this.generateEmployeeId();
+
+    // 4. Chuẩn hoá tên
+    const fullName = Utils.capitalizeFirstLetter(data.full_name);
+    const partsName = fullName.split(" ");
+
+    // 5. HASH PASSWORD TỪ FE (KHÔNG RANDOM)
+    const hashedPassword = bcrypt.hashSync(data.password, 10);
+
+    // 6. Gán dữ liệu
+    data.employee_id = newEmployeeId;
+    data.full_name = fullName;
+    data.first_name = partsName.pop();
+    data.password = hashedPassword; // ✅ QUAN TRỌNG
+
+    // 7. Tạo employee
+    const response = await db.Employee.create(data);
+
+    await NotificationService.createNotification({
+      message: `Created employee ${fullName} successfully`,
+      employee_id: newEmployeeId,
+      type: "employee_created",
+      link: `/employees/${newEmployeeId}`,
+    });
+
+    return {
+      err: 0,
+      mes: `Created employee ${fullName} successfully`,
+      data: response,
+    };
+  } catch (error) {
+    console.error("Error in insertEmployee:", error);
+    throw error;
   }
+}
+
 
   public updateEmployee = async (employeeId: string, updatedData: any) => {
   try {
