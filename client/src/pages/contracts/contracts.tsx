@@ -89,9 +89,9 @@ const handleView = async (id: number) => {
             />
           </TabPanel>
         )}
-        {/* <TabPanel header="Sign Contract">
+        <TabPanel header="Sign Contract">
           <ContractSign contract={selected} refreshContracts={refreshContracts} />
-        </TabPanel> */}
+        </TabPanel>
       </TabView>
 
       {/* Modal xem chi tiết (thay cho tab Contract Detail) */}
