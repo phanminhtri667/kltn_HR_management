@@ -69,7 +69,7 @@ const apiUrl = {
     amendments: (id: number) => `${api}/contracts/${id}/amendments`,
     attachments: (id: number) => `${api}/contracts/${id}/attachments`,
     audits: (id: number) => `${api}/contracts/${id}/audits`,
-    createForm: `${api}/contracts/create-form`,
+    createForm: `/contracts/create-form`,
     templates: `${api}/contracts/templates`,
     legalEntity: { index: `${api}/legal-entities` },
   },
