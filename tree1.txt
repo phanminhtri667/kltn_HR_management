@@ -15,26 +15,251 @@
 │   ├── README.md
 │   ├── src
 │   │   ├── api
+│   │   │   ├── contractsApi.ts
+│   │   │   ├── employeeApi.ts
+│   │   │   ├── leaveApi.ts
+│   │   │   ├── payrollApi.ts
+│   │   │   ├── payrollChangeApi.ts
+│   │   │   ├── timekeepingApi.ts
+│   │   │   └── workingHoursApi.ts
 │   │   ├── App.scss
 │   │   ├── App.tsx
 │   │   ├── assets
+│   │   │   ├── css
+│   │   │   │   └── variables.scss
+│   │   │   ├── fonts
+│   │   │   │   ├── Montserrat-Bold.ttf
+│   │   │   │   ├── Montserrat-Italic.ttf
+│   │   │   │   ├── Montserrat-Medium.ttf
+│   │   │   │   └── static
+│   │   │   │       ├── Montserrat-BlackItalic.ttf
+│   │   │   │       ├── Montserrat-Black.ttf
+│   │   │   │       ├── Montserrat-BoldItalic.ttf
+│   │   │   │       ├── Montserrat-ExtraBoldItalic.ttf
+│   │   │   │       ├── Montserrat-ExtraBold.ttf
+│   │   │   │       ├── Montserrat-ExtraLightItalic.ttf
+│   │   │   │       ├── Montserrat-ExtraLight.ttf
+│   │   │   │       ├── Montserrat-LightItalic.ttf
+│   │   │   │       ├── Montserrat-Light.ttf
+│   │   │   │       ├── Montserrat-MediumItalic.ttf
+│   │   │   │       ├── Montserrat-Medium.ttf
+│   │   │   │       ├── Montserrat-Regular.ttf
+│   │   │   │       ├── Montserrat-SemiBoldItalic.ttf
+│   │   │   │       ├── Montserrat-SemiBold.ttf
+│   │   │   │       ├── Montserrat-ThinItalic.ttf
+│   │   │   │       └── Montserrat-Thin.ttf
+│   │   │   └── images
+│   │   │       └── icons8-logo.svg
 │   │   ├── components
+│   │   │   ├── breadcrumb
+│   │   │   │   ├── Breadcrumb.scss
+│   │   │   │   └── Breadcrumb.tsx
+│   │   │   ├── Charts
+│   │   │   │   ├── BarChartBasic.tsx
+│   │   │   │   ├── BarChart.tsx
+│   │   │   │   ├── DoughnutChart.tsx
+│   │   │   │   ├── LineChart.tsx
+│   │   │   │   ├── PieChart.tsx
+│   │   │   │   └── RadarChart.tsx
+│   │   │   ├── footer
+│   │   │   │   ├── Footer.scss
+│   │   │   │   └── Footer.tsx
+│   │   │   ├── forms
+│   │   │   │   ├── button
+│   │   │   │   │   ├── Button.scss
+│   │   │   │   │   └── Button.tsx
+│   │   │   │   ├── input
+│   │   │   │   │   ├── InputField.scss
+│   │   │   │   │   └── InputField.tsx
+│   │   │   │   └── select
+│   │   │   │       ├── selectField.scss
+│   │   │   │       └── selectField.tsx
+│   │   │   ├── header
+│   │   │   │   ├── Header.scss
+│   │   │   │   └── Header.tsx
+│   │   │   ├── PrivateRoute.tsx
+│   │   │   └── sidebar
+│   │   │       ├── Sidebar.scss
+│   │   │       └── Sidebar.tsx
 │   │   ├── constant
+│   │   │   └── apiUrl.ts
 │   │   ├── index.scss
 │   │   ├── index.tsx
 │   │   ├── layouts
+│   │   │   ├── DefaultLayout.scss
+│   │   │   └── DefaultLayout.tsx
 │   │   ├── pages
+│   │   │   ├── approve-leave
+│   │   │   │   └── ApproveLeave.tsx
+│   │   │   ├── contracts
+│   │   │   │   ├── CancelReasonModal.tsx
+│   │   │   │   ├── contractCreate.tsx
+│   │   │   │   ├── contractDetail.tsx
+│   │   │   │   ├── ContractSignButton.tsx
+│   │   │   │   ├── contractSign.tsx
+│   │   │   │   ├── contractsList.tsx
+│   │   │   │   ├── contracts.scss
+│   │   │   │   └── contracts.tsx
+│   │   │   ├── dashBoard
+│   │   │   │   ├── DashBoard.scss
+│   │   │   │   ├── DashBoard.tsx
+│   │   │   │   └── table
+│   │   │   │       ├── DashBoardTable.scss
+│   │   │   │       └── DashBoardTable.tsx
+│   │   │   ├── department
+│   │   │   │   ├── department.scss
+│   │   │   │   ├── department.tsx
+│   │   │   │   ├── form
+│   │   │   │   │   ├── departmentCreate.tsx
+│   │   │   │   │   └── departmentUpdate.tsx
+│   │   │   │   └── table
+│   │   │   │       └── departmentTable.tsx
+│   │   │   ├── employee
+│   │   │   │   ├── detail
+│   │   │   │   │   ├── EmployeeDetail.scss
+│   │   │   │   │   └── EmployeeDetail.tsx
+│   │   │   │   ├── employee.scss
+│   │   │   │   ├── employee.tsx
+│   │   │   │   ├── form
+│   │   │   │   │   ├── employeeCreate.tsx
+│   │   │   │   │   └── employeeUpdate.tsx
+│   │   │   │   └── table
+│   │   │   │       └── EmployeeTable.tsx
+│   │   │   ├── emty
+│   │   │   │   └── emty.tsx
+│   │   │   ├── leave
+│   │   │   │   └── index.tsx
+│   │   │   ├── login
+│   │   │   │   ├── login.scss
+│   │   │   │   └── login.tsx
+│   │   │   ├── payroll
+│   │   │   │   ├── payroll.scss
+│   │   │   │   └── payroll.tsx
+│   │   │   ├── profile
+│   │   │   │   └── Profile.tsx
+│   │   │   ├── test
+│   │   │   │   └── Test.tsx
+│   │   │   ├── timekeeping
+│   │   │   │   ├── index.tsx
+│   │   │   │   ├── timekeeping.scss
+│   │   │   │   └── Timekeeping.tsx
+│   │   │   └── unauthorized
+│   │   │       └── Unauthorized.tsx
 │   │   ├── react-app-env.d.ts
 │   │   ├── redux
+│   │   │   ├── features
+│   │   │   │   ├── authSlice.ts
+│   │   │   │   ├── departmentSlice.ts
+│   │   │   │   ├── positionSlice.ts
+│   │   │   │   └── toastSlice.ts
+│   │   │   └── store.ts
 │   │   ├── reportWebVitals.ts
 │   │   ├── services
+│   │   │   └── axios.ts
 │   │   └── validation
+│   │       └── employee.ts
 │   ├── tree1.txt
 │   └── tsconfig.json
 ├── server
 │   ├── dist
 │   │   ├── index.js
 │   │   └── src
+│   │       ├── config
+│   │       │   └── databaseConfig.js
+│   │       ├── controllers
+│   │       │   ├── authController.js
+│   │       │   ├── contractController.js
+│   │       │   ├── departmentController.js
+│   │       │   ├── employeeController.js
+│   │       │   ├── leaveRequestController.js
+│   │       │   ├── legalEntityController.js
+│   │       │   ├── notificationController.js
+│   │       │   ├── payrollChangeController.js
+│   │       │   ├── payrollController.js
+│   │       │   ├── positionController.js
+│   │       │   ├── roleController.js
+│   │       │   ├── timekeepingController.js
+│   │       │   ├── userController.js
+│   │       │   └── workingHoursController.js
+│   │       ├── cronJobs
+│   │       │   └── payrollJob.js
+│   │       ├── middlewares
+│   │       │   ├── ensurePayrollDay1.js
+│   │       │   ├── handle_error.js
+│   │       │   └── verify_token.js
+│   │       ├── models
+│   │       │   ├── allowance.js
+│   │       │   ├── contractAllowance.js
+│   │       │   ├── contractAmendment.js
+│   │       │   ├── contractAttachment.js
+│   │       │   ├── contractAudit.js
+│   │       │   ├── contractDeduction.js
+│   │       │   ├── contractOvertimePolicy.js
+│   │       │   ├── contractSignature.js
+│   │       │   ├── contractTemplate.js
+│   │       │   ├── contractVersion.js
+│   │       │   ├── contractWorkingHours.js
+│   │       │   ├── deduction.js
+│   │       │   ├── department.js
+│   │       │   ├── employee.js
+│   │       │   ├── employmentContract.js
+│   │       │   ├── index.js
+│   │       │   ├── leave_request.js
+│   │       │   ├── leave_type.js
+│   │       │   ├── legalEntity.js
+│   │       │   ├── notification.js
+│   │       │   ├── overtime_policies.js
+│   │       │   ├── payrollChange.js
+│   │       │   ├── payroll.js
+│   │       │   ├── position.js
+│   │       │   ├── public_holiday.js
+│   │       │   ├── role.js
+│   │       │   ├── timekeeping.js
+│   │       │   ├── user.js
+│   │       │   └── working_hours.js
+│   │       ├── routers
+│   │       │   ├── authRouter.js
+│   │       │   ├── contractsRouter.js
+│   │       │   ├── departmentRouter.js
+│   │       │   ├── employeeRouter.js
+│   │       │   ├── leaveRequestRouter.js
+│   │       │   ├── legalEntityRouter.js
+│   │       │   ├── notificationRouter.js
+│   │       │   ├── payrollChangeRouter.js
+│   │       │   ├── payrollRouter.js
+│   │       │   ├── positionRouter.js
+│   │       │   ├── roleRouter.js
+│   │       │   ├── timekeepingRouter.js
+│   │       │   ├── userRouter.js
+│   │       │   └── workingHoursRouter.js
+│   │       ├── services
+│   │       │   ├── authService.js
+│   │       │   ├── contractAmendmentService.js
+│   │       │   ├── contractAttachmentService.js
+│   │       │   ├── contractAuditService.js
+│   │       │   ├── contractCronService.js
+│   │       │   ├── contractSignatureService.js
+│   │       │   ├── contractTemplateService.js
+│   │       │   ├── contractVersionService.js
+│   │       │   ├── departmentService.js
+│   │       │   ├── employeeService.js
+│   │       │   ├── employmentContractService.js
+│   │       │   ├── leaveService.js
+│   │       │   ├── legalEntityService.js
+│   │       │   ├── notificationService.js
+│   │       │   ├── payrollChangeService.js
+│   │       │   ├── payrollService.js
+│   │       │   ├── positionService.js
+│   │       │   ├── roleService.js
+│   │       │   ├── timekeepingService.js
+│   │       │   ├── userService.js
+│   │       │   └── workingHoursService.js
+│   │       └── utils
+│   │           ├── Authz.js
+│   │           ├── autoRejectJob.js
+│   │           ├── commonUtils.js
+│   │           ├── joi_schema.js
+│   │           └── templateRenderer.js
 │   ├── Dockerfile
 │   ├── index.ts
 │   ├── package.json
@@ -42,16 +267,110 @@
 │   ├── README.md
 │   ├── src
 │   │   ├── config
+│   │   │   └── databaseConfig.ts
 │   │   ├── controllers
+│   │   │   ├── authController.ts
+│   │   │   ├── contractController.ts
+│   │   │   ├── departmentController.ts
+│   │   │   ├── employeeController.ts
+│   │   │   ├── leaveRequestController.ts
+│   │   │   ├── legalEntityController.ts
+│   │   │   ├── notificationController.ts
+│   │   │   ├── payrollChangeController.ts
+│   │   │   ├── payrollController.ts
+│   │   │   ├── positionController.ts
+│   │   │   ├── roleController.ts
+│   │   │   ├── systemSettingController.ts
+│   │   │   ├── timekeepingController.ts
+│   │   │   ├── userController.ts
+│   │   │   └── workingHoursController.ts
 │   │   ├── cronJobs
+│   │   │   └── payrollJob.ts
 │   │   ├── middlewares
+│   │   │   ├── ensurePayrollDay1.ts
+│   │   │   ├── handle_error.ts
+│   │   │   └── verify_token.ts
 │   │   ├── models
+│   │   │   ├── allowance.ts
+│   │   │   ├── contractAllowance.ts
+│   │   │   ├── contractAmendment.ts
+│   │   │   ├── contractAttachment.ts
+│   │   │   ├── contractAudit.ts
+│   │   │   ├── contractDeduction.ts
+│   │   │   ├── contractOvertimePolicy.ts
+│   │   │   ├── contractSignature.ts
+│   │   │   ├── contractTemplate.ts
+│   │   │   ├── contractVersion.ts
+│   │   │   ├── contractWorkingHours.ts
+│   │   │   ├── deduction.ts
+│   │   │   ├── department.ts
+│   │   │   ├── employee.ts
+│   │   │   ├── employmentContract.ts
+│   │   │   ├── index.ts
+│   │   │   ├── leave_request.ts
+│   │   │   ├── leave_type.ts
+│   │   │   ├── legalEntity.ts
+│   │   │   ├── notification.ts
+│   │   │   ├── overtime_policies.ts
+│   │   │   ├── payrollChange.ts
+│   │   │   ├── payroll.ts
+│   │   │   ├── position.ts
+│   │   │   ├── public_holiday.ts
+│   │   │   ├── role.ts
+│   │   │   ├── system_settings.ts
+│   │   │   ├── timekeeping.ts
+│   │   │   ├── user.ts
+│   │   │   └── working_hours.ts
 │   │   ├── routers
+│   │   │   ├── authRouter.ts
+│   │   │   ├── contractsRouter.ts
+│   │   │   ├── departmentRouter.ts
+│   │   │   ├── employeeRouter.ts
+│   │   │   ├── leaveRequestRouter.ts
+│   │   │   ├── legalEntityRouter.ts
+│   │   │   ├── notificationRouter.ts
+│   │   │   ├── payrollChangeRouter.ts
+│   │   │   ├── payrollRouter.ts
+│   │   │   ├── positionRouter.ts
+│   │   │   ├── roleRouter.ts
+│   │   │   ├── systemSettingRoutes.ts
+│   │   │   ├── timekeepingRouter.ts
+│   │   │   ├── userRouter.ts
+│   │   │   └── workingHoursRouter.ts
 │   │   ├── services
+│   │   │   ├── authService.ts
+│   │   │   ├── contractAmendmentService.ts
+│   │   │   ├── contractAttachmentService.ts
+│   │   │   ├── contractAuditService.ts
+│   │   │   ├── contractCronService.ts
+│   │   │   ├── contractSignatureService.ts
+│   │   │   ├── contractTemplateService.ts
+│   │   │   ├── contractVersionService.ts
+│   │   │   ├── departmentService.ts
+│   │   │   ├── employeeService.ts
+│   │   │   ├── employmentContractService.ts
+│   │   │   ├── leaveService.ts
+│   │   │   ├── legalEntityService.ts
+│   │   │   ├── notificationService.ts
+│   │   │   ├── payrollChangeService.ts
+│   │   │   ├── payrollService.ts
+│   │   │   ├── positionService.ts
+│   │   │   ├── roleService.ts
+│   │   │   ├── systemSettingService.ts
+│   │   │   ├── timekeepingService.ts
+│   │   │   ├── userService.ts
+│   │   │   └── workingHoursService.ts
 │   │   ├── types
+│   │   │   └── express
+│   │   │       └── index.d.ts
 │   │   └── utils
+│   │       ├── Authz.ts
+│   │       ├── autoRejectJob.ts
+│   │       ├── commonUtils.ts
+│   │       ├── joi_schema.ts
+│   │       └── templateRenderer.ts
 │   ├── tree1.txt
 │   └── tsconfig.json
 └── tree1.txt
 
-25 directories, 29 files
+67 directories, 306 files

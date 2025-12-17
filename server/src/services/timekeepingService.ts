@@ -142,44 +142,7 @@ class TimekeepingService {
 
     return { err: 0, data: rows };
   }
-
-
-  // ==========================
-  // GET BY DEPARTMENT (HÀM CŨ – LƯU LẠI DƯỚI TÊN MỚI)
-  // ==========================
-  public getByDepartmentOld = async (departmentId: number) => {
-    try {
-      const rows = await db.Timekeeping.findAll({
-        attributes: [
-          "id",
-          ["work_date", "date"],
-          "check_in",
-          "check_out",
-          "total_hours",
-          "status",
-          "employee_id",
-        ],
-        where: { department_id: departmentId },
-        include: [{
-          model: db.Employee,
-          as: "employee",
-          attributes: ["employee_id", "full_name", "email", "department_id"],
-          where: { department_id: departmentId, deleted: "0" },
-          include: [{ model: db.Department, as: "department", attributes: ["id", "code", "value"] }],
-        }],
-        order: [["work_date", "DESC"]],
-      });
-
-      return { err: 0, mes: "Get timekeeping by department successfully", data: rows };
-
-    } catch (error) {
-      console.error(error);
-      return { err: 1, mes: "Internal server error" };
-    }
-  };
-
-  // tesst
-  
+ 
 
   private pad(n: number) { return String(n).padStart(2, "0"); }
   private nowDate(): string {
@@ -274,11 +237,6 @@ class TimekeepingService {
   
     return { err: 0, mes: "Checkout updated successfully", data: updated };
   }
-  
-  
-  
-  
-  
   
   private async isHoliday(dateYYYYMMDD: string): Promise<boolean> {
     const row = await db.PublicHoliday.findOne({ where: { date: dateYYYYMMDD } }).catch(() => null);

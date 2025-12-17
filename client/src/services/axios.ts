@@ -2,17 +2,6 @@ import axios, { AxiosError } from "axios";
 import store from "../redux/store";
 import { showToast } from "../redux/features/toastSlice";
 
-/**
- * =============================
- * 1. BASE URL CHUẨN CHO CI/CD
- * =============================
- *
- * FE chỉ dùng 1 ENV duy nhất:
- * REACT_APP_API_URL=http://localhost:3000/api
- * hoặc khi deploy:
- * REACT_APP_API_URL=https://domain.com/api
- */
-
 const baseURL = process.env.REACT_APP_API_URL;
 
 const AxiosInstance = axios.create({

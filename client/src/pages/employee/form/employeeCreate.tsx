@@ -139,7 +139,6 @@ const EmployeeCreate = () => {
                   />
                 </div>
 
-                {/* PASSWORD */}
                 <div className="form-item">
                   <InputField
                     type="password"

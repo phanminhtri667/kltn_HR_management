@@ -42,11 +42,9 @@ export default function Contracts() {
     load();
   }, []);
 
-  // Bấm View -> mở modal Detail
 const handleView = async (id: number) => {
   try {
     const res = await contractsApi.detail(id);
-    // BE trả: { err, data, view, context, rendered_html }
     const payload = res?.data || {};
     const contract = payload.data
       ? { ...payload.data, rendered_html: payload.rendered_html }
