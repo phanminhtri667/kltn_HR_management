@@ -62,7 +62,7 @@ const Header = () => {
     <>
       <div className="header-container">
         <div className="header-title">
-          <span className="title">HR Dashboard</span>
+          <span className="title">Demo Post</span>
           <div className="header-search">
             <InputField className="font-size" placeholder="Search..." />
           </div>
